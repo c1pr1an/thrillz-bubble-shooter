@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e62222cab050a41eea11e6494e3e9bfa, type: 3}
+  m_Name: PrefabReferences
+  m_EditorClassIdentifier: 
+  bouncing: {fileID: 7150256231607830845, guid: d0672820330ef43a4a3146bdf010e8b4, type: 3}
+  coins: {fileID: 0}
+  life: {fileID: 0}
+  coloredBalls:
+  - {fileID: 7466443142426348849, guid: ea2124a1925884dd69ab5a76c4ea2f7a, type: 3}
+  - {fileID: 6504844624775813053, guid: 548cb250df3474733b6c85b45fafb4a8, type: 3}
+  - {fileID: 6504844624775813053, guid: 86f820f8c5a17468e8bd7d82f9bfdaab, type: 3}
+  - {fileID: 6504844624775813053, guid: 695eafb12f71440459e261615523ce99, type: 3}
+  - {fileID: 6504844624775813053, guid: 756d41e7071fe4de2afa76c7cf9b84b1, type: 3}
+  - {fileID: 6504844624775813053, guid: f3e4fbf4776794008bdd00209873fa40, type: 3}
+  randomBall: {fileID: 7466443142426348849, guid: 3e483eeabaf0f499cb22a386592260cb, type: 3}
+  carrot: {fileID: 7466443142426348849, guid: eeca0f068b455934b913f430d69d422b, type: 3}
+  emptyBall: {fileID: 7466443142426348849, guid: eafe791834a734c319e8fd52f51f312b, type: 3}
