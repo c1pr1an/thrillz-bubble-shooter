@@ -26,11 +26,6 @@ namespace Brain.UI
         private bool _oneMinuteLeftShown = false;
         private bool _isTimeTextPulsing = false;
 
-        public void Display()
-        {
-            LevelManager.Instance.LevelInstance.RevealLevel();
-        }
-
         public void PauseOnClick()
         {
             //UIManager.Instance.GlobalPauseMode.TriggerPause();

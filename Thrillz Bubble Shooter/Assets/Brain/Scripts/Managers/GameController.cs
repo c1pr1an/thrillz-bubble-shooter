@@ -52,20 +52,17 @@ namespace Brain.Managers
         {
             _matchSeed = PlayerPrefs.GetInt("GameSeed");
             UnityEngine.Random.InitState(_matchSeed);
-            Debug.Log($"Starting match with seed: {MatchSeed}");
+            Debug.Log($"Starting Bubble Shooter MVP with seed: {MatchSeed}");
 
-            UIManager.Instance.Init();
-            //PoolMatch.Instance.Init();
+            GridManager.Instance.InitializeGrid();
 
-            // UIManager.Instance.CountdownUI.StartCountdown(() =>
-            // {
-            //     _stateMachine.ChangeState(GamePhase.Playing);
-            // });
+            // Auto-start game (no UI/menus for MVP)
+            _stateMachine.ChangeState(GamePhase.Playing);
         }
 
         private void OnPlayingEnter()
         {
-            //PoolMatch.Instance.StartNewMatch();
+            Debug.Log("Game started - shoot bubbles!");
         }
 
         public void RestartGame()

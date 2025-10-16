@@ -17,6 +17,10 @@ namespace Brain.Util
 
         public static bool Exists()
         {
+            if (s_Instance == null)
+            {
+                s_Instance = FindObjectOfType<T>();
+            }
             if (s_Instance != null)
                 return true;
 
