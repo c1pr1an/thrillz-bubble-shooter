@@ -83,17 +83,11 @@ namespace Brain.Gameplay
                 return;
             }
 
-            if (!GridManager.Exists())
-            {
-                Debug.LogError("LaunchContainer: GridManager not found!");
-                return;
-            }
-
             // Pick a random color
             BallColor randomColor = (BallColor)Random.Range(0, 6);
             int colorIndex = (int)randomColor;
 
-            // Get prefab from GridManager (single source of truth)
+            // Get prefab from GridManager
             Ball prefab = GridManager.Instance.GetBallPrefab(colorIndex);
             if (prefab == null)
             {
@@ -144,10 +138,7 @@ namespace Brain.Gameplay
         private void OnBallStopped(Ball ball)
         {
             // Process match detection and orphan detection
-            if (MatchingManager.Exists())
-            {
-                MatchingManager.Instance.ProcessBallStopped(ball);
-            }
+            MatchingManager.Instance.ProcessBallStopped(ball);
 
             // Spawn next ball
             SpawnNewBall();

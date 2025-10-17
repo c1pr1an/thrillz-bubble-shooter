@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /s \"d:\\Work\\Repository\\Thrillz Bubble Shooter\\Thrillz Bubble Shooter\\Assets\\Brain\\Scripts\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

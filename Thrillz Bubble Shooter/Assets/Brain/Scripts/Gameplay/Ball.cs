@@ -91,10 +91,14 @@ namespace Brain.Gameplay
             // Mark as pinned (static on grid)
             Flags |= BallFlags.Pinned;
 
-            // Top row balls are roots (can support other balls)
-            if (gridPos.y == 0)
+            // Top rows are ceiling (balls hang from top)
+            if (gridPos.y >= 60)
             {
                 Flags |= BallFlags.Root;
+            }
+            else
+            {
+                Flags &= ~BallFlags.Root;
             }
 
             // Enable collider for grid balls

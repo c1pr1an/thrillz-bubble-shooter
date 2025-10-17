@@ -101,29 +101,32 @@ namespace Brain.Gameplay
         }
 
         /// <summary>
-        /// Checks for collision with grid balls using overlap detection
+        /// Checks for collision with grid balls using CircleCast
         /// </summary>
         private void CheckBallCollision()
         {
             float ballRadius = circleCollider.radius;
 
-            // Check for overlapping balls (more reliable than CircleCast)
-            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, ballRadius * 1.1f, LayerMask.GetMask("Default"));
+            // Cast ahead to predict collision
+            RaycastHit2D hit = Physics2D.CircleCast(
+                transform.position,
+                ballRadius,
+                direction,
+                checkDistance,
+                LayerMask.GetMask("Default")
+            );
 
-            foreach (var hit in hits)
+            if (hit.collider != null && hit.collider.gameObject != gameObject)
             {
-                if (hit.gameObject == gameObject) continue; // Skip self
-
-                Ball hitBall = hit.GetComponent<Ball>();
+                Ball hitBall = hit.collider.GetComponent<Ball>();
                 if (hitBall != null && hitBall.HasFlag(BallFlags.Pinned))
                 {
-                    // Stop the ball and add to grid
                     StopBall();
                     return;
                 }
             }
 
-            // Also check if ball reached the top
+            // Check if ball reached the top
             if (transform.position.y >= screenBoundsMax.y - ballRadius)
             {
                 StopBall();

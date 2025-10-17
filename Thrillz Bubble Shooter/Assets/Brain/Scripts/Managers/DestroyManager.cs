@@ -71,10 +71,7 @@ namespace Brain.Managers
                     ball.Flags |= BallFlags.Destroying;
 
                     // Remove from grid
-                    if (GridManager.Exists())
-                    {
-                        GridManager.Instance.RemoveBall(ball);
-                    }
+                    GridManager.Instance.RemoveBall(ball);
 
                     // Destroy the ball (triggers animation in Ball.DestroyBall())
                     ball.DestroyBall();
@@ -99,10 +96,7 @@ namespace Brain.Managers
             ball.Flags |= BallFlags.Destroying;
 
             // Remove from grid
-            if (GridManager.Exists())
-            {
-                GridManager.Instance.RemoveBall(ball);
-            }
+            GridManager.Instance.RemoveBall(ball);
 
             // Destroy immediately
             ball.DestroyBall();

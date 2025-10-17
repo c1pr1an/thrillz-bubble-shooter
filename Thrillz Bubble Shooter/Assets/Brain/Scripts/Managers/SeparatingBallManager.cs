@@ -49,10 +49,7 @@ namespace Brain.Managers
                     if (ball != null)
                     {
                         // Remove from grid
-                        if (GridManager.Exists())
-                        {
-                            GridManager.Instance.RemoveBall(ball);
-                        }
+                        GridManager.Instance.RemoveBall(ball);
 
                         // Trigger fall
                         ball.Fall();
@@ -72,8 +69,6 @@ namespace Brain.Managers
         /// </summary>
         private List<Ball> FindOrphanedBalls()
         {
-            if (!GridManager.Exists()) return new List<Ball>();
-
             GridManager gridManager = GridManager.Instance;
 
             // Clear previous results

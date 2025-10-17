@@ -1,19 +1,23 @@
-# Bubble Shooter MVP - Setup Guide
+# Bubble Shooter - Setup Guide
 
-This guide explains how to set up the Bubble Shooter MVP in Unity after all scripts have been created.
+This guide explains how to set up the Bubble Shooter game in Unity after all scripts have been created.
 
 ---
 
 ## Overview
 
-The MVP implements core bubble shooter mechanics:
-- ✅ Hexagonal grid (11 columns × 10 rows)
+Core bubble shooter mechanics:
+- ✅ Hexagonal grid (11 columns × 66 rows total)
+- ✅ 60 rows of procedurally generated balls (rows 4-63)
 - ✅ 6 colored balls (Yellow, Blue, Red, Green, Purple, Pink)
 - ✅ Shooter at bottom center with mouse aiming
 - ✅ Match 3+ same color balls to destroy them
 - ✅ Orphaned balls fall when disconnected from top
 - ✅ Custom trajectory physics with wall bouncing
-- ✅ No UI, menus, or level system - pure gameplay
+- ✅ Scrolling grid system (grid moves down as you progress)
+- ✅ Win/Lose conditions with 2-minute timer
+- ✅ Seeded procedural generation for reproducible levels
+- ✅ Pure gameplay focus - no menus
 
 ---
 
@@ -31,6 +35,9 @@ Scene
 ├── Shooter (Empty GameObject)
 ├── Managers (Empty GameObject)
 │   ├── GridManager
+│   ├── LevelGenerator
+│   ├── GridScrollManager
+│   ├── GameConditionsManager
 │   ├── MatchingManager
 │   ├── DestroyManager
 │   └── SeparatingBallManager
@@ -142,10 +149,10 @@ Shooter
 
 **GridManager Inspector Settings:**
 - **Max Columns**: 11
-- **Max Rows**: 10
-- **Ball Width**: 1.0 (adjust based on your ball size)
-- **Ball Height**: 0.87 (slightly less than width for hexagonal spacing)
-- **Ball Prefabs (Size: 6)**: ⭐ **SINGLE SOURCE OF TRUTH** - Drag all 6 ball prefabs in order:
+- **Max Rows**: 66
+- **Ball Width**: 1.0
+- **Ball Height**: 0.87
+- **Ball Prefabs (Size: 6)**: Drag all 6 ball prefabs in order:
   - Element 0: Ball_Yellow
   - Element 1: Ball_Blue
   - Element 2: Ball_Red
@@ -154,9 +161,34 @@ Shooter
   - Element 5: Ball_Pink
 - **Grid Container**: Drag the GridContainer GameObject
 
-**Important**: You only need to assign ball prefabs here. LaunchContainer will automatically reference these.
+### 5. LevelGenerator
 
-### 5. MatchingManager
+- GameObject: `Managers/LevelGenerator` (empty)
+- Add Component: `LevelGenerator` script
+
+**LevelGenerator Inspector Settings:**
+- **Total Rows**: 60
+- **Start Row**: 4
+- **Fill Rate**: 0.8 (80% of cells filled)
+
+### 6. GridScrollManager
+
+- GameObject: `Managers/GridScrollManager` (empty)
+- Add Component: `GridScrollManager` script
+
+**GridScrollManager Inspector Settings:**
+- **Death Line Row**: 0
+- **Target Buffer Rows**: 4
+
+### 7. GameConditionsManager
+
+- GameObject: `Managers/GameConditionsManager` (empty)
+- Add Component: `GameConditionsManager` script
+
+**GameConditionsManager Inspector Settings:**
+- **Game Duration**: 120 (2 minutes)
+
+### 8. MatchingManager
 
 - GameObject: `Managers/MatchingManager` (empty)
 - Add Component: `MatchingManager` script
@@ -164,7 +196,7 @@ Shooter
 **MatchingManager Inspector Settings:**
 - **Min Match Count**: 3
 
-### 6. DestroyManager
+### 9. DestroyManager
 
 - GameObject: `Managers/DestroyManager` (empty)
 - Add Component: `DestroyManager` script
@@ -172,7 +204,7 @@ Shooter
 **DestroyManager Inspector Settings:**
 - **Delay Between Destructions**: 0.05
 
-### 7. SeparatingBallManager
+### 10. SeparatingBallManager
 
 - GameObject: `Managers/SeparatingBallManager` (empty)
 - Add Component: `SeparatingBallManager` script
@@ -183,18 +215,22 @@ Shooter
 
 ---
 
-## Testing the MVP
+## Testing the Game
 
 ### 1. Play Mode
 
 Press Play in Unity. You should see:
-1. Grid spawns with colored balls at the top (partially filled)
-2. Shooter appears at bottom with a ball
-3. Aim line shows your shooting direction
-4. Click to shoot
-5. Ball travels and snaps to grid
-6. Matches of 3+ destroy
-7. Orphaned balls fall
+1. Grid spawns with 60 rows of procedurally generated balls (rows 4-63)
+2. Initial view shows rows 0-15 (rows 0-3 empty, rows 4-15 with balls)
+3. Shooter appears at bottom with a ball
+4. Aim line shows your shooting direction
+5. 2-minute timer starts
+6. Click to shoot - ball travels and snaps to grid
+7. Matches of 3+ destroy
+8. Orphaned balls fall with gravity
+9. Grid moves down as bottom rows are cleared
+10. Win: Clear all 60 rows
+11. Lose: Ball touches row 0 OR timer expires
 
 ### 2. Debug Controls (Editor Only)
 
@@ -206,11 +242,13 @@ Press Play in Unity. You should see:
 ### 3. Common Issues
 
 **Grid doesn't appear:**
-- Check GridManager has all 6 Ball Prefabs assigned (single source of truth)
+- Check GridManager has all 6 Ball Prefabs assigned
 - Verify Ball Prefabs array order: Yellow=0, Blue=1, Red=2, Green=3, Purple=4, Pink=5
 - Check Grid Container is assigned
-- Check GridContainer position is visible in camera
-- Check each ball prefab has a renderer (SpriteRenderer or MeshRenderer)
+- Check GridContainer position is visible in camera (should be ~0, 3, 0)
+- Check each ball prefab has a renderer
+- Verify MaxRows is set to 66
+- Check LevelGenerator is generating balls (Start Row: 4, Total Rows: 60)
 
 **Balls don't shoot:**
 - Check GridManager has ball prefabs assigned (LaunchContainer gets them from GridManager)
@@ -246,13 +284,19 @@ Press Play in Unity. You should see:
 In `GridManager`:
 - **Ball Width**: Distance between ball centers horizontally
 - **Ball Height**: Distance between ball rows vertically
-- For perfect hexagons: `Ball Height = Ball Width * 0.866` (sqrt(3)/2)
+- For perfect hexagons: `Ball Height = Ball Width * 0.866`
 
-### Change Grid Size
+### Change Game Duration
 
-In `GridManager`:
-- **Max Columns**: Number of columns (odd rows have one less)
-- **Max Rows**: Number of rows to spawn
+In `GameConditionsManager`:
+- **Game Duration**: Time limit in seconds (default: 120)
+
+### Change Level Generation
+
+In `LevelGenerator`:
+- **Total Rows**: Number of rows to generate (default: 60)
+- **Start Row**: First row with balls (default: 4)
+- **Fill Rate**: Percentage of cells filled (default: 0.8 = 80%)
 
 ### Modify Shooting
 
@@ -271,70 +315,66 @@ In `MatchingManager`:
 
 ---
 
-## Next Steps (Beyond MVP)
+## Next Steps
 
-Once the MVP is working, you can add:
+Once core mechanics are working perfectly, you can add:
 
-1. **UI System**
-   - Score display
-   - Level counter
-   - Remaining shots
-   - Game over screen
-
-2. **Level System**
-   - Predefined level layouts
-   - Win/lose conditions
-   - Level progression
-
-3. **Special Balls**
-   - Bombs (destroy area)
-   - Rainbow balls (match any color)
-   - Line clearers
-
-4. **Trajectory Preview**
-   - Show where ball will land
-   - Bounce prediction
-
-5. **Object Pooling**
-   - Reuse balls instead of Instantiate/Destroy
-   - Better performance
-
-6. **Visual Polish**
+1. **Visual Polish**
    - Particle effects on destruction
-   - Better animations
+   - Ball destruction animations
+   - Grid scroll animations
    - Background art
    - Sound effects
 
-7. **Power-ups**
-   - Extra shots
-   - Color bombs
-   - Undo last shot
+2. **UI Integration**
+   - Timer display
+   - Win/Lose screens
+   - Restart button
+   - Seed display
+
+3. **Trajectory Preview**
+   - Show where ball will land
+   - Bounce prediction
+
+4. **Object Pooling**
+   - Reuse balls instead of Instantiate/Destroy
+   - Better performance for 60+ rows
+
+5. **Advanced Features**
+   - Special balls (bombs, rainbow)
+   - Power-ups
+   - Score system
+   - Combo multipliers
 
 ---
 
 ## Architecture Reference
 
-The MVP follows the BubbleShooterGameToolkit architecture:
-
 **Core Systems:**
-- `GridUtils` - Hexagonal grid math utilities
-- `Ball` - Base ball component with color, position, neighbors
-- `BallLaunch` - Custom trajectory movement component
+- `GridUtils` - Hexagonal grid math and coordinate conversion
+- `Ball` - Ball component with color, position, neighbors
+- `BallLaunch` - Custom trajectory movement with CircleCast collision
 
-**Managers:**
-- `GridManager` - Grid state, ball matrix, spawning
-- `MatchingManager` - Flood-fill match detection (3+ connected balls)
-- `DestroyManager` - Destruction queue with timing/animations
-- `SeparatingBallManager` - Orphan detection using flood-fill from roots
+**Game Managers:**
+- `GameController` - Game initialization and state machine
+- `GridManager` - 66-row grid structure and ball spawning
+- `LevelGenerator` - Procedural 60-row generation with seed
+- `GridScrollManager` - Grid movement and death line detection
+- `GameConditionsManager` - Win/lose/timer logic
+- `MatchingManager` - Flood-fill match detection
+- `DestroyManager` - Sequential ball destruction
+- `SeparatingBallManager` - Orphan detection and falling
 
 **Gameplay:**
-- `LaunchContainer` - Shooter controller (spawn, aim, launch)
-- `GameController` - Game initialization and state machine
+- `LaunchContainer` - Shooter controller
+- `Cameras` - Cinemachine integration
 
-**Algorithms:**
-- **Hexagonal Grid**: Offset coordinates with even/odd row patterns
+**Key Algorithms:**
+- **Hexagonal Grid**: Offset coordinates with row parity
+- **Ball Attachment**: Distance-based nearest cell search (3x3 area)
 - **Match Detection**: Recursive flood-fill from target ball
-- **Orphan Detection**: Flood-fill from root balls (top row), unmarked balls = orphans
+- **Orphan Detection**: Flood-fill from root balls, unmarked = orphaned
+- **Grid Scroll**: Track lowest row, move grid down to maintain buffer
 
 ---
 
@@ -344,7 +384,8 @@ The MVP follows the BubbleShooterGameToolkit architecture:
 ```
 Assets/Brain/Scripts/
 ├── Core/
-│   (existing State Machine code)
+│   └── StateMachine.cs
+│   └── State.cs
 ├── Gameplay/
 │   ├── BallColor.cs
 │   ├── BallFlags.cs
@@ -352,8 +393,11 @@ Assets/Brain/Scripts/
 │   ├── BallLaunch.cs
 │   └── LaunchContainer.cs
 ├── Managers/
-│   ├── GameController.cs (modified)
+│   ├── GameController.cs
 │   ├── GridManager.cs
+│   ├── LevelGenerator.cs
+│   ├── GridScrollManager.cs
+│   ├── GameConditionsManager.cs
 │   ├── MatchingManager.cs
 │   ├── DestroyManager.cs
 │   └── SeparatingBallManager.cs
@@ -371,18 +415,43 @@ Assets/Brain/Scripts/
 
 ---
 
+## Game Mechanics Summary
+
+**Grid System:**
+- 66 total rows (0-65)
+- Row 0 is at BOTTOM (near shooter)
+- Rows 0-3: Empty (death zone + buffer at bottom)
+- Rows 4-63: 60 rows of balls (procedurally generated)
+- Rows 0-15: Visible on screen initially
+- Higher row numbers = higher on screen (row 65 at top)
+- Grid moves UP as bottom rows cleared to maintain 4-row buffer above death line
+- Grid never moves above starting position (anchored)
+
+**Win Conditions:**
+- Clear all 60 rows of balls
+
+**Lose Conditions:**
+- Any ball touches row 0 (death line)
+- 2-minute timer expires
+
+**Procedural Generation:**
+- Seeded random using GameSeed from PlayerPrefs
+- 80% fill rate (strategic gaps)
+- 6 colors balanced randomly
+- Reproducible with same seed
+
+---
+
 ## Support
 
 If you encounter issues:
 1. Check Unity Console for errors
-2. Verify all 6 ball prefabs are assigned in GridManager only (single source of truth)
-3. Ensure each ball prefab has:
-   - CircleCollider2D component
-   - SpriteRenderer or MeshRenderer
-   - Ball script with correct Ball Color set
-4. Verify Ball Prefabs array order matches BallColor enum (Yellow=0, Blue=1, Red=2, Green=3, Purple=4, Pink=5)
-5. LaunchContainer automatically references GridManager's prefabs - no need to assign twice
-6. Test with simple Unity spheres or circle sprites first before adding custom art
-7. Use Debug.Log to trace execution flow
-
-Good luck with your Bubble Shooter MVP! 🎯
+2. Verify all managers are in the scene (10 total)
+3. Ensure GridManager has:
+   - Max Rows = 66
+   - All 6 ball prefabs assigned
+   - Grid Container assigned
+4. Check LevelGenerator settings (Total Rows: 60, Start Row: 4)
+5. Verify ball prefabs have CircleCollider2D and Ball script
+6. Use Debug.Log to trace execution
+7. Test grid attachment first before other features

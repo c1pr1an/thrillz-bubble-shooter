@@ -18,29 +18,21 @@ namespace Brain.Managers
 
         /// <summary>
         /// Main entry point - called when a ball stops on the grid
-        /// Processes match detection, destruction, and orphan detection
         /// </summary>
         public void ProcessBallStopped(Ball stoppedBall)
         {
             if (stoppedBall == null) return;
 
-            // 1. Check for matches
             int matchCount = CheckMatch(stoppedBall);
 
             if (matchCount >= minMatchCount)
             {
-                // 2. Destroy matched balls
-                if (DestroyManager.Exists())
-                {
-                    DestroyManager.Instance.DestroyBalls(matchList);
-                }
+                DestroyManager.Instance.DestroyBalls(matchList);
             }
 
-            // 3. Check for orphaned balls (separated from root)
-            if (SeparatingBallManager.Exists())
-            {
-                SeparatingBallManager.Instance.CheckSeparatedBalls();
-            }
+            SeparatingBallManager.Instance.CheckSeparatedBalls();
+            GridScrollManager.Instance.UpdateGridPosition();
+            GameConditionsManager.Instance.CheckWinCondition();
         }
 
         /// <summary>

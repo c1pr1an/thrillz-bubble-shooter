@@ -26,7 +26,7 @@ namespace Brain.Util
 
             // Calculate world position with hexagonal offset
             float worldX = gridPos.x * ballWidth - (maxColumns / 2f * ballWidth);
-            float worldY = -gridPos.y * ballHeight;
+            float worldY = gridPos.y * ballHeight;
 
             return gridOrigin.position + new Vector3(worldX, worldY, 0);
         }
@@ -38,8 +38,8 @@ namespace Brain.Util
         {
             Vector3 localPos = worldPos - gridOrigin.position;
 
-            // Calculate row (y)
-            int y = Mathf.RoundToInt(Mathf.Abs(localPos.y) / ballHeight);
+            // Calculate row (y) - positive Y goes up
+            int y = Mathf.RoundToInt(localPos.y / ballHeight);
 
             // Calculate column (x) with hexagonal offset
             int columnMax = GetMaxColumns(y);
@@ -117,6 +117,46 @@ namespace Brain.Util
         public static int GetGridDistance(Vector2Int posA, Vector2Int posB)
         {
             return Mathf.Abs(posA.x - posB.x) + Mathf.Abs(posA.y - posB.y);
+        }
+
+        /// <summary>
+        /// Finds nearest empty grid position to a world point
+        /// </summary>
+        public static Vector2Int FindNearestEmptyCell(Vector3 worldPos, float ballWidth, float ballHeight, Transform gridOrigin, int maxColumns, int maxRows, System.Func<int, int, bool> isCellEmpty)
+        {
+            Vector2Int centerPos = WorldToPos(worldPos, ballWidth, ballHeight, gridOrigin, maxColumns);
+
+            float minDistance = float.MaxValue;
+            Vector2Int bestPos = centerPos;
+            bool foundEmpty = false;
+
+            // Search 3x3 grid around impact point
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    int checkX = centerPos.x + dx;
+                    int checkY = centerPos.y + dy;
+
+                    if (!IsValidPosition(checkX, checkY, maxColumns, maxRows))
+                        continue;
+
+                    if (!isCellEmpty(checkX, checkY))
+                        continue;
+
+                    Vector3 cellWorldPos = PosToWorld(new Vector2Int(checkX, checkY), ballWidth, ballHeight, gridOrigin);
+                    float distance = Vector3.Distance(worldPos, cellWorldPos);
+
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        bestPos = new Vector2Int(checkX, checkY);
+                        foundEmpty = true;
+                    }
+                }
+            }
+
+            return foundEmpty ? bestPos : new Vector2Int(-1, -1);
         }
     }
 }

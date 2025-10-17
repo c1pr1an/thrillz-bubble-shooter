@@ -50,19 +50,42 @@ namespace Brain.Managers
 
         private void OnInitializingEnter()
         {
-            _matchSeed = PlayerPrefs.GetInt("GameSeed");
-            UnityEngine.Random.InitState(_matchSeed);
-            Debug.Log($"Starting Bubble Shooter MVP with seed: {MatchSeed}");
+            _matchSeed = PlayerPrefs.GetInt("GameSeed", System.Environment.TickCount);
+            Debug.Log($"Starting Bubble Shooter with seed: {MatchSeed}");
 
+            // Initialize grid structure
             GridManager.Instance.InitializeGrid();
 
-            // Auto-start game (no UI/menus for MVP)
+            // Generate procedural level (includes neighbor updates and orphan removal)
+            LevelGenerator.Instance.GenerateLevel(_matchSeed);
+
+            // Subscribe to game events
+            GridScrollManager.Instance.OnDeathLineTouched += OnDeathLineTouched;
+            GameConditionsManager.Instance.OnGameWon += OnGameWon;
+            GameConditionsManager.Instance.OnGameLost += OnGameLost;
+
             _stateMachine.ChangeState(GamePhase.Playing);
         }
 
         private void OnPlayingEnter()
         {
-            Debug.Log("Game started - shoot bubbles!");
+            GameConditionsManager.Instance.StartGame();
+            Debug.Log("Game started!");
+        }
+
+        private void OnDeathLineTouched()
+        {
+            GameConditionsManager.Instance.TriggerLose();
+        }
+
+        private void OnGameWon()
+        {
+            Debug.Log("You Win!");
+        }
+
+        private void OnGameLost()
+        {
+            Debug.Log("Game Over!");
         }
 
         public void RestartGame()

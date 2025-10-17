@@ -13,9 +13,9 @@ namespace Brain.Managers
     {
         [Header("Grid Settings")]
         [SerializeField] private int maxColumns = 11;
-        [SerializeField] private int maxRows = 10;
+        [SerializeField] private int maxRows = 66;
         [SerializeField] private float ballWidth = 1f;
-        [SerializeField] private float ballHeight = 0.87f; // Slightly less for hexagonal spacing
+        [SerializeField] private float ballHeight = 0.87f;
 
         [SerializeField] private Ball[] ballPrefabs = new Ball[6];
 
@@ -47,11 +47,10 @@ namespace Brain.Managers
         }
 
         /// <summary>
-        /// Initializes the grid and spawns initial balls
+        /// Initializes the grid structure
         /// </summary>
         public void InitializeGrid()
         {
-            // Create the 2D grid structure
             balls = new List<List<Ball>>(maxRows);
 
             for (int row = 0; row < maxRows; row++)
@@ -59,7 +58,6 @@ namespace Brain.Managers
                 int columnsInRow = GridUtils.GetMaxColumns(row);
                 List<Ball> rowList = new List<Ball>(columnsInRow);
 
-                // Pre-allocate with nulls
                 for (int col = 0; col < columnsInRow; col++)
                 {
                     rowList.Add(null);
@@ -67,34 +65,14 @@ namespace Brain.Managers
 
                 balls.Add(rowList);
             }
-
-            // Spawn initial balls (partially filled grid)
-            SpawnInitialBalls();
-
-            // Update all neighbor references
-            UpdateAllNeighbors();
         }
 
         /// <summary>
-        /// Spawns initial balls to create a partially filled grid
+        /// Finalizes grid setup after balls are spawned
         /// </summary>
-        private void SpawnInitialBalls()
+        public void FinalizeGrid()
         {
-            // Fill top 5 rows with random balls, with some gaps
-            for (int row = 0; row < 10; row++)
-            {
-                int columnsInRow = GridUtils.GetMaxColumns(row);
-
-                for (int col = 0; col < columnsInRow; col++)
-                {
-                    // 70% chance to spawn a ball (creates gaps)
-                    if (Random.value > 0.3f)
-                    {
-                        BallColor randomColor = (BallColor)Random.Range(0, 6);
-                        SpawnBall(col, row, randomColor);
-                    }
-                }
-            }
+            UpdateAllNeighbors();
         }
 
         /// <summary>
@@ -137,16 +115,16 @@ namespace Brain.Managers
         /// </summary>
         public void AddBallToGrid(Ball ball, Vector3 worldPosition)
         {
-            // Convert world position to grid position
-            Vector2Int gridPos = GridUtils.WorldToPos(worldPosition, ballWidth, ballHeight, gridContainer, maxColumns);
-
-            // Clamp to valid range
-            gridPos.y = Mathf.Clamp(gridPos.y, 0, maxRows - 1);
-            int maxCols = GridUtils.GetMaxColumns(gridPos.y);
-            gridPos.x = Mathf.Clamp(gridPos.x, 0, maxCols - 1);
-
-            // Find nearest empty position if current position is occupied
-            gridPos = FindNearestEmptyPosition(gridPos);
+            // Find nearest empty cell using distance-based search
+            Vector2Int gridPos = GridUtils.FindNearestEmptyCell(
+                worldPosition,
+                ballWidth,
+                ballHeight,
+                gridContainer,
+                maxColumns,
+                maxRows,
+                (x, y) => GetBall(x, y) == null
+            );
 
             if (gridPos.x < 0 || gridPos.y < 0)
             {
@@ -163,43 +141,9 @@ namespace Brain.Managers
             // Add to grid matrix
             balls[gridPos.y][gridPos.x] = ball;
 
-            // Update neighbors for this ball and adjacent balls
+            // Update neighbors
             UpdateNeighbors(ball);
             UpdateAdjacentNeighbors(ball);
-        }
-
-        /// <summary>
-        /// Finds the nearest empty grid position starting from the given position
-        /// </summary>
-        private Vector2Int FindNearestEmptyPosition(Vector2Int startPos)
-        {
-            // If the position is already empty, use it
-            if (GetBall(startPos.x, startPos.y) == null)
-            {
-                return startPos;
-            }
-
-            // Search in expanding rings around the start position
-            for (int radius = 1; radius <= 3; radius++)
-            {
-                // Check neighbors at this radius
-                Vector2Int?[] neighbors = GridUtils.GetNeighborPositions(startPos, maxColumns, maxRows);
-                foreach (var neighborPos in neighbors)
-                {
-                    if (neighborPos.HasValue)
-                    {
-                        Vector2Int pos = neighborPos.Value;
-                        if (GetBall(pos.x, pos.y) == null)
-                        {
-                            return pos;
-                        }
-                    }
-                }
-            }
-
-            // No empty position found
-            Debug.LogWarning($"No empty position found near {startPos}");
-            return new Vector2Int(-1, -1);
         }
 
         /// <summary>
