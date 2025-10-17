@@ -133,6 +133,9 @@ namespace Brain.Managers
                 return;
             }
 
+            // Parent to grid container so it moves with the grid
+            ball.transform.SetParent(gridContainer);
+
             // Snap to grid world position
             Vector3 snappedWorldPos = GridUtils.PosToWorld(gridPos, ballWidth, ballHeight, gridContainer);
             ball.transform.position = snappedWorldPos;
@@ -261,26 +264,6 @@ namespace Brain.Managers
                         ball.Flags &= ~BallFlags.MarkedForMatch;
                         ball.Flags &= ~BallFlags.MarkedForDestroy;
                     }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Debug visualization in editor
-        /// </summary>
-        private void OnDrawGizmos()
-        {
-            if (gridContainer == null) return;
-
-            // Draw grid positions
-            for (int row = 0; row < maxRows; row++)
-            {
-                int columnsInRow = GridUtils.GetMaxColumns(row);
-                for (int col = 0; col < columnsInRow; col++)
-                {
-                    Vector3 worldPos = GridUtils.PosToWorld(new Vector2Int(col, row), ballWidth, ballHeight, gridContainer);
-                    Gizmos.color = Color.gray;
-                    Gizmos.DrawWireSphere(worldPos, ballWidth * 0.4f);
                 }
             }
         }

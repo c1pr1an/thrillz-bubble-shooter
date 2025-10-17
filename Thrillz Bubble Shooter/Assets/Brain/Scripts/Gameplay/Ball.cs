@@ -195,5 +195,29 @@ namespace Brain.Gameplay
             }
             return false;
         }
+
+#if UNITY_EDITOR
+        private void OnDrawGizmosSelected()
+        {
+            if (!Application.isPlaying) return;
+
+            // Draw lines to all neighbors
+            Gizmos.color = UnityEngine.Color.cyan;
+            for (int i = 0; i < Neighbors.Length; i++)
+            {
+                if (Neighbors[i] != null)
+                {
+                    Gizmos.DrawLine(transform.position, Neighbors[i].transform.position);
+                }
+            }
+
+            // Draw root balls in green
+            if (HasFlag(BallFlags.Root))
+            {
+                Gizmos.color = UnityEngine.Color.green;
+                Gizmos.DrawWireSphere(transform.position, 0.6f);
+            }
+        }
+#endif
     }
 }

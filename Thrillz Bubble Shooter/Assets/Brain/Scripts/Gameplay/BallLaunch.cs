@@ -49,12 +49,12 @@ namespace Brain.Gameplay
             circleCollider.enabled = true;
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             if (!isLaunched) return;
 
-            // Move ball
-            Vector3 movement = direction * speed * Time.fixedDeltaTime;
+            // Move ball smoothly
+            Vector3 movement = direction * speed * Time.deltaTime;
             transform.position += movement;
 
             // Check for wall bouncing
@@ -121,7 +121,9 @@ namespace Brain.Gameplay
                 Ball hitBall = hit.collider.GetComponent<Ball>();
                 if (hitBall != null && hitBall.HasFlag(BallFlags.Pinned))
                 {
-                    StopBall();
+                    // Get the contact point (where ball touched)
+                    Vector3 contactPoint = hit.collider.ClosestPoint(transform.position);
+                    StopBall(contactPoint);
                     return;
                 }
             }
@@ -136,12 +138,15 @@ namespace Brain.Gameplay
         /// <summary>
         /// Stops the ball and adds it to the grid
         /// </summary>
-        private void StopBall()
+        private void StopBall(Vector3? contactPoint = null)
         {
             isLaunched = false;
 
-            // Add ball to grid at current position
-            GridManager.Instance.AddBallToGrid(ball, transform.position);
+            // Use contact point if provided, otherwise use current position
+            Vector3 attachPoint = contactPoint ?? transform.position;
+
+            // Add ball to grid at attachment point
+            GridManager.Instance.AddBallToGrid(ball, attachPoint);
 
             // Trigger stopped event
             OnBallStopped?.Invoke(ball);

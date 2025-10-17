@@ -8,14 +8,14 @@ namespace Brain.Util
     public static class GridUtils
     {
         // Hexagonal neighbor offset patterns (6 neighbors per cell)
-        // Even rows and odd rows have different x-offsets due to hexagonal stagger
+        // Pattern order: top-left, top-right, right, bottom-right, bottom-left, left
         private static readonly int[][] cShifts = {
-            new int[] { 0, 1, 1, 1, 0, -1 },   // Even row x-offsets
-            new int[] { -1, 0, 1, 0, -1, -1 }  // Odd row x-offsets
+            new int[] { -1, 0, 1, 0, -1, -1 },  // Even row x-offsets (row 0 at bottom)
+            new int[] { 0, 1, 1, 1, 0, -1 }     // Odd row x-offsets
         };
 
-        // Y-offsets are the same for both even and odd rows
-        private static readonly int[] rShifts = { -1, -1, 0, 1, 1, 0 };
+        // Y-offsets: inverted because row 0 is at bottom (not top like toolkit)
+        private static readonly int[] rShifts = { 1, 1, 0, -1, -1, 0 };
 
         /// <summary>
         /// Converts grid position to world position
@@ -121,42 +121,50 @@ namespace Brain.Util
 
         /// <summary>
         /// Finds nearest empty grid position to a world point
+        /// Expands search radius until a position is found
         /// </summary>
         public static Vector2Int FindNearestEmptyCell(Vector3 worldPos, float ballWidth, float ballHeight, Transform gridOrigin, int maxColumns, int maxRows, System.Func<int, int, bool> isCellEmpty)
         {
             Vector2Int centerPos = WorldToPos(worldPos, ballWidth, ballHeight, gridOrigin, maxColumns);
 
             float minDistance = float.MaxValue;
-            Vector2Int bestPos = centerPos;
+            Vector2Int bestPos = new Vector2Int(-1, -1);
             bool foundEmpty = false;
 
-            // Search 3x3 grid around impact point
-            for (int dy = -1; dy <= 1; dy++)
+            // Expand search radius until we find an empty cell
+            for (int radius = 0; radius <= 10 && !foundEmpty; radius++)
             {
-                for (int dx = -1; dx <= 1; dx++)
+                for (int dy = -radius; dy <= radius; dy++)
                 {
-                    int checkX = centerPos.x + dx;
-                    int checkY = centerPos.y + dy;
-
-                    if (!IsValidPosition(checkX, checkY, maxColumns, maxRows))
-                        continue;
-
-                    if (!isCellEmpty(checkX, checkY))
-                        continue;
-
-                    Vector3 cellWorldPos = PosToWorld(new Vector2Int(checkX, checkY), ballWidth, ballHeight, gridOrigin);
-                    float distance = Vector3.Distance(worldPos, cellWorldPos);
-
-                    if (distance < minDistance)
+                    for (int dx = -radius; dx <= radius; dx++)
                     {
-                        minDistance = distance;
-                        bestPos = new Vector2Int(checkX, checkY);
-                        foundEmpty = true;
+                        // Only check cells at current radius edge
+                        if (Mathf.Abs(dx) != radius && Mathf.Abs(dy) != radius)
+                            continue;
+
+                        int checkX = centerPos.x + dx;
+                        int checkY = centerPos.y + dy;
+
+                        if (!IsValidPosition(checkX, checkY, maxColumns, maxRows))
+                            continue;
+
+                        if (!isCellEmpty(checkX, checkY))
+                            continue;
+
+                        Vector3 cellWorldPos = PosToWorld(new Vector2Int(checkX, checkY), ballWidth, ballHeight, gridOrigin);
+                        float distance = Vector3.Distance(worldPos, cellWorldPos);
+
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            bestPos = new Vector2Int(checkX, checkY);
+                            foundEmpty = true;
+                        }
                     }
                 }
             }
 
-            return foundEmpty ? bestPos : new Vector2Int(-1, -1);
+            return bestPos;
         }
     }
 }
