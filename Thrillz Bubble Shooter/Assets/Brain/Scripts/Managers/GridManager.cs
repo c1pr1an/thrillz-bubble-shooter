@@ -145,6 +145,16 @@ namespace Brain.Managers
             int maxCols = GridUtils.GetMaxColumns(gridPos.y);
             gridPos.x = Mathf.Clamp(gridPos.x, 0, maxCols - 1);
 
+            // Find nearest empty position if current position is occupied
+            gridPos = FindNearestEmptyPosition(gridPos);
+
+            if (gridPos.x < 0 || gridPos.y < 0)
+            {
+                Debug.LogError("Could not find empty grid position for ball!");
+                Destroy(ball.gameObject);
+                return;
+            }
+
             // Snap to grid world position
             Vector3 snappedWorldPos = GridUtils.PosToWorld(gridPos, ballWidth, ballHeight, gridContainer);
             ball.transform.position = snappedWorldPos;
@@ -156,6 +166,40 @@ namespace Brain.Managers
             // Update neighbors for this ball and adjacent balls
             UpdateNeighbors(ball);
             UpdateAdjacentNeighbors(ball);
+        }
+
+        /// <summary>
+        /// Finds the nearest empty grid position starting from the given position
+        /// </summary>
+        private Vector2Int FindNearestEmptyPosition(Vector2Int startPos)
+        {
+            // If the position is already empty, use it
+            if (GetBall(startPos.x, startPos.y) == null)
+            {
+                return startPos;
+            }
+
+            // Search in expanding rings around the start position
+            for (int radius = 1; radius <= 3; radius++)
+            {
+                // Check neighbors at this radius
+                Vector2Int?[] neighbors = GridUtils.GetNeighborPositions(startPos, maxColumns, maxRows);
+                foreach (var neighborPos in neighbors)
+                {
+                    if (neighborPos.HasValue)
+                    {
+                        Vector2Int pos = neighborPos.Value;
+                        if (GetBall(pos.x, pos.y) == null)
+                        {
+                            return pos;
+                        }
+                    }
+                }
+            }
+
+            // No empty position found
+            Debug.LogWarning($"No empty position found near {startPos}");
+            return new Vector2Int(-1, -1);
         }
 
         /// <summary>

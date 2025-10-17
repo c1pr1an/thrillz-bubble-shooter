@@ -45,17 +45,8 @@ namespace Brain.Gameplay
             // Calculate screen bounds for wall bouncing
             CalculateScreenBounds();
 
-            // Disable collider temporarily to avoid self-collision with launch container
-            circleCollider.enabled = false;
-            Invoke(nameof(EnableCollider), 0.1f);
-        }
-
-        private void EnableCollider()
-        {
-            if (circleCollider != null)
-            {
-                circleCollider.enabled = true;
-            }
+            // Enable collider for collision detection
+            circleCollider.enabled = true;
         }
 
         private void FixedUpdate()
@@ -110,29 +101,25 @@ namespace Brain.Gameplay
         }
 
         /// <summary>
-        /// Checks for collision with grid balls using CircleCast
+        /// Checks for collision with grid balls using overlap detection
         /// </summary>
         private void CheckBallCollision()
         {
             float ballRadius = circleCollider.radius;
 
-            // Cast a circle ahead to detect collisions
-            RaycastHit2D hit = Physics2D.CircleCast(
-                transform.position,
-                ballRadius,
-                direction,
-                checkDistance,
-                LayerMask.GetMask("Default")
-            );
+            // Check for overlapping balls (more reliable than CircleCast)
+            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, ballRadius * 1.1f, LayerMask.GetMask("Default"));
 
-            if (hit.collider != null)
+            foreach (var hit in hits)
             {
-                Ball hitBall = hit.collider.GetComponent<Ball>();
+                if (hit.gameObject == gameObject) continue; // Skip self
 
+                Ball hitBall = hit.GetComponent<Ball>();
                 if (hitBall != null && hitBall.HasFlag(BallFlags.Pinned))
                 {
                     // Stop the ball and add to grid
                     StopBall();
+                    return;
                 }
             }
 
