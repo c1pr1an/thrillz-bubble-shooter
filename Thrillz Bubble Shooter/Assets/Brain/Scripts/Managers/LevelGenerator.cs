@@ -10,7 +10,7 @@ namespace Brain.Managers
         [Header("Generation Settings")]
         [SerializeField] private int totalRows = 60;
         [SerializeField] private int startRow = 4;
-        [SerializeField] [Range(0f, 1f)] private float fillRate = 0.8f;
+        [SerializeField][Range(0f, 1f)] private float fillRate = 0.8f;
         [SerializeField] private bool removeOrphans = true;
 
         /// <summary>
@@ -58,11 +58,7 @@ namespace Brain.Managers
             // Remove orphaned balls from generation
             if (removeOrphans)
             {
-                int beforeRemoval = ballsGenerated;
-                Debug.Log($"LevelGenerator: Root balls count: {Ball.RootBalls.Count}");
                 RemoveOrphanedBalls();
-                int afterRemoval = CountBalls();
-                Debug.Log($"LevelGenerator: Removed {beforeRemoval - afterRemoval} orphaned balls. Final count: {afterRemoval}");
             }
         }
 
@@ -100,8 +96,6 @@ namespace Brain.Managers
                     ball.Flags |= BallFlags.Root;
                 }
             }
-
-            Debug.Log($"LevelGenerator: Marked row {highestRow} as ceiling");
         }
 
         private int CountBalls()

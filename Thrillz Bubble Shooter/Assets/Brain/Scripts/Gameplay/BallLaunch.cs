@@ -45,8 +45,9 @@ namespace Brain.Gameplay
             // Calculate screen bounds for wall bouncing
             CalculateScreenBounds();
 
-            // Enable collider for collision detection
-            circleCollider.enabled = true;
+            // Disable own collider during launch to prevent self-detection
+            // We only need to detect OTHER balls, not be detected ourselves
+            circleCollider.enabled = false;
         }
 
         private void Update()
@@ -141,6 +142,9 @@ namespace Brain.Gameplay
         private void StopBall(Vector3? contactPoint = null)
         {
             isLaunched = false;
+
+            // Re-enable collider now that ball is stopping
+            circleCollider.enabled = true;
 
             // Use contact point if provided, otherwise use current position
             Vector3 attachPoint = contactPoint ?? transform.position;

@@ -280,6 +280,7 @@ GameObject:
   m_Component:
   - component: {fileID: 499342178}
   - component: {fileID: 499342179}
+  - component: {fileID: 499342180}
   m_Layer: 0
   m_Name: Shooter
   m_TagString: Untagged
@@ -317,10 +318,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballSpawnPoint: {fileID: 832981467}
-  aimLine: {fileID: 535749415}
-  aimLineLength: 3
   minAimAngle: 10
   maxAimAngle: 170
+  trajectoryPredictor: {fileID: 499342180}
+--- !u!114 &499342180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 499342177}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bee3d466b41754cc886af997c204c086, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxBounces: 2
+  maxDistance: 50
+  ballRadius: 0.35
+  trajectoryLine: {fileID: 535749415}
+  lineWidth: 0.15
 --- !u!1 &535749413
 GameObject:
   m_ObjectHideFlags: 0

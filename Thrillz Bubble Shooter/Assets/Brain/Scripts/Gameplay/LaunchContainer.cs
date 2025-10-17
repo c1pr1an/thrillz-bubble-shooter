@@ -14,10 +14,11 @@ namespace Brain.Gameplay
         [SerializeField] private Transform ballSpawnPoint;
 
         [Header("Aiming")]
-        [SerializeField] private LineRenderer aimLine;
-        [SerializeField] private float aimLineLength = 3f;
         [SerializeField] private float minAimAngle = 10f; // Min angle from horizontal (in degrees)
         [SerializeField] private float maxAimAngle = 170f; // Max angle from horizontal (in degrees)
+
+        [Header("Trajectory")]
+        [SerializeField] private TrajectoryPredictor trajectoryPredictor;
 
         private Ball currentBall;
         private Camera mainCamera;
@@ -27,11 +28,14 @@ namespace Brain.Gameplay
         {
             mainCamera = Camera.main;
 
-            // Setup aim line
-            if (aimLine != null)
+            // Setup trajectory predictor
+            if (trajectoryPredictor == null)
             {
-                aimLine.positionCount = 2;
-                aimLine.enabled = false;
+                trajectoryPredictor = GetComponent<TrajectoryPredictor>();
+                if (trajectoryPredictor == null)
+                {
+                    Debug.LogWarning("LaunchContainer: No TrajectoryPredictor found. Please add one or assign it in the Inspector.");
+                }
             }
         }
 
@@ -57,12 +61,10 @@ namespace Brain.Gameplay
             angle = Mathf.Clamp(angle, minAimAngle, maxAimAngle);
             aimDirection = Quaternion.Euler(0, 0, angle) * Vector2.right;
 
-            // Update aim line
-            if (aimLine != null)
+            // Show trajectory
+            if (trajectoryPredictor != null)
             {
-                aimLine.enabled = true;
-                aimLine.SetPosition(0, ballSpawnPoint.position);
-                aimLine.SetPosition(1, ballSpawnPoint.position + (Vector3)aimDirection * aimLineLength);
+                trajectoryPredictor.ShowTrajectory(ballSpawnPoint.position, aimDirection);
             }
 
             // Launch on click
@@ -114,10 +116,10 @@ namespace Brain.Gameplay
             // Disable launching until ball stops
             canLaunch = false;
 
-            // Hide aim line
-            if (aimLine != null)
+            // Hide trajectory
+            if (trajectoryPredictor != null)
             {
-                aimLine.enabled = false;
+                trajectoryPredictor.HideTrajectory();
             }
 
             // Unparent ball from spawn point
@@ -154,9 +156,9 @@ namespace Brain.Gameplay
         {
             canLaunch = enabled;
 
-            if (aimLine != null)
+            if (!enabled && trajectoryPredictor != null)
             {
-                aimLine.enabled = enabled;
+                trajectoryPredictor.HideTrajectory();
             }
         }
     }
