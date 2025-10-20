@@ -111,6 +111,32 @@ namespace Brain.Managers
         }
 
         /// <summary>
+        /// Gets the exact grid snap position for a given world position
+        /// </summary>
+        public Vector3 GetGridSnapPosition(Vector3 worldPosition)
+        {
+            // Find nearest empty cell using distance-based search
+            Vector2Int gridPos = GridUtils.FindNearestEmptyCell(
+                worldPosition,
+                ballWidth,
+                ballHeight,
+                gridContainer,
+                maxColumns,
+                maxRows,
+                (x, y) => GetBall(x, y) == null
+            );
+
+            if (gridPos.x < 0 || gridPos.y < 0)
+            {
+                // Fallback to just returning the original position if no valid grid spot
+                return worldPosition;
+            }
+
+            // Convert grid position to world position (this is the exact snap position)
+            return GridUtils.PosToWorld(gridPos, ballWidth, ballHeight, gridContainer);
+        }
+
+        /// <summary>
         /// Adds a launched ball to the grid at the closest valid position
         /// </summary>
         public void AddBallToGrid(Ball ball, Vector3 worldPosition)

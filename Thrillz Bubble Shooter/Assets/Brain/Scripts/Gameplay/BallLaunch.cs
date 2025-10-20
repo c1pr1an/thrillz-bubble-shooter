@@ -1,28 +1,31 @@
 using System;
+using System.Collections.Generic;
 using Brain.Managers;
 using UnityEngine;
 
 namespace Brain.Gameplay
 {
     /// <summary>
-    /// Handles ball movement with custom trajectory physics
-    /// Uses manual movement and collision detection (no Rigidbody physics)
-    /// Adapted from BubbleShooterGameToolkit reference implementation
+    /// Handles ball movement along predetermined trajectory path
+    /// Ball follows the exact trajectory including wall bounces, ignoring ball collisions
     /// </summary>
     [RequireComponent(typeof(Ball))]
     public class BallLaunch : MonoBehaviour
     {
         [Header("Launch Settings")]
         [SerializeField] private float speed = 15f;
-        [SerializeField] private float checkDistance = 0.5f; // How far ahead to check for collisions
 
         private Ball ball;
         private CircleCollider2D circleCollider;
-        private bool isLaunched = false;
-        private Vector2 direction;
-        private Camera mainCamera;
-        private Vector2 screenBoundsMin;
-        private Vector2 screenBoundsMax;
+        private bool isMoving = false;
+
+        // Trajectory path data
+        private List<Vector3> trajectoryPath;
+        private int currentSegmentIndex = 0;
+        private Vector3 segmentStart;
+        private Vector3 segmentEnd;
+        private float segmentLength;
+        private float segmentProgress;
 
         // Event when ball stops
         public Action<Ball> OnBallStopped;
@@ -31,126 +34,96 @@ namespace Brain.Gameplay
         {
             ball = GetComponent<Ball>();
             circleCollider = GetComponent<CircleCollider2D>();
-            mainCamera = Camera.main;
         }
 
         /// <summary>
-        /// Launches the ball in the given direction
+        /// Launches the ball along a specific trajectory path with wall bounces
         /// </summary>
-        public void Launch(Vector2 launchDirection)
+        public void LaunchAlongPath(List<Vector3> path)
         {
-            direction = launchDirection.normalized;
-            isLaunched = true;
+            if (path == null || path.Count < 2)
+            {
+                Debug.LogError("BallLaunch: Invalid trajectory path!");
+                return;
+            }
 
-            // Calculate screen bounds for wall bouncing
-            CalculateScreenBounds();
+            trajectoryPath = new List<Vector3>(path);
+            currentSegmentIndex = 0;
+            InitializeSegment(0);
+            isMoving = true;
 
-            // Disable own collider during launch to prevent self-detection
-            // We only need to detect OTHER balls, not be detected ourselves
+            // Disable collider during launch - ball ignores all collisions
             circleCollider.enabled = false;
+        }
+
+        /// <summary>
+        /// Initialize movement for a segment of the trajectory
+        /// </summary>
+        private void InitializeSegment(int segmentIndex)
+        {
+            if (segmentIndex >= trajectoryPath.Count - 1)
+            {
+                // Reached end of path
+                StopBall();
+                return;
+            }
+
+            segmentStart = trajectoryPath[segmentIndex];
+            segmentEnd = trajectoryPath[segmentIndex + 1];
+            segmentLength = Vector3.Distance(segmentStart, segmentEnd);
+            segmentProgress = 0f;
+
+            // Position at start of segment
+            transform.position = segmentStart;
         }
 
         private void Update()
         {
-            if (!isLaunched) return;
+            if (!isMoving || trajectoryPath == null) return;
 
-            // Move ball smoothly
-            Vector3 movement = direction * speed * Time.deltaTime;
-            transform.position += movement;
+            // Move along current segment
+            segmentProgress += Time.deltaTime * speed;
 
-            // Check for wall bouncing
-            CheckWallBounce();
-
-            // Check for collision with grid balls
-            CheckBallCollision();
-        }
-
-        /// <summary>
-        /// Calculates screen bounds for wall bouncing
-        /// </summary>
-        private void CalculateScreenBounds()
-        {
-            if (mainCamera == null) return;
-
-            float vertExtent = mainCamera.orthographicSize;
-            float horzExtent = vertExtent * Screen.width / Screen.height;
-
-            screenBoundsMin = new Vector2(-horzExtent, -vertExtent);
-            screenBoundsMax = new Vector2(horzExtent, vertExtent);
-        }
-
-        /// <summary>
-        /// Checks if ball hits screen edges and bounces
-        /// </summary>
-        private void CheckWallBounce()
-        {
-            float ballRadius = circleCollider.radius;
-
-            // Check left/right bounds
-            if (transform.position.x - ballRadius < screenBoundsMin.x)
+            if (segmentProgress >= segmentLength)
             {
-                // Hit left wall - reflect horizontal direction
-                transform.position = new Vector3(screenBoundsMin.x + ballRadius, transform.position.y, transform.position.z);
-                direction = Vector2.Reflect(direction, Vector2.right);
-            }
-            else if (transform.position.x + ballRadius > screenBoundsMax.x)
-            {
-                // Hit right wall - reflect horizontal direction
-                transform.position = new Vector3(screenBoundsMax.x - ballRadius, transform.position.y, transform.position.z);
-                direction = Vector2.Reflect(direction, Vector2.left);
-            }
-        }
+                // Completed current segment, move to next
+                currentSegmentIndex++;
 
-        /// <summary>
-        /// Checks for collision with grid balls using CircleCast
-        /// </summary>
-        private void CheckBallCollision()
-        {
-            float ballRadius = circleCollider.radius;
-
-            // Cast ahead to predict collision
-            RaycastHit2D hit = Physics2D.CircleCast(
-                transform.position,
-                ballRadius,
-                direction,
-                checkDistance,
-                LayerMask.GetMask("Default")
-            );
-
-            if (hit.collider != null && hit.collider.gameObject != gameObject)
-            {
-                Ball hitBall = hit.collider.GetComponent<Ball>();
-                if (hitBall != null && hitBall.HasFlag(BallFlags.Pinned))
+                if (currentSegmentIndex >= trajectoryPath.Count - 1)
                 {
-                    // Get the contact point (where ball touched)
-                    Vector3 contactPoint = hit.collider.ClosestPoint(transform.position);
-                    StopBall(contactPoint);
-                    return;
+                    // Reached end of path
+                    transform.position = trajectoryPath[trajectoryPath.Count - 1];
+                    StopBall();
+                }
+                else
+                {
+                    // Move to next segment
+                    InitializeSegment(currentSegmentIndex);
                 }
             }
-
-            // Check if ball reached the top
-            if (transform.position.y >= screenBoundsMax.y - ballRadius)
+            else
             {
-                StopBall();
+                // Interpolate along current segment
+                float t = segmentProgress / segmentLength;
+                transform.position = Vector3.Lerp(segmentStart, segmentEnd, t);
             }
         }
 
         /// <summary>
         /// Stops the ball and adds it to the grid
+        /// Since the endpoint is already the snap position, no additional snapping needed
         /// </summary>
-        private void StopBall(Vector3? contactPoint = null)
+        private void StopBall()
         {
-            isLaunched = false;
+            isMoving = false;
 
-            // Re-enable collider now that ball is stopping
+            // Re-enable collider now that ball is at final position
             circleCollider.enabled = true;
 
-            // Use contact point if provided, otherwise use current position
-            Vector3 attachPoint = contactPoint ?? transform.position;
-
-            // Add ball to grid at attachment point
-            GridManager.Instance.AddBallToGrid(ball, attachPoint);
+            // Add ball to grid at the position it's already at (pre-snapped)
+            // The ball is already at the grid snap position, so AddBallToGrid
+            // will find the same position and just register it in the grid
+            GridManager.Instance.AddBallToGrid(ball, transform.position);
 
             // Trigger stopped event
             OnBallStopped?.Invoke(ball);
@@ -161,11 +134,25 @@ namespace Brain.Gameplay
 
         private void OnDrawGizmos()
         {
-            if (!isLaunched || circleCollider == null) return;
+            if (!isMoving || trajectoryPath == null) return;
 
-            // Visualize the collision check
+            // Visualize the trajectory path
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position + (Vector3)(direction * checkDistance), circleCollider.radius);
+            for (int i = 0; i < trajectoryPath.Count - 1; i++)
+            {
+                Gizmos.DrawLine(trajectoryPath[i], trajectoryPath[i + 1]);
+            }
+
+            // Visualize the endpoint
+            if (trajectoryPath.Count > 0)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireSphere(trajectoryPath[trajectoryPath.Count - 1], 0.2f);
+            }
+
+            // Show current position
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position, 0.15f);
         }
     }
 }

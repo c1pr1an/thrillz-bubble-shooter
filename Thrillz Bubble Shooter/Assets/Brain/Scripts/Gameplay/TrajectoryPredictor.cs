@@ -58,18 +58,17 @@ namespace Brain.Gameplay
             Vector2 currentDir = direction.normalized;
             float remainingDistance = maxDistance;
 
-            // Calculate screen bounds for wall detection
+            // Calculate screen bounds for wall detection (no radius offset for raycast)
             float vertExtent = mainCamera.orthographicSize;
             float horzExtent = vertExtent * Screen.width / Screen.height;
-            Vector2 screenBoundsMin = new Vector2(-horzExtent + ballRadius, -vertExtent);
-            Vector2 screenBoundsMax = new Vector2(horzExtent - ballRadius, vertExtent);
+            Vector2 screenBoundsMin = new Vector2(-horzExtent, -vertExtent);
+            Vector2 screenBoundsMax = new Vector2(horzExtent, vertExtent);
 
             for (int bounce = 0; bounce <= maxBounces && remainingDistance > 0; bounce++)
             {
-                // Cast ahead to find collision
-                RaycastHit2D hit = Physics2D.CircleCast(
+                // Cast ahead to find collision using raycast
+                RaycastHit2D hit = Physics2D.Raycast(
                     currentPos,
-                    ballRadius,
                     currentDir,
                     remainingDistance,
                     LayerMask.GetMask("Default")

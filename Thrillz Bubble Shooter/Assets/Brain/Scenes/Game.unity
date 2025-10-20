@@ -268,7 +268,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   totalRows: 60
   startRow: 4
-  fillRate: 0.8
+  fillRate: 0.6
   removeOrphans: 1
 --- !u!1 &499342177
 GameObject:
@@ -378,7 +378,7 @@ LineRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 535749413}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1

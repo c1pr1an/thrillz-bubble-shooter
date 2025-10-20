@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Brain.Managers;
 using UnityEngine;
 
@@ -113,6 +114,39 @@ namespace Brain.Gameplay
         {
             if (currentBall == null) return;
 
+            // Get the full trajectory path from the predictor
+            List<Vector3> trajectoryPath = null;
+            if (trajectoryPredictor != null)
+            {
+                trajectoryPath = trajectoryPredictor.CalculateTrajectory(ballSpawnPoint.position, direction);
+            }
+
+            // Fallback if no trajectory calculated
+            if (trajectoryPath == null || trajectoryPath.Count < 2)
+            {
+                // Create simple straight path if trajectory failed
+                trajectoryPath = new List<Vector3>
+                {
+                    ballSpawnPoint.position,
+                    ballSpawnPoint.position + (Vector3)(direction.normalized * 10f)
+                };
+            }
+
+            // Adjust the trajectory endpoint to be the exact grid snap position
+            if (trajectoryPath.Count > 0)
+            {
+                Vector3 originalEndpoint = trajectoryPath[trajectoryPath.Count - 1];
+
+                // Get the grid snap position from GridManager
+                Vector3 snapPosition = GridManager.Instance.GetGridSnapPosition(originalEndpoint);
+
+                // Replace the last point with the snap position
+                trajectoryPath[trajectoryPath.Count - 1] = snapPosition;
+
+                // Also clamp all trajectory points to stay within screen bounds
+                ClampTrajectoryToScreen(trajectoryPath);
+            }
+
             // Disable launching until ball stops
             canLaunch = false;
 
@@ -125,13 +159,38 @@ namespace Brain.Gameplay
             // Unparent ball from spawn point
             currentBall.transform.SetParent(null);
 
-            // Add launch component
+            // Add launch component and launch along the path
             BallLaunch launcher = currentBall.gameObject.AddComponent<BallLaunch>();
             launcher.OnBallStopped += OnBallStopped;
-            launcher.Launch(direction);
+            launcher.LaunchAlongPath(trajectoryPath);
 
             // Clear current ball reference
             currentBall = null;
+        }
+
+        /// <summary>
+        /// Clamps trajectory points to stay within screen bounds
+        /// </summary>
+        private void ClampTrajectoryToScreen(List<Vector3> trajectoryPath)
+        {
+            if (mainCamera == null) return;
+
+            float vertExtent = mainCamera.orthographicSize;
+            float horzExtent = vertExtent * Screen.width / Screen.height;
+            float ballRadius = 0.35f; // Ball radius to keep ball fully on screen
+
+            for (int i = 0; i < trajectoryPath.Count; i++)
+            {
+                Vector3 point = trajectoryPath[i];
+
+                // Clamp X to screen bounds
+                point.x = Mathf.Clamp(point.x, -horzExtent + ballRadius, horzExtent - ballRadius);
+
+                // Clamp Y to screen bounds (don't go below launcher area)
+                point.y = Mathf.Clamp(point.y, -vertExtent + ballRadius, vertExtent - ballRadius);
+
+                trajectoryPath[i] = point;
+            }
         }
 
         /// <summary>
