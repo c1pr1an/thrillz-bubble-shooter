@@ -1,62 +1,53 @@
 using System;
 using System.Collections.Generic;
-using Brain.Util;
 using UnityEngine;
 using DG.Tweening;
 
 namespace Brain.Gameplay
 {
-    /// <summary>
-    /// Core ball component for bubble shooter
-    /// Manages position, color, neighbors, and state flags
-    /// Adapted from BubbleShooterGameToolkit reference implementation
-    /// </summary>
     [RequireComponent(typeof(CircleCollider2D))]
     public class Ball : MonoBehaviour
     {
+        // Static Fields
+        public static readonly HashSet<Ball> s_rootBalls = new HashSet<Ball>();
+
+        // Private Fields
         [Header("Ball Properties")]
-        [SerializeField] private BallColor ballColor;
+        [SerializeField] private BallColor _ballColor;
 
         [Header("Components")]
-        private CircleCollider2D circleCollider;
+        private CircleCollider2D _circleCollider;
+        private BallFlags _flags = BallFlags.None;
 
-        // Grid state
+        // Properties
         public Vector2Int Position { get; private set; }
         public Ball[] Neighbors { get; private set; } = new Ball[6];
-
-        // Ball state
-        private BallFlags flags = BallFlags.None;
+        public BallColor Color => _ballColor;
         public BallFlags Flags
         {
-            get => flags;
+            get => _flags;
             set
             {
-                // Manage RootBalls HashSet when Root flag changes
+                // Manage s_rootBalls HashSet when Root flag changes
                 if (!HasFlag(BallFlags.Root) && (value & BallFlags.Root) != 0)
                 {
-                    RootBalls.Add(this);
+                    s_rootBalls.Add(this);
                 }
                 else if (HasFlag(BallFlags.Root) && (value & BallFlags.Root) == 0)
                 {
-                    RootBalls.Remove(this);
+                    s_rootBalls.Remove(this);
                 }
 
-                flags = value;
+                _flags = value;
             }
         }
-
-        // Static collection of root balls (top row) for fast orphan detection
-        public static readonly HashSet<Ball> RootBalls = new HashSet<Ball>();
-
-        // Public accessors
-        public BallColor Color => ballColor;
 
         // Events
         public Action<Ball> OnDestroyed;
 
         private void Awake()
         {
-            circleCollider = GetComponent<CircleCollider2D>();
+            _circleCollider = GetComponent<CircleCollider2D>();
         }
 
         private void OnEnable()
@@ -68,21 +59,15 @@ namespace Brain.Gameplay
 
         private void OnDisable()
         {
-            // Clear from RootBalls if present
-            RootBalls.Remove(this);
+            // Clear from s_rootBalls if present
+            s_rootBalls.Remove(this);
         }
 
-        /// <summary>
-        /// Sets the ball's color (enum only, visual is handled by prefab)
-        /// </summary>
         public void SetColor(BallColor color)
         {
-            ballColor = color;
+            _ballColor = color;
         }
 
-        /// <summary>
-        /// Sets the ball's grid position and world position
-        /// </summary>
         public void SetPosition(Vector2Int gridPos, Vector3 worldPos)
         {
             Position = gridPos;
@@ -105,25 +90,16 @@ namespace Brain.Gameplay
             SetColliderEnabled(true);
         }
 
-        /// <summary>
-        /// Updates the neighbor references for this ball
-        /// </summary>
         public void UpdateNeighbors(Ball[] neighbors)
         {
             Neighbors = neighbors;
         }
 
-        /// <summary>
-        /// Checks if ball has a specific flag
-        /// </summary>
         public bool HasFlag(BallFlags flag)
         {
             return (Flags & flag) == flag;
         }
 
-        /// <summary>
-        /// Starts the ball falling (for orphaned balls)
-        /// </summary>
         public void Fall()
         {
             // Mark as falling and unpin from grid
@@ -145,9 +121,6 @@ namespace Brain.Gameplay
             Destroy(gameObject, 3f);
         }
 
-        /// <summary>
-        /// Destroys the ball with animation
-        /// </summary>
         public void DestroyBall()
         {
             // Mark as destroying
@@ -161,29 +134,20 @@ namespace Brain.Gameplay
             });
         }
 
-        /// <summary>
-        /// Enables/disables the collider
-        /// </summary>
         public void SetColliderEnabled(bool enabled)
         {
-            if (circleCollider != null)
+            if (_circleCollider != null)
             {
-                circleCollider.enabled = enabled;
+                _circleCollider.enabled = enabled;
             }
         }
 
-        /// <summary>
-        /// Checks if this ball matches color with another ball
-        /// </summary>
         public bool MatchesColor(Ball other)
         {
             if (other == null) return false;
-            return ballColor == other.ballColor;
+            return _ballColor == other._ballColor;
         }
 
-        /// <summary>
-        /// Returns true if ball has at least one valid neighbor
-        /// </summary>
         public bool HasValidNeighbor()
         {
             foreach (var neighbor in Neighbors)

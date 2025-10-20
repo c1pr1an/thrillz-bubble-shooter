@@ -1,15 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Events;
+﻿using UnityEngine.Events;
 
 namespace Brain.Core
 {
-    /// <summary>
-    /// Serves as a base class for the State pattern.
-    /// </summary>
     public class State<T> where T : System.Enum
     {
+        // Properties
         public T Phase { get; set; }
         public UnityAction OnPhaseStarted { get; set; }
         public UnityAction OnPhaseEnded { get; set; }

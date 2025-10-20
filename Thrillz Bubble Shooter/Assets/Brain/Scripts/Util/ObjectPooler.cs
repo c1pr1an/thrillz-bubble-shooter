@@ -10,10 +10,9 @@ namespace Brain.Util
         AddScoreText
     }
 
-    public class ObjectPooler : MonoBehaviour
+    public class ObjectPooler : UnitySingleton<ObjectPooler>
     {
-        public static ObjectPooler Instance;
-
+        // Nested Classes
         [Serializable]
         public class Pool
         {
@@ -22,28 +21,11 @@ namespace Brain.Util
             public GameObject prefab;
         }
 
+        // Public Fields
         public List<Pool> pools;
         public Dictionary<PooledObjectTag, Queue<GameObject>> poolDictionary;
 
-        private void Awake()
-        {
-            if (Instance == null)
-            {
-                Instance = this;
-                Init();
-            }
-            else
-            {
-                Debug.LogWarning("Multiple instances of ObjectPooler detected. Destroying the new instance.");
-                Destroy(gameObject);
-            }
-        }
-
-        private void OnDestroy()
-        {
-            Instance = null;
-        }
-
+        // Public Methods
         public void Init()
         {
             poolDictionary = new Dictionary<PooledObjectTag, Queue<GameObject>>();
@@ -79,6 +61,7 @@ namespace Brain.Util
             return objectToSpawn;
         }
 
+        // Private Methods
         private void GrowPool(PooledObjectTag tag)
         {
             int growSize = 2;

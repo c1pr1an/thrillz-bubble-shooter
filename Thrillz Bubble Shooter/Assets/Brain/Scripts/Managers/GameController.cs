@@ -13,8 +13,11 @@ namespace Brain.Managers
 
     public class GameController : UnitySingleton<GameController>
     {
+        // Private Fields
         private StateMachine<GamePhase> _stateMachine;
         private int _matchSeed;
+
+        // Properties
         public int MatchSeed => _matchSeed;
         public GamePhase CurrentPhase => _stateMachine.CurrentPhase;
 

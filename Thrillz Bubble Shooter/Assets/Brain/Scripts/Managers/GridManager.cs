@@ -5,45 +5,43 @@ using UnityEngine;
 
 namespace Brain.Managers
 {
-    /// <summary>
-    /// Manages the hexagonal grid of balls
-    /// Handles grid state, ball spawning, and neighbor relationships
-    /// </summary>
     public class GridManager : UnitySingleton<GridManager>
     {
+        // Private Fields
         [Header("Grid Settings")]
-        [SerializeField] private int maxColumns = 11;
-        [SerializeField] private int maxRows = 66;
-        [SerializeField] private float ballWidth = 1f;
-        [SerializeField] private float ballHeight = 0.87f;
+        [SerializeField] private int _maxColumns = 11;
+        [SerializeField] private int _maxRows = 66;
+        [SerializeField] private float _ballWidth = 1f;
+        [SerializeField] private float _ballHeight = 0.87f;
 
-        [SerializeField] private Ball[] ballPrefabs = new Ball[6];
+        [SerializeField] private Ball[] _ballPrefabs = new Ball[6];
 
         [Header("Grid Container")]
-        [SerializeField] private Transform gridContainer;
+        [SerializeField] private Transform _gridContainer;
 
         // 2D grid matrix [row][column] - matches toolkit's structure
-        private List<List<Ball>> balls;
+        private List<List<Ball>> _balls;
 
-        public List<List<Ball>> Balls => balls;
-        public int MaxColumns => maxColumns;
-        public int MaxRows => maxRows;
-        public float BallWidth => ballWidth;
-        public float BallHeight => ballHeight;
-        public Transform GridContainer => gridContainer;
+        // Properties
+        public List<List<Ball>> Balls => _balls;
+        public int MaxColumns => _maxColumns;
+        public int MaxRows => _maxRows;
+        public float BallWidth => _ballWidth;
+        public float BallHeight => _ballHeight;
+        public Transform GridContainer => _gridContainer;
 
         /// <summary>
         /// Gets a ball prefab by color index (single source of truth)
         /// </summary>
         public Ball GetBallPrefab(int colorIndex)
         {
-            if (colorIndex < 0 || colorIndex >= ballPrefabs.Length)
+            if (colorIndex < 0 || colorIndex >= _ballPrefabs.Length)
             {
                 Debug.LogError($"GridManager: Invalid ball color index {colorIndex}");
                 return null;
             }
 
-            return ballPrefabs[colorIndex];
+            return _ballPrefabs[colorIndex];
         }
 
         /// <summary>
@@ -51,9 +49,9 @@ namespace Brain.Managers
         /// </summary>
         public void InitializeGrid()
         {
-            balls = new List<List<Ball>>(maxRows);
+            _balls = new List<List<Ball>>(_maxRows);
 
-            for (int row = 0; row < maxRows; row++)
+            for (int row = 0; row < _maxRows; row++)
             {
                 int columnsInRow = GridUtils.GetMaxColumns(row);
                 List<Ball> rowList = new List<Ball>(columnsInRow);
@@ -63,12 +61,12 @@ namespace Brain.Managers
                     rowList.Add(null);
                 }
 
-                balls.Add(rowList);
+                _balls.Add(rowList);
             }
         }
 
         /// <summary>
-        /// Finalizes grid setup after balls are spawned
+        /// Finalizes grid setup after _balls are spawned
         /// </summary>
         public void FinalizeGrid()
         {
@@ -80,7 +78,7 @@ namespace Brain.Managers
         /// </summary>
         public Ball SpawnBall(int col, int row, BallColor color)
         {
-            if (!GridUtils.IsValidPosition(col, row, maxColumns, maxRows))
+            if (!GridUtils.IsValidPosition(col, row, _maxColumns, _maxRows))
             {
                 Debug.LogWarning($"Invalid grid position: ({col}, {row})");
                 return null;
@@ -88,7 +86,7 @@ namespace Brain.Managers
 
             // Get the correct prefab for this color
             int colorIndex = (int)color;
-            if (colorIndex < 0 || colorIndex >= ballPrefabs.Length || ballPrefabs[colorIndex] == null)
+            if (colorIndex < 0 || colorIndex >= _ballPrefabs.Length || _ballPrefabs[colorIndex] == null)
             {
                 Debug.LogError($"Ball prefab for color {color} (index {colorIndex}) is not assigned!");
                 return null;
@@ -96,16 +94,16 @@ namespace Brain.Managers
 
             // Calculate world position
             Vector2Int gridPos = new Vector2Int(col, row);
-            Vector3 worldPos = GridUtils.PosToWorld(gridPos, ballWidth, ballHeight, gridContainer);
+            Vector3 worldPos = GridUtils.PosToWorld(gridPos, _ballWidth, _ballHeight, _gridContainer);
 
             // Instantiate the correct ball prefab
-            Ball ball = Instantiate(ballPrefabs[colorIndex], worldPos, Quaternion.identity, gridContainer);
+            Ball ball = Instantiate(_ballPrefabs[colorIndex], worldPos, Quaternion.identity, _gridContainer);
             ball.name = $"Ball_{color}_{row}_{col}";
             ball.SetColor(color);
             ball.SetPosition(gridPos, worldPos);
 
             // Add to grid
-            balls[row][col] = ball;
+            _balls[row][col] = ball;
 
             return ball;
         }
@@ -118,11 +116,11 @@ namespace Brain.Managers
             // Find nearest empty cell using distance-based search
             Vector2Int gridPos = GridUtils.FindNearestEmptyCell(
                 worldPosition,
-                ballWidth,
-                ballHeight,
-                gridContainer,
-                maxColumns,
-                maxRows,
+                _ballWidth,
+                _ballHeight,
+                _gridContainer,
+                _maxColumns,
+                _maxRows,
                 (x, y) => GetBall(x, y) == null
             );
 
@@ -133,7 +131,7 @@ namespace Brain.Managers
             }
 
             // Convert grid position to world position (this is the exact snap position)
-            return GridUtils.PosToWorld(gridPos, ballWidth, ballHeight, gridContainer);
+            return GridUtils.PosToWorld(gridPos, _ballWidth, _ballHeight, _gridContainer);
         }
 
         /// <summary>
@@ -144,11 +142,11 @@ namespace Brain.Managers
             // Find nearest empty cell using distance-based search
             Vector2Int gridPos = GridUtils.FindNearestEmptyCell(
                 worldPosition,
-                ballWidth,
-                ballHeight,
-                gridContainer,
-                maxColumns,
-                maxRows,
+                _ballWidth,
+                _ballHeight,
+                _gridContainer,
+                _maxColumns,
+                _maxRows,
                 (x, y) => GetBall(x, y) == null
             );
 
@@ -160,15 +158,15 @@ namespace Brain.Managers
             }
 
             // Parent to grid container so it moves with the grid
-            ball.transform.SetParent(gridContainer);
+            ball.transform.SetParent(_gridContainer);
 
             // Snap to grid world position
-            Vector3 snappedWorldPos = GridUtils.PosToWorld(gridPos, ballWidth, ballHeight, gridContainer);
+            Vector3 snappedWorldPos = GridUtils.PosToWorld(gridPos, _ballWidth, _ballHeight, _gridContainer);
             ball.transform.position = snappedWorldPos;
             ball.SetPosition(gridPos, snappedWorldPos);
 
             // Add to grid matrix
-            balls[gridPos.y][gridPos.x] = ball;
+            _balls[gridPos.y][gridPos.x] = ball;
 
             // Update neighbors
             UpdateNeighbors(ball);
@@ -183,15 +181,15 @@ namespace Brain.Managers
             if (ball == null) return;
 
             Vector2Int pos = ball.Position;
-            if (pos.y >= 0 && pos.y < balls.Count && pos.x >= 0 && pos.x < balls[pos.y].Count)
+            if (pos.y >= 0 && pos.y < _balls.Count && pos.x >= 0 && pos.x < _balls[pos.y].Count)
             {
-                if (balls[pos.y][pos.x] == ball)
+                if (_balls[pos.y][pos.x] == ball)
                 {
-                    balls[pos.y][pos.x] = null;
+                    _balls[pos.y][pos.x] = null;
                 }
             }
 
-            // Update neighbors of adjacent balls
+            // Update neighbors of adjacent _balls
             UpdateAdjacentNeighbors(ball);
         }
 
@@ -202,7 +200,7 @@ namespace Brain.Managers
         {
             if (ball == null) return;
 
-            Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(ball.Position, maxColumns, maxRows);
+            Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(ball.Position, _maxColumns, _maxRows);
             Ball[] neighbors = new Ball[6];
 
             for (int i = 0; i < 6; i++)
@@ -222,13 +220,13 @@ namespace Brain.Managers
         }
 
         /// <summary>
-        /// Updates neighbor references for all balls adjacent to the given ball
+        /// Updates neighbor references for all _balls adjacent to the given ball
         /// </summary>
         private void UpdateAdjacentNeighbors(Ball ball)
         {
             if (ball == null) return;
 
-            Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(ball.Position, maxColumns, maxRows);
+            Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(ball.Position, _maxColumns, _maxRows);
 
             foreach (var neighborPos in neighborPositions)
             {
@@ -248,11 +246,11 @@ namespace Brain.Managers
         /// </summary>
         private void UpdateAllNeighbors()
         {
-            for (int row = 0; row < balls.Count; row++)
+            for (int row = 0; row < _balls.Count; row++)
             {
-                for (int col = 0; col < balls[row].Count; col++)
+                for (int col = 0; col < _balls[row].Count; col++)
                 {
-                    Ball ball = balls[row][col];
+                    Ball ball = _balls[row][col];
                     if (ball != null)
                     {
                         UpdateNeighbors(ball);
@@ -266,12 +264,12 @@ namespace Brain.Managers
         /// </summary>
         public Ball GetBall(int col, int row)
         {
-            if (row < 0 || row >= balls.Count || col < 0 || col >= balls[row].Count)
+            if (row < 0 || row >= _balls.Count || col < 0 || col >= _balls[row].Count)
             {
                 return null;
             }
 
-            return balls[row][col];
+            return _balls[row][col];
         }
 
         /// <summary>
@@ -279,11 +277,11 @@ namespace Brain.Managers
         /// </summary>
         public void ClearAllMarks()
         {
-            for (int row = 0; row < balls.Count; row++)
+            for (int row = 0; row < _balls.Count; row++)
             {
-                for (int col = 0; col < balls[row].Count; col++)
+                for (int col = 0; col < _balls[row].Count; col++)
                 {
-                    Ball ball = balls[row][col];
+                    Ball ball = _balls[row][col];
                     if (ball != null)
                     {
                         ball.Flags &= ~BallFlags.MarkConnected;

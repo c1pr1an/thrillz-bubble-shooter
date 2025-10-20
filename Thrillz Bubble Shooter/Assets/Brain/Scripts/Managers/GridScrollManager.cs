@@ -7,26 +7,28 @@ namespace Brain.Managers
 {
     public class GridScrollManager : UnitySingleton<GridScrollManager>
     {
+        // Serialized Fields
         [Header("Scroll Settings")]
-        [SerializeField] private int deathLineRow = 0;
-        [SerializeField] private int targetBufferRows = 4;
+        [SerializeField] private int _deathLineRow = 0;
+        [SerializeField] private int _targetBufferRows = 4;
 
-        private Vector3 initialGridPosition;
-        private int lastLowestRow = -1;
+        // Private Fields
+        private Vector3 _initialGridPosition;
+        private int _lastLowestRow = -1;
 
+        // Events
         public event Action OnDeathLineTouched;
 
+        // Unity Lifecycle
         private void Start()
         {
             if (GridManager.Instance != null && GridManager.Instance.GridContainer != null)
             {
-                initialGridPosition = GridManager.Instance.GridContainer.position;
+                _initialGridPosition = GridManager.Instance.GridContainer.position;
             }
         }
 
-        /// <summary>
-        /// Checks and updates grid position to maintain buffer
-        /// </summary>
+        // Public Methods
         public void UpdateGridPosition()
         {
             GridManager gridManager = GridManager.Instance;
@@ -36,25 +38,23 @@ namespace Brain.Managers
             if (lowestRow == -1) return;
 
             // Check death line collision
-            if (lowestRow <= deathLineRow)
+            if (lowestRow <= _deathLineRow)
             {
                 OnDeathLineTouched?.Invoke();
                 return;
             }
 
             // Move grid up if bottom row cleared
-            if (lowestRow > lastLowestRow && lastLowestRow != -1)
+            if (lowestRow > _lastLowestRow && _lastLowestRow != -1)
             {
-                int rowsToMove = lowestRow - lastLowestRow;
+                int rowsToMove = lowestRow - _lastLowestRow;
                 MoveGridUp(rowsToMove);
             }
 
-            lastLowestRow = lowestRow;
+            _lastLowestRow = lowestRow;
         }
 
-        /// <summary>
-        /// Finds the lowest row with any ball
-        /// </summary>
+        // Private Methods
         private int GetLowestOccupiedRow()
         {
             GridManager gridManager = GridManager.Instance;
@@ -74,9 +74,6 @@ namespace Brain.Managers
             return -1;
         }
 
-        /// <summary>
-        /// Moves grid up by specified rows
-        /// </summary>
         private void MoveGridUp(int rows)
         {
             GridManager gridManager = GridManager.Instance;
@@ -86,23 +83,20 @@ namespace Brain.Managers
             Vector3 newPosition = gridManager.GridContainer.position + new Vector3(0, -moveDistance, 0);
 
             // Don't move above initial position (anchor limit)
-            if (newPosition.y > initialGridPosition.y)
+            if (newPosition.y > _initialGridPosition.y)
             {
-                newPosition.y = initialGridPosition.y;
+                newPosition.y = _initialGridPosition.y;
             }
 
             gridManager.GridContainer.position = newPosition;
         }
 
-        /// <summary>
-        /// Resets scroll state
-        /// </summary>
         public void ResetScroll()
         {
-            lastLowestRow = -1;
+            _lastLowestRow = -1;
             if (GridManager.Instance != null && GridManager.Instance.GridContainer != null)
             {
-                GridManager.Instance.GridContainer.position = initialGridPosition;
+                GridManager.Instance.GridContainer.position = _initialGridPosition;
             }
         }
     }

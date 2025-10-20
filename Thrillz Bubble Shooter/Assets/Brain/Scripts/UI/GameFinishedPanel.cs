@@ -8,6 +8,7 @@ namespace Brain.UI
 {
     public class GameFinishedPanel : MonoBehaviour
     {
+        // Public Methods
         public void Display(float delay)
         {
             DOVirtual.DelayedCall(delay, () =>

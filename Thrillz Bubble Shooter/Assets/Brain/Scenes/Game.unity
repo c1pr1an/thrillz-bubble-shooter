@@ -158,8 +158,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e9eaf14ce81f482782e24945b254bab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxIterations: 5
-  delayBetweenFalls: 0.05
+  _maxIterations: 5
+  _delayBetweenFalls: 0.05
 --- !u!114 &385195354
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172,7 +172,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89653fd12ecd14de1b17b2ad857b4983, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  delayBetweenDestructions: 0.05
+  _delayBetweenDestructions: 0.05
 --- !u!114 &385195355
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -185,7 +185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e146b19458bb04cd8ab0c39f3ddf9ebf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minMatchCount: 3
+  _minMatchCount: 3
 --- !u!114 &385195356
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -198,18 +198,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d0ec530ea85f4e54992bf9260c9f55b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxColumns: 11
-  maxRows: 66
-  ballWidth: 1
-  ballHeight: 0.87
-  ballPrefabs:
-  - {fileID: 7368890781758253959, guid: a47adcfb621d94ee1b5b5a06e1625e1f, type: 3}
+  _maxColumns: 11
+  _maxRows: 66
+  _ballWidth: 1
+  _ballHeight: 0.87
+  _ballPrefabs:
   - {fileID: 7368890781758253959, guid: dad3e60a073fb44b2a41b7d6dc78651c, type: 3}
-  - {fileID: 7368890781758253959, guid: bd7e5e61956f745eb9dcdd0c8caa3c65, type: 3}
   - {fileID: 7368890781758253959, guid: 5c3a67c349a3040a1b5ea62a7ce3bc69, type: 3}
-  - {fileID: 7368890781758253959, guid: 75a7b08cd02c242f68f15b45b959490e, type: 3}
   - {fileID: 7368890781758253959, guid: 7fffa79251b2046439e8b0fc0e7e4e3e, type: 3}
-  gridContainer: {fileID: 677231495}
+  - {fileID: 7368890781758253959, guid: 75a7b08cd02c242f68f15b45b959490e, type: 3}
+  - {fileID: 7368890781758253959, guid: bd7e5e61956f745eb9dcdd0c8caa3c65, type: 3}
+  - {fileID: 7368890781758253959, guid: a47adcfb621d94ee1b5b5a06e1625e1f, type: 3}
+  _gridContainer: {fileID: 677231495}
 --- !u!4 &385195357
 Transform:
   m_ObjectHideFlags: 0
@@ -239,7 +239,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba605eff18dc1d14185ba1e944d95dc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameDuration: 120
+  _gameDuration: 120
 --- !u!114 &385195359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,8 +252,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ede5f1059115aad4aaa9510a032535f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deathLineRow: 0
-  targetBufferRows: 4
+  _deathLineRow: 0
+  _targetBufferRows: 4
 --- !u!114 &385195360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266,10 +266,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a332393c924976544be307aea30e2964, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalRows: 60
-  startRow: 4
-  fillRate: 0.6
-  removeOrphans: 1
+  _totalRows: 60
+  _startRow: 4
+  _fillRate: 0.6
+  _removeOrphans: 1
 --- !u!1 &499342177
 GameObject:
   m_ObjectHideFlags: 0
@@ -317,10 +317,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b67b4c7709694534947e2ba902c5b87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ballSpawnPoint: {fileID: 832981467}
-  minAimAngle: 10
-  maxAimAngle: 170
-  trajectoryPredictor: {fileID: 499342180}
+  _ballSpawnPoint: {fileID: 832981467}
+  _minAimAngle: 10
+  _maxAimAngle: 170
+  _trajectoryPredictor: {fileID: 499342180}
 --- !u!114 &499342180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -333,11 +333,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bee3d466b41754cc886af997c204c086, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxBounces: 2
-  maxDistance: 50
-  ballRadius: 0.35
-  trajectoryLine: {fileID: 535749415}
-  lineWidth: 0.15
+  _maxBounces: 3
+  _maxDistance: 50
+  _ballRadius: 0.35
+  _trajectoryLine: {fileID: 535749415}
+  _lineWidth: 0.15
 --- !u!1 &535749413
 GameObject:
   m_ObjectHideFlags: 0

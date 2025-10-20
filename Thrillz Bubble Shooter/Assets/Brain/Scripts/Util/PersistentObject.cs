@@ -6,16 +6,18 @@ namespace Brain.Util
 {
     public class PersistentObject : MonoBehaviour
     {
-        private static PersistentObject Instance = null;
+        // Static Fields
+        private static PersistentObject s_Instance = null;
 
+        // Unity Lifecycle
         void Awake()
         {
-            if (Instance == null)
+            if (s_Instance == null)
             {
-                Instance = this;
+                s_Instance = this;
                 DontDestroyOnLoad(gameObject);
             }
-            else if (Instance != this)
+            else if (s_Instance != this)
                 Destroy(gameObject);
         }
     }

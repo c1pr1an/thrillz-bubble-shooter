@@ -5,40 +5,34 @@ using UnityEngine;
 
 namespace Brain.Gameplay
 {
-    /// <summary>
-    /// Handles ball movement along predetermined trajectory path
-    /// Ball follows the exact trajectory including wall bounces, ignoring ball collisions
-    /// </summary>
     [RequireComponent(typeof(Ball))]
     public class BallLaunch : MonoBehaviour
     {
+        // Private Fields
         [Header("Launch Settings")]
-        [SerializeField] private float speed = 15f;
+        [SerializeField] private float _speed = 15f;
 
-        private Ball ball;
-        private CircleCollider2D circleCollider;
-        private bool isMoving = false;
+        private Ball _ball;
+        private CircleCollider2D _circleCollider;
+        private bool _isMoving = false;
 
         // Trajectory path data
-        private List<Vector3> trajectoryPath;
-        private int currentSegmentIndex = 0;
-        private Vector3 segmentStart;
-        private Vector3 segmentEnd;
-        private float segmentLength;
-        private float segmentProgress;
+        private List<Vector3> _trajectoryPath;
+        private int _currentSegmentIndex = 0;
+        private Vector3 _segmentStart;
+        private Vector3 _segmentEnd;
+        private float _segmentLength;
+        private float _segmentProgress;
 
-        // Event when ball stops
+        // Events
         public Action<Ball> OnBallStopped;
 
         private void Awake()
         {
-            ball = GetComponent<Ball>();
-            circleCollider = GetComponent<CircleCollider2D>();
+            _ball = GetComponent<Ball>();
+            _circleCollider = GetComponent<CircleCollider2D>();
         }
 
-        /// <summary>
-        /// Launches the ball along a specific trajectory path with wall bounces
-        /// </summary>
         public void LaunchAlongPath(List<Vector3> path)
         {
             if (path == null || path.Count < 2)
@@ -47,86 +41,79 @@ namespace Brain.Gameplay
                 return;
             }
 
-            trajectoryPath = new List<Vector3>(path);
-            currentSegmentIndex = 0;
+            _trajectoryPath = new List<Vector3>(path);
+            _currentSegmentIndex = 0;
             InitializeSegment(0);
-            isMoving = true;
+            _isMoving = true;
 
             // Disable collider during launch - ball ignores all collisions
-            circleCollider.enabled = false;
+            _circleCollider.enabled = false;
         }
 
-        /// <summary>
-        /// Initialize movement for a segment of the trajectory
-        /// </summary>
         private void InitializeSegment(int segmentIndex)
         {
-            if (segmentIndex >= trajectoryPath.Count - 1)
+            if (segmentIndex >= _trajectoryPath.Count - 1)
             {
                 // Reached end of path
                 StopBall();
                 return;
             }
 
-            segmentStart = trajectoryPath[segmentIndex];
-            segmentEnd = trajectoryPath[segmentIndex + 1];
-            segmentLength = Vector3.Distance(segmentStart, segmentEnd);
-            segmentProgress = 0f;
+            _segmentStart = _trajectoryPath[segmentIndex];
+            _segmentEnd = _trajectoryPath[segmentIndex + 1];
+            _segmentLength = Vector3.Distance(_segmentStart, _segmentEnd);
+            _segmentProgress = 0f;
 
             // Position at start of segment
-            transform.position = segmentStart;
+            transform.position = _segmentStart;
         }
 
         private void Update()
         {
-            if (!isMoving || trajectoryPath == null) return;
+            if (!_isMoving || _trajectoryPath == null) return;
 
             // Move along current segment
-            segmentProgress += Time.deltaTime * speed;
+            _segmentProgress += Time.deltaTime * _speed;
 
-            if (segmentProgress >= segmentLength)
+            if (_segmentProgress >= _segmentLength)
             {
                 // Completed current segment, move to next
-                currentSegmentIndex++;
+                _currentSegmentIndex++;
 
-                if (currentSegmentIndex >= trajectoryPath.Count - 1)
+                if (_currentSegmentIndex >= _trajectoryPath.Count - 1)
                 {
                     // Reached end of path
-                    transform.position = trajectoryPath[trajectoryPath.Count - 1];
+                    transform.position = _trajectoryPath[^1];
                     StopBall();
                 }
                 else
                 {
                     // Move to next segment
-                    InitializeSegment(currentSegmentIndex);
+                    InitializeSegment(_currentSegmentIndex);
                 }
             }
             else
             {
                 // Interpolate along current segment
-                float t = segmentProgress / segmentLength;
-                transform.position = Vector3.Lerp(segmentStart, segmentEnd, t);
+                float t = _segmentProgress / _segmentLength;
+                transform.position = Vector3.Lerp(_segmentStart, _segmentEnd, t);
             }
         }
 
-        /// <summary>
-        /// Stops the ball and adds it to the grid
-        /// Since the endpoint is already the snap position, no additional snapping needed
-        /// </summary>
         private void StopBall()
         {
-            isMoving = false;
+            _isMoving = false;
 
             // Re-enable collider now that ball is at final position
-            circleCollider.enabled = true;
+            _circleCollider.enabled = true;
 
             // Add ball to grid at the position it's already at (pre-snapped)
             // The ball is already at the grid snap position, so AddBallToGrid
             // will find the same position and just register it in the grid
-            GridManager.Instance.AddBallToGrid(ball, transform.position);
+            GridManager.Instance.AddBallToGrid(_ball, transform.position);
 
             // Trigger stopped event
-            OnBallStopped?.Invoke(ball);
+            OnBallStopped?.Invoke(_ball);
 
             // Destroy this launch component (no longer needed)
             Destroy(this);
@@ -134,20 +121,20 @@ namespace Brain.Gameplay
 
         private void OnDrawGizmos()
         {
-            if (!isMoving || trajectoryPath == null) return;
+            if (!_isMoving || _trajectoryPath == null) return;
 
             // Visualize the trajectory path
             Gizmos.color = Color.yellow;
-            for (int i = 0; i < trajectoryPath.Count - 1; i++)
+            for (int i = 0; i < _trajectoryPath.Count - 1; i++)
             {
-                Gizmos.DrawLine(trajectoryPath[i], trajectoryPath[i + 1]);
+                Gizmos.DrawLine(_trajectoryPath[i], _trajectoryPath[i + 1]);
             }
 
             // Visualize the endpoint
-            if (trajectoryPath.Count > 0)
+            if (_trajectoryPath.Count > 0)
             {
                 Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(trajectoryPath[trajectoryPath.Count - 1], 0.2f);
+                Gizmos.DrawWireSphere(_trajectoryPath[^1], 0.2f);
             }
 
             // Show current position

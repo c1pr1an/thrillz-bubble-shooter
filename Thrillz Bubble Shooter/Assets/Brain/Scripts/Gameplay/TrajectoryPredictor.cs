@@ -3,42 +3,39 @@ using UnityEngine;
 
 namespace Brain.Gameplay
 {
-    /// <summary>
-    /// Calculates and visualizes ball trajectory including wall bounces
-    /// Inspired by BubbleShooterGameToolkit's trajectory system
-    /// </summary>
     public class TrajectoryPredictor : MonoBehaviour
     {
+        // Private Fields
         [Header("Trajectory Settings")]
-        [SerializeField] private int maxBounces = 3; // Number of wall bounces to predict
-        [SerializeField] private float maxDistance = 50f; // Maximum raycast distance
-        [SerializeField] private float ballRadius = 0.35f; // Ball collision radius
+        [SerializeField] private int _maxBounces = 3; // Number of wall bounces to predict
+        [SerializeField] private float _maxDistance = 50f; // Maximum raycast distance
+        [SerializeField] private float _ballRadius = 0.35f; // Ball collision radius
 
         [Header("Visualization")]
-        [SerializeField] private LineRenderer trajectoryLine;
-        [SerializeField] private float lineWidth = 0.15f;
+        [SerializeField] private LineRenderer _trajectoryLine;
+        [SerializeField] private float _lineWidth = 0.15f;
 
-        private Camera mainCamera;
-        private List<Vector3> trajectoryPoints = new List<Vector3>();
+        private Camera _mainCamera;
+        private List<Vector3> _trajectoryPoints = new List<Vector3>();
 
-        // Public getter for checking conflicts
-        public LineRenderer TrajectoryLine => trajectoryLine;
+        // Properties
+        public LineRenderer TrajectoryLine => _trajectoryLine;
 
         private void Awake()
         {
-            mainCamera = Camera.main;
+            _mainCamera = Camera.main;
         }
 
         private void Start()
         {
             // Configure the assigned LineRenderer reference
-            if (trajectoryLine != null)
+            if (_trajectoryLine != null)
             {
-                trajectoryLine.startWidth = lineWidth;
-                trajectoryLine.endWidth = lineWidth;
+                _trajectoryLine.startWidth = _lineWidth;
+                _trajectoryLine.endWidth = _lineWidth;
 
                 // Start with it disabled
-                trajectoryLine.enabled = false;
+                _trajectoryLine.enabled = false;
             }
             else
             {
@@ -51,20 +48,20 @@ namespace Brain.Gameplay
         /// </summary>
         public List<Vector3> CalculateTrajectory(Vector3 startPos, Vector2 direction)
         {
-            trajectoryPoints.Clear();
-            trajectoryPoints.Add(startPos);
+            _trajectoryPoints.Clear();
+            _trajectoryPoints.Add(startPos);
 
             Vector2 currentPos = startPos;
             Vector2 currentDir = direction.normalized;
-            float remainingDistance = maxDistance;
+            float remainingDistance = _maxDistance;
 
             // Calculate screen bounds for wall detection (no radius offset for raycast)
-            float vertExtent = mainCamera.orthographicSize;
+            float vertExtent = _mainCamera.orthographicSize;
             float horzExtent = vertExtent * Screen.width / Screen.height;
             Vector2 screenBoundsMin = new Vector2(-horzExtent, -vertExtent);
             Vector2 screenBoundsMax = new Vector2(horzExtent, vertExtent);
 
-            for (int bounce = 0; bounce <= maxBounces && remainingDistance > 0; bounce++)
+            for (int bounce = 0; bounce <= _maxBounces && remainingDistance > 0; bounce++)
             {
                 // Cast ahead to find collision using raycast
                 RaycastHit2D hit = Physics2D.Raycast(
@@ -129,14 +126,14 @@ namespace Brain.Gameplay
                     if (hitBallComponent != null && hitBallComponent.HasFlag(BallFlags.Pinned))
                     {
                         // Add point where we hit the ball
-                        trajectoryPoints.Add(hit.point);
+                        _trajectoryPoints.Add(hit.point);
                         break; // Stop trajectory at ball collision
                     }
                 }
                 else if (hitWall && distanceToWall < remainingDistance)
                 {
                     // Hit a wall first
-                    trajectoryPoints.Add(wallHitPoint);
+                    _trajectoryPoints.Add(wallHitPoint);
 
                     // If we hit the top, stop here
                     if (wallNormal == Vector2.down)
@@ -153,19 +150,19 @@ namespace Brain.Gameplay
                 {
                     // No collision within remaining distance - add endpoint
                     Vector2 endPoint = currentPos + currentDir * Mathf.Min(remainingDistance, 10f);
-                    trajectoryPoints.Add(endPoint);
+                    _trajectoryPoints.Add(endPoint);
                     break;
                 }
             }
 
             // If we only have start point, add at least an endpoint for visualization
-            if (trajectoryPoints.Count == 1)
+            if (_trajectoryPoints.Count == 1)
             {
                 Vector2 endPoint = (Vector2)startPos + direction.normalized * 5f;
-                trajectoryPoints.Add(endPoint);
+                _trajectoryPoints.Add(endPoint);
             }
 
-            return trajectoryPoints;
+            return _trajectoryPoints;
         }
 
         /// <summary>
@@ -173,13 +170,13 @@ namespace Brain.Gameplay
         /// </summary>
         public void ShowTrajectory(Vector3 startPos, Vector2 direction)
         {
-            if (trajectoryLine == null) return;
+            if (_trajectoryLine == null) return;
 
             List<Vector3> points = CalculateTrajectory(startPos, direction);
 
             if (points.Count < 2)
             {
-                trajectoryLine.enabled = false;
+                _trajectoryLine.enabled = false;
                 return;
             }
 
@@ -190,9 +187,9 @@ namespace Brain.Gameplay
             }
 
             // Update line renderer with trajectory points
-            trajectoryLine.positionCount = points.Count;
-            trajectoryLine.SetPositions(points.ToArray());
-            trajectoryLine.enabled = true;
+            _trajectoryLine.positionCount = points.Count;
+            _trajectoryLine.SetPositions(points.ToArray());
+            _trajectoryLine.enabled = true;
         }
 
         /// <summary>
@@ -200,9 +197,9 @@ namespace Brain.Gameplay
         /// </summary>
         public void HideTrajectory()
         {
-            if (trajectoryLine != null)
+            if (_trajectoryLine != null)
             {
-                trajectoryLine.enabled = false;
+                _trajectoryLine.enabled = false;
             }
         }
     }

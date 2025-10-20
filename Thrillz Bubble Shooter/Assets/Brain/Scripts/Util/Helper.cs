@@ -8,6 +8,12 @@ namespace Brain.Util
 {
     public class Helper : MonoBehaviour
     {
+        // Static Fields
+        static PointerEventData s_EventDataCurrentPosition;
+        static List<RaycastResult> s_Results;
+        private static readonly Dictionary<float, WaitForSeconds> s_WaitDictionary = new Dictionary<float, WaitForSeconds>();
+
+        // Public Static Methods
         public static void FadeInCanvasGroup(CanvasGroup canvasGroup)
         {
             if (canvasGroup.gameObject.activeSelf && canvasGroup.alpha == 1f) return;
@@ -23,8 +29,6 @@ namespace Brain.Util
                 AddTagRecursively(t, tag);
         }
 
-        static PointerEventData s_EventDataCurrentPosition;
-        static List<RaycastResult> s_Results;
         public static bool IsPointerOverUIObject()
         {
             // Referencing this code for GraphicRaycaster https://gist.github.com/stramit/ead7ca1f432f3c0f181f
@@ -70,7 +74,6 @@ namespace Brain.Util
             return canvasRay.GetPoint(canvas.planeDistance);
         }
 
-        private static readonly Dictionary<float, WaitForSeconds> s_WaitDictionary = new Dictionary<float, WaitForSeconds>();
         public static WaitForSeconds GetWait(float time)
         {
             if (s_WaitDictionary.TryGetValue(time, out var wait)) return wait;

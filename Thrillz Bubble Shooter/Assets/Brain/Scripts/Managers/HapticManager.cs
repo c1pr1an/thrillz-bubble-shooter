@@ -15,6 +15,7 @@ namespace Brain.Managers
 
     public class HapticManager : UnitySingleton<HapticManager>
     {
+        // Public Methods
         public void TriggerHaptic(HapticType hapticType)
         {
             // if (!_0_CoreProject.Scripts.SettingsToggleParameters.HapticOn)

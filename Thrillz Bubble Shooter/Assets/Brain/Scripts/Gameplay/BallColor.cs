@@ -1,8 +1,5 @@
 namespace Brain.Gameplay
 {
-    /// <summary>
-    /// Ball color types for matching
-    /// </summary>
     public enum BallColor
     {
         Yellow = 0,

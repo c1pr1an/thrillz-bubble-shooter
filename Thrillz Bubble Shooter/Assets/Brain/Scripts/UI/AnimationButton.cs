@@ -7,31 +7,39 @@ using UnityEngine.UI;
 
 namespace Brain.UI
 {
-	/// <summary>
-	/// A button that animates its scale on pointer down and up events.
-	/// </summary>
 	[RequireComponent(typeof(Button))]
 	public class AnimationButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
 	{
+		// Private Fields
 		[NotNull]
 		private Button _button;
-		[Header("Animation References")]
-		[SerializeField] private bool useUnscaledTime = false;
-		[SerializeField] private float duration = 0.2f;
-		[SerializeField] private Ease ease = Ease.OutBack;
-		[Range(0.0f, 1.0f)]
-		[SerializeField] private float scaleOnDown = 0.9f;
-		[Tooltip("The transform in which the scale effect will be applied:\nIf left empty, it will use this object's transform")]
-		[SerializeField] private Transform targetTransform;
 
+		// Serialized Fields
+		[Header("Animation References")]
+		[SerializeField] private bool _useUnscaledTime = false;
+		[SerializeField] private float _duration = 0.2f;
+		[SerializeField] private Ease _ease = Ease.OutBack;
+		[Range(0.0f, 1.0f)]
+		[SerializeField] private float _scaleOnDown = 0.9f;
+		[Tooltip("The transform in which the scale effect will be applied:\nIf left empty, it will use this object's transform")]
+		[SerializeField] private Transform _targetTransform;
+
+		// Unity Lifecycle
 		private void Awake()
 		{
 			_button = GetComponent<Button>();
 
-			if (!targetTransform)
-				targetTransform = transform;
+			if (!_targetTransform)
+				_targetTransform = transform;
 		}
 
+		private void OnDestroy()
+		{
+			DOTween.Kill(this);
+			KillTweens();
+		}
+
+		// Event Handlers
 		public void OnPointerClick(PointerEventData eventData)
 		{
 			if (!_button.interactable && _button != null) return;
@@ -43,7 +51,7 @@ namespace Brain.UI
 		{
 			if (!_button.interactable && _button != null) return;
 
-			targetTransform.DOScale(Vector3.one * scaleOnDown, duration).SetEase(ease).SetUpdate(useUnscaledTime);
+			_targetTransform.DOScale(Vector3.one * _scaleOnDown, _duration).SetEase(_ease).SetUpdate(_useUnscaledTime);
 		}
 
 		public void OnPointerUp(PointerEventData eventData)
@@ -51,18 +59,13 @@ namespace Brain.UI
 			if (!_button.interactable && _button != null) return;
 
 			// Do animations
-			targetTransform.DOScale(Vector3.one, duration).SetEase(ease).SetUpdate(useUnscaledTime);
+			_targetTransform.DOScale(Vector3.one, _duration).SetEase(_ease).SetUpdate(_useUnscaledTime);
 		}
 
-		private void KillTweens() //Prevent DOTween errors log when the object is destroyed
+		// Private Methods
+		private void KillTweens()
 		{
-			DOTween.Kill(targetTransform);
-		}
-
-		private void OnDestroy()
-		{
-			DOTween.Kill(this);
-			KillTweens();
+			DOTween.Kill(_targetTransform);
 		}
 	}
 }

@@ -4,11 +4,13 @@ namespace Brain.UI
 {
 	public class SafeArea : MonoBehaviour
 	{
+		// Unity Lifecycle
 		void Awake()
 		{
 			ApplySafeAreaToTransform();
 		}
 
+		// Private Methods
 		private void ApplySafeAreaToTransform()
 		{
 			Rect safeArea = Screen.safeArea;

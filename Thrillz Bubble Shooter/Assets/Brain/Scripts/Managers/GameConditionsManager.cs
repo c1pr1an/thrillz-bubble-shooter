@@ -7,49 +7,46 @@ namespace Brain.Managers
 {
     public class GameConditionsManager : UnitySingleton<GameConditionsManager>
     {
+        // Serialized Fields
         [Header("Game Settings")]
-        [SerializeField] private float gameDuration = 120f;
+        [SerializeField] private float _gameDuration = 120f;
 
-        private float timeRemaining;
-        private bool gameActive = false;
+        // Private Fields
+        private float _timeRemaining;
+        private bool _gameActive = false;
 
-        public float TimeRemaining => timeRemaining;
-        public bool IsGameActive => gameActive;
+        // Properties
+        public float TimeRemaining => _timeRemaining;
+        public bool IsGameActive => _gameActive;
 
+        // Events
         public event Action OnGameWon;
         public event Action OnGameLost;
         public event Action<float> OnTimerUpdated;
 
-        /// <summary>
-        /// Starts the game timer
-        /// </summary>
+        // Public Methods
         public void StartGame()
         {
-            timeRemaining = gameDuration;
-            gameActive = true;
+            _timeRemaining = _gameDuration;
+            _gameActive = true;
             StartCoroutine(GameTimer());
         }
 
-        /// <summary>
-        /// Stops the game
-        /// </summary>
         public void StopGame()
         {
-            gameActive = false;
+            _gameActive = false;
             StopAllCoroutines();
         }
 
-        /// <summary>
-        /// Game timer coroutine
-        /// </summary>
+        // Private Methods - Coroutine for game timer
         private IEnumerator GameTimer()
         {
-            while (timeRemaining > 0 && gameActive)
+            while (_timeRemaining > 0 && _gameActive)
             {
-                timeRemaining -= Time.deltaTime;
-                OnTimerUpdated?.Invoke(timeRemaining);
+                _timeRemaining -= Time.deltaTime;
+                OnTimerUpdated?.Invoke(_timeRemaining);
 
-                if (timeRemaining <= 0)
+                if (_timeRemaining <= 0)
                 {
                     TriggerLose();
                 }
@@ -58,12 +55,9 @@ namespace Brain.Managers
             }
         }
 
-        /// <summary>
-        /// Checks win condition
-        /// </summary>
         public void CheckWinCondition()
         {
-            if (!gameActive) return;
+            if (!_gameActive) return;
 
             GridManager gridManager = GridManager.Instance;
             if (gridManager == null || gridManager.Balls == null) return;
@@ -89,37 +83,28 @@ namespace Brain.Managers
             }
         }
 
-        /// <summary>
-        /// Triggers win state
-        /// </summary>
         public void TriggerWin()
         {
-            if (!gameActive) return;
+            if (!_gameActive) return;
 
-            gameActive = false;
+            _gameActive = false;
             StopAllCoroutines();
             OnGameWon?.Invoke();
         }
 
-        /// <summary>
-        /// Triggers lose state
-        /// </summary>
         public void TriggerLose()
         {
-            if (!gameActive) return;
+            if (!_gameActive) return;
 
-            gameActive = false;
+            _gameActive = false;
             StopAllCoroutines();
             OnGameLost?.Invoke();
         }
 
-        /// <summary>
-        /// Resets game conditions
-        /// </summary>
         public void ResetGame()
         {
             StopGame();
-            timeRemaining = gameDuration;
+            _timeRemaining = _gameDuration;
         }
     }
 }

@@ -11,16 +11,20 @@ namespace Brain.Managers
 {
     public class UIManager : UnitySingleton<UIManager>
     {
+        // Serialized Fields
         [SerializeField] private Image _blackOverlayImage;
         [SerializeField] private Image _whiteOverlayImage;
         [SerializeField] private TextMeshProUGUI _gameSeedIdTxt;
 
+        // Public Fields
         public Canvas Canvas;
         public GameplayUI GameplayUI;
         public OutOfTimePanel OutOfTimePanel;
         public OutOfLivesPanel OutOfLivesPanel;
         public GameFinishedPanel GameFinishedPanel;
         //public GlobalPauseMode GlobalPauseMode;
+
+        // Public Methods
         public void Init()
         {
             _blackOverlayImage.color = new Color(0f, 0f, 0f, 1f);

@@ -7,15 +7,14 @@ namespace Brain.Managers
 {
     public class LevelGenerator : UnitySingleton<LevelGenerator>
     {
+        // Serialized Fields
         [Header("Generation Settings")]
-        [SerializeField] private int totalRows = 60;
-        [SerializeField] private int startRow = 4;
-        [SerializeField][Range(0f, 1f)] private float fillRate = 0.8f;
-        [SerializeField] private bool removeOrphans = true;
+        [SerializeField] private int _totalRows = 60;
+        [SerializeField] private int _startRow = 4;
+        [SerializeField][Range(0f, 1f)] private float _fillRate = 0.8f;
+        [SerializeField] private bool _removeOrphans = true;
 
-        /// <summary>
-        /// Generates procedural level layout using game seed
-        /// </summary>
+        // Public Methods - Generates procedural level layout using game seed
         public void GenerateLevel(int seed)
         {
             Random.InitState(seed);
@@ -27,18 +26,18 @@ namespace Brain.Managers
                 return;
             }
 
-            int endRow = startRow + totalRows;
+            int endRow = _startRow + _totalRows;
             int ballsGenerated = 0;
 
-            Debug.Log($"LevelGenerator: Generating rows {startRow} to {endRow - 1} (total: {totalRows} rows)");
+            Debug.Log($"LevelGenerator: Generating rows {_startRow} to {endRow - 1} (total: {_totalRows} rows)");
 
-            for (int row = startRow; row < endRow; row++)
+            for (int row = _startRow; row < endRow; row++)
             {
                 int columnsInRow = GridUtils.GetMaxColumns(row);
 
                 for (int col = 0; col < columnsInRow; col++)
                 {
-                    if (Random.value < fillRate)
+                    if (Random.value < _fillRate)
                     {
                         BallColor randomColor = (BallColor)Random.Range(0, 6);
                         gridManager.SpawnBall(col, row, randomColor);
@@ -56,15 +55,13 @@ namespace Brain.Managers
             MarkCeilingBalls();
 
             // Remove orphaned balls from generation
-            if (removeOrphans)
+            if (_removeOrphans)
             {
                 RemoveOrphanedBalls();
             }
         }
 
-        /// <summary>
-        /// Marks only the highest row with balls as ceiling
-        /// </summary>
+        // Private Methods
         private void MarkCeilingBalls()
         {
             GridManager gridManager = GridManager.Instance;
@@ -115,9 +112,6 @@ namespace Brain.Managers
             return count;
         }
 
-        /// <summary>
-        /// Removes balls that aren't connected to ceiling
-        /// </summary>
         private void RemoveOrphanedBalls()
         {
             GridManager gridManager = GridManager.Instance;
@@ -127,7 +121,7 @@ namespace Brain.Managers
 
             // Find all connected balls starting from root balls
             HashSet<Ball> connectedBalls = new HashSet<Ball>();
-            foreach (Ball rootBall in Ball.RootBalls)
+            foreach (Ball rootBall in Ball.s_rootBalls)
             {
                 FindConnectedBalls(rootBall, connectedBalls);
             }
@@ -155,9 +149,6 @@ namespace Brain.Managers
             gridManager.ClearAllMarks();
         }
 
-        /// <summary>
-        /// Flood-fill to find all connected balls
-        /// </summary>
         private void FindConnectedBalls(Ball ball, HashSet<Ball> connectedBalls)
         {
             if (ball == null || connectedBalls.Contains(ball)) return;

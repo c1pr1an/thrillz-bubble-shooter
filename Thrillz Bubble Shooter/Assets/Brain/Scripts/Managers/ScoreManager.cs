@@ -40,19 +40,24 @@ namespace Brain.Managers
 
     public class ScoreManager : UnitySingleton<ScoreManager>
     {
+        // Constants
         public const float SCORE_TEXT_DELAY = 1.4f;
 
+        // Properties
         [SerializeField] public int ScoreCount { get; private set; }
         [SerializeField] public int StreakCount { get; private set; }
         [SerializeField] public int BonusScoreCount { get; private set; }
 
+        // Serialized Fields
         [SerializeField] private GameObject _scoreHighlightVFXPrefab;
-        [SerializeField] private List<ScoreData> scoreDataList;
+        [SerializeField] private List<ScoreData> _scoreDataList;
 
+        // Private Fields
         private List<ActiveScoreAnimation> _activeAnimations = new List<ActiveScoreAnimation>();
         private List<Tween> _delayedCalls = new List<Tween>();
         private bool _bonusScoresAdded = false;
 
+        // Nested Classes
         private class ActiveScoreAnimation
         {
             public TextMeshProUGUI AddScoreText;
@@ -61,6 +66,7 @@ namespace Brain.Managers
             public bool IsCancelled;
         }
 
+        // Public Methods
         public void AddScore(ScoreType scoreType, Vector3 canvasPos, bool increaseStreak)
         {
             ScoreData scoreData = GetScoreData(scoreType);
@@ -90,6 +96,7 @@ namespace Brain.Managers
 
         }
 
+        // Private Methods
         private TextMeshProUGUI CreateAddScoreText(int scoreToAdd)
         {
             var addScoreText = ObjectPooler.Instance.Get(PooledObjectTag.AddScoreText).GetComponent<TextMeshProUGUI>();
@@ -229,7 +236,7 @@ namespace Brain.Managers
         private ScoreData GetScoreData(ScoreType scoreType)
         {
             ScoreData data = new ScoreData { scoreValue = 0, scorePrefab = null };
-            foreach (ScoreData s in scoreDataList)
+            foreach (ScoreData s in _scoreDataList)
             {
                 if (s.scoreType == scoreType)
                 {
@@ -253,7 +260,7 @@ namespace Brain.Managers
         public IEnumerator SaveScore()
         {
             Input.multiTouchEnabled = true;
-            int timeScoreMultiplier = scoreDataList.FirstOrDefault(s => s.scoreType == ScoreType.TimeBonus).scoreValue;
+            int timeScoreMultiplier = _scoreDataList.FirstOrDefault(s => s.scoreType == ScoreType.TimeBonus).scoreValue;
             int timeScore = 0; // GameManager.Instance.GameTimer * timeScoreMultiplier;
             int finalScore = ScoreCount;
             int streakNbonus = BonusScoreCount - timeScore; //Time score is added to BonusScoreCount, so we subtract it here

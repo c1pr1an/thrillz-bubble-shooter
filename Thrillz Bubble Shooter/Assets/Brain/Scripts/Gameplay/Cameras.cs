@@ -7,6 +7,7 @@ namespace Brain.Gameplay
 {
     public class Cameras : UnitySingleton<Cameras>
     {
+        // Public Fields
         public Camera MainCam;
         public CinemachineBrain CinemachineBrain;
         public CinemachineVirtualCamera MainVcam;

@@ -11,21 +11,27 @@ namespace Brain.UI
 {
     public class GameplayUI : MonoBehaviour
     {
+        // Public Fields
         public List<Image> LivesImages;
         public Sprite EmptyLifeSprite;
         public Sprite FullLifeSprite;
+
+        // Serialized Fields
         [SerializeField] private GameObject _oneMinuteLeftPanel;
         [SerializeField] private TextMeshProUGUI _timerText;
         [SerializeField] private TextMeshProUGUI _scoreText;
 
+        // Private Fields
+        private bool _oneMinuteLeftShown = false;
+        private bool _isTimeTextPulsing = false;
+
+        // Properties
         public TextMeshProUGUI ScoreText
         {
             get { return _scoreText; }
         }
 
-        private bool _oneMinuteLeftShown = false;
-        private bool _isTimeTextPulsing = false;
-
+        // Public Methods
         public void PauseOnClick()
         {
             //UIManager.Instance.GlobalPauseMode.TriggerPause();

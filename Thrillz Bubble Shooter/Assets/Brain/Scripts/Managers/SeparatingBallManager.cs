@@ -7,30 +7,26 @@ using UnityEngine;
 
 namespace Brain.Managers
 {
-    /// <summary>
-    /// Detects orphaned balls (not connected to top) and makes them fall
-    /// Uses flood-fill from root balls to find connected component
-    /// </summary>
     public class SeparatingBallManager : UnitySingleton<SeparatingBallManager>
     {
+        // Serialized Fields
         [Header("Settings")]
-        [SerializeField] private int maxIterations = 5; // Check multiple times for cascading falls
-        [SerializeField] private float delayBetweenFalls = 0.05f;
+        [SerializeField] private int _maxIterations = 5;
+        [SerializeField] private float _delayBetweenFalls = 0.05f;
 
-        private HashSet<Ball> connectedBalls = new HashSet<Ball>();
+        // Private Fields
+        private HashSet<Ball> _connectedBalls = new HashSet<Ball>();
 
-        /// <summary>
-        /// Checks for separated (orphaned) balls and makes them fall
-        /// </summary>
+        // Public Methods
         public void CheckSeparatedBalls()
         {
             StartCoroutine(CheckSeparatedBallsCoroutine());
         }
 
+        // Private Methods - Coroutine to check multiple times for cascading effects
         private IEnumerator CheckSeparatedBallsCoroutine()
         {
-            // Check multiple times for cascading effects
-            for (int iteration = 0; iteration < maxIterations; iteration++)
+            for (int iteration = 0; iteration < _maxIterations; iteration++)
             {
                 List<Ball> ballsToFall = FindOrphanedBalls();
 
@@ -54,7 +50,7 @@ namespace Brain.Managers
                         // Trigger fall
                         ball.Fall();
 
-                        yield return new WaitForSeconds(delayBetweenFalls);
+                        yield return new WaitForSeconds(_delayBetweenFalls);
                     }
                 }
 
@@ -63,22 +59,18 @@ namespace Brain.Managers
             }
         }
 
-        /// <summary>
-        /// Finds all balls that are not connected to the root (top row)
-        /// Returns list of orphaned balls that should fall
-        /// </summary>
         private List<Ball> FindOrphanedBalls()
         {
             GridManager gridManager = GridManager.Instance;
 
             // Clear previous results
-            connectedBalls.Clear();
+            _connectedBalls.Clear();
 
             // Clear all marks
             gridManager.ClearAllMarks();
 
             // Flood-fill from all root balls (top row)
-            foreach (Ball rootBall in Ball.RootBalls)
+            foreach (Ball rootBall in Ball.s_rootBalls)
             {
                 if (rootBall != null && rootBall.HasFlag(BallFlags.Pinned) && !rootBall.HasFlag(BallFlags.Destroying))
                 {
@@ -100,7 +92,7 @@ namespace Brain.Managers
                         ball.HasFlag(BallFlags.Pinned) &&
                         !ball.HasFlag(BallFlags.MarkedForDestroy) &&
                         !ball.HasFlag(BallFlags.Destroying) &&
-                        !connectedBalls.Contains(ball))
+                        !_connectedBalls.Contains(ball))
                     {
                         orphanedBalls.Add(ball);
                     }
@@ -110,20 +102,17 @@ namespace Brain.Managers
             return orphanedBalls;
         }
 
-        /// <summary>
-        /// Recursive flood-fill to find all balls connected to the given ball
-        /// </summary>
         private void FindConnectedBalls(Ball ball)
         {
             if (ball == null) return;
-            if (connectedBalls.Contains(ball)) return;
+            if (_connectedBalls.Contains(ball)) return;
             if (!ball.HasFlag(BallFlags.Pinned)) return;
             if (ball.HasFlag(BallFlags.Destroying)) return;
             if (ball.HasFlag(BallFlags.MarkConnected)) return;
 
             // Mark as connected
             ball.Flags |= BallFlags.MarkConnected;
-            connectedBalls.Add(ball);
+            _connectedBalls.Add(ball);
 
             // Recursively check neighbors
             foreach (Ball neighbor in ball.Neighbors)

@@ -4,24 +4,23 @@ using UnityEngine.Events;
 
 namespace Brain.Core
 {
-    /// <summary>
-    /// Simple implementation of State machine.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
     public class StateMachine<T> where T : System.Enum
     {
-        public event UnityAction<T> OnStateChanged;
+        // Private Fields
         private List<State<T>> _states;
-
         private T _currentPhase;
-        public T CurrentPhase { get { return _currentPhase; } }
-
         private string _logTag;
+
+        // Properties
+        public T CurrentPhase => _currentPhase;
         public string LogTag
         {
-            get { return _logTag; }
-            set { _logTag = string.IsNullOrEmpty(value) ? "StateMachine" : value; }
+            get => _logTag;
+            set => _logTag = string.IsNullOrEmpty(value) ? "StateMachine" : value;
         }
+
+        // Events
+        public event UnityAction<T> OnStateChanged;
 
         public StateMachine(string logTag = null)
         {

@@ -7,36 +7,30 @@ using System.Collections;
 
 namespace Brain.Managers
 {
-    /// <summary>
-    /// Manages the undo system for BlackJack game moves
-    /// </summary>
     public class UndoStateManager : MonoBehaviour
     {
-        [Header("References")]
+        // Private Fields
+        private GameState? _lastGameState = null;
 
-        // State storage
-        private GameState? lastGameState = null;
+        // Properties
         private GameState? LastGameState
         {
-            get { return lastGameState; }
+            get { return _lastGameState; }
             set
             {
-                lastGameState = value;
+                _lastGameState = value;
                 OnGameStateChanged?.Invoke(value);
             }
         }
+
+        // Events
         public Action<GameState?> OnGameStateChanged;
 
-        /// <summary>
-        /// Initialize the undo manager with required references
-        /// </summary>
+        // Public Methods
         public void Initialize()
         {
         }
 
-        /// <summary>
-        /// Saves the current game state before a move is made
-        /// </summary>
         public void SaveCurrentGameState()
         {
             GameState state = new GameState
@@ -48,9 +42,6 @@ namespace Brain.Managers
             LastGameState = state;
         }
 
-        /// <summary>
-        /// Undoes the last move made by the player with smooth animations
-        /// </summary>
         public void ExecuteUndo()
         {
             if (!LastGameState.HasValue) return; // No move to undo
@@ -66,17 +57,11 @@ namespace Brain.Managers
 
         }
 
-        /// <summary>
-        /// Clears the undo state (called when undo is no longer possible)
-        /// </summary>
         public void ClearUndoState()
         {
             LastGameState = null;
         }
 
-        /// <summary>
-        /// Checks if undo is available
-        /// </summary>
         public bool CanUndo()
         {
             return LastGameState.HasValue;

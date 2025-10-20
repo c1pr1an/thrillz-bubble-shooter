@@ -5,29 +5,25 @@ using UnityEngine;
 
 namespace Brain.Managers
 {
-    /// <summary>
-    /// Manages match detection using flood-fill algorithm
-    /// Finds 3+ connected balls of the same color
-    /// </summary>
     public class MatchingManager : UnitySingleton<MatchingManager>
     {
+        // Serialized Fields
         [Header("Settings")]
-        [SerializeField] private int minMatchCount = 3;
+        [SerializeField] private int _minMatchCount = 3;
 
-        private List<Ball> matchList = new List<Ball>();
+        // Private Fields
+        private List<Ball> _matchList = new List<Ball>();
 
-        /// <summary>
-        /// Main entry point - called when a ball stops on the grid
-        /// </summary>
+        // Public Methods - Main entry point when a ball stops on the grid
         public void ProcessBallStopped(Ball stoppedBall)
         {
             if (stoppedBall == null) return;
 
             int matchCount = CheckMatch(stoppedBall);
 
-            if (matchCount >= minMatchCount)
+            if (matchCount >= _minMatchCount)
             {
-                DestroyManager.Instance.DestroyBalls(matchList);
+                DestroyManager.Instance.DestroyBalls(_matchList);
             }
 
             SeparatingBallManager.Instance.CheckSeparatedBalls();
@@ -35,16 +31,12 @@ namespace Brain.Managers
             GameConditionsManager.Instance.CheckWinCondition();
         }
 
-        /// <summary>
-        /// Checks for matches starting from the given ball
-        /// Returns the number of matching balls found
-        /// </summary>
         public int CheckMatch(Ball ball)
         {
             if (ball == null) return 0;
 
             // Clear previous match list
-            matchList.Clear();
+            _matchList.Clear();
 
             // Start flood-fill from this ball
             FindMatches(ball, ball.Color);
@@ -52,12 +44,10 @@ namespace Brain.Managers
             // Clear marks after checking
             ClearMarks();
 
-            return matchList.Count;
+            return _matchList.Count;
         }
 
-        /// <summary>
-        /// Recursive flood-fill to find all connected balls of same color
-        /// </summary>
+        // Private Methods - Recursive flood-fill to find all connected balls of same color
         private void FindMatches(Ball ball, BallColor targetColor)
         {
             if (ball == null) return;
@@ -70,7 +60,7 @@ namespace Brain.Managers
 
             // Mark this ball as checked
             ball.Flags |= BallFlags.MarkedForMatch;
-            matchList.Add(ball);
+            _matchList.Add(ball);
 
             // Recursively check all neighbors
             foreach (Ball neighbor in ball.Neighbors)
@@ -82,12 +72,9 @@ namespace Brain.Managers
             }
         }
 
-        /// <summary>
-        /// Clears MarkedForMatch flags from all balls in match list
-        /// </summary>
         private void ClearMarks()
         {
-            foreach (Ball ball in matchList)
+            foreach (Ball ball in _matchList)
             {
                 if (ball != null)
                 {
@@ -96,19 +83,15 @@ namespace Brain.Managers
             }
         }
 
-        /// <summary>
-        /// Returns a list of matched balls without triggering destruction
-        /// Useful for preview or AI logic
-        /// </summary>
         public List<Ball> GetMatchListPreview(Ball ball)
         {
             if (ball == null) return new List<Ball>();
 
-            matchList.Clear();
+            _matchList.Clear();
             FindMatches(ball, ball.Color);
             ClearMarks();
 
-            return new List<Ball>(matchList);
+            return new List<Ball>(_matchList);
         }
     }
 }

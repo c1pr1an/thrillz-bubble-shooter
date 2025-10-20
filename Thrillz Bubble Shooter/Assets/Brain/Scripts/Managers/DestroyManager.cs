@@ -6,21 +6,16 @@ using UnityEngine;
 
 namespace Brain.Managers
 {
-    /// <summary>
-    /// Manages ball destruction with timing and animations
-    /// Destroys balls sequentially with small delays
-    /// Adapted from BubbleShooterGameToolkit reference implementation
-    /// </summary>
     public class DestroyManager : UnitySingleton<DestroyManager>
     {
+        // Serialized Fields
         [Header("Settings")]
-        [SerializeField] private float delayBetweenDestructions = 0.05f;
+        [SerializeField] private float _delayBetweenDestructions = 0.05f;
 
-        private bool isDestroying = false;
+        // Private Fields
+        private bool _isDestroying = false;
 
-        /// <summary>
-        /// Destroys a list of balls with sequential timing
-        /// </summary>
+        // Public Methods
         public void DestroyBalls(List<Ball> balls)
         {
             if (balls == null || balls.Count == 0) return;
@@ -29,12 +24,10 @@ namespace Brain.Managers
             StartCoroutine(DestroyBallsSequence(balls));
         }
 
-        /// <summary>
-        /// Coroutine to destroy balls one by one with delays
-        /// </summary>
+        // Private Methods - Coroutines for destroying balls one by one with delays
         private IEnumerator DestroyBallsSequence(List<Ball> balls)
         {
-            isDestroying = true;
+            _isDestroying = true;
 
             // Sort by distance from center for nice visual effect
             Vector3 center = Vector3.zero;
@@ -77,16 +70,13 @@ namespace Brain.Managers
                     ball.DestroyBall();
 
                     // Wait before next destruction
-                    yield return new WaitForSeconds(delayBetweenDestructions);
+                    yield return new WaitForSeconds(_delayBetweenDestructions);
                 }
             }
 
-            isDestroying = false;
+            _isDestroying = false;
         }
 
-        /// <summary>
-        /// Instantly destroys a single ball without delay
-        /// </summary>
         public void DestroyBallInstantly(Ball ball)
         {
             if (ball == null) return;
@@ -102,12 +92,9 @@ namespace Brain.Managers
             ball.DestroyBall();
         }
 
-        /// <summary>
-        /// Returns true if currently destroying balls
-        /// </summary>
         public bool IsDestroying()
         {
-            return isDestroying;
+            return _isDestroying;
         }
     }
 }

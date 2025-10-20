@@ -8,6 +8,7 @@ namespace Brain.UI
 {
     public class OutOfTimePanel : MonoBehaviour
     {
+        // Public Methods
         public void Display()
         {
             DOVirtual.DelayedCall(ScoreManager.SCORE_TEXT_DELAY, () =>
