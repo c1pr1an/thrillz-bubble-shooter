@@ -14,11 +14,8 @@ namespace Brain.Managers
         [SerializeField][Range(0f, 1f)] private float _fillRate = 0.8f;
         [SerializeField] private bool _removeOrphans = true;
 
-        // Public Methods - Generates procedural level layout using game seed
-        public void GenerateLevel(int seed)
+        public void GenerateLevel()
         {
-            Random.InitState(seed);
-
             GridManager gridManager = GridManager.Instance;
             if (gridManager == null)
             {

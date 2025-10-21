@@ -53,14 +53,15 @@ namespace Brain.Managers
 
         private void OnInitializingEnter()
         {
-            _matchSeed = PlayerPrefs.GetInt("GameSeed", System.Environment.TickCount);
+            _matchSeed = -2036416939;  //PlayerPrefs.GetInt("GameSeed", System.Environment.TickCount);
+            Random.InitState(_matchSeed);
             Debug.Log($"Starting Bubble Shooter with seed: {MatchSeed}");
 
             // Initialize grid structure
             GridManager.Instance.InitializeGrid();
 
             // Generate procedural level (includes neighbor updates and orphan removal)
-            LevelGenerator.Instance.GenerateLevel(_matchSeed);
+            LevelGenerator.Instance.GenerateLevel();
 
             // Subscribe to game events
             GridScrollManager.Instance.OnDeathLineTouched += OnDeathLineTouched;

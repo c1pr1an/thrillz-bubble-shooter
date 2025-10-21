@@ -10,6 +10,9 @@ namespace Brain.Gameplay
         [SerializeField] private int _maxBounces = 3; // Number of wall bounces to predict
         [SerializeField] private float _maxDistance = 50f; // Maximum raycast distance
         [SerializeField] private float _ballRadius = 0.35f; // Ball collision radius
+        [Range(0f, 0.5f)]
+        [Tooltip("Collision check radius as percentage of ball radius (0.15 = 15%)")]
+        [SerializeField] private float _trajectoryCheckRadiusPercent = 0.15f; // CircleCast radius percentage
 
         [Header("Visualization")]
         [SerializeField] private LineRenderer _trajectoryLine;
@@ -55,17 +58,21 @@ namespace Brain.Gameplay
             Vector2 currentDir = direction.normalized;
             float remainingDistance = _maxDistance;
 
-            // Calculate screen bounds for wall detection (no radius offset for raycast)
+            // Calculate check radius for CircleCast
+            float checkRadius = _ballRadius * _trajectoryCheckRadiusPercent;
+
+            // Calculate screen bounds for wall detection (adjust for check radius)
             float vertExtent = _mainCamera.orthographicSize;
             float horzExtent = vertExtent * Screen.width / Screen.height;
-            Vector2 screenBoundsMin = new Vector2(-horzExtent, -vertExtent);
-            Vector2 screenBoundsMax = new Vector2(horzExtent, vertExtent);
+            Vector2 screenBoundsMin = new Vector2(-horzExtent + checkRadius, -vertExtent);
+            Vector2 screenBoundsMax = new Vector2(horzExtent - checkRadius, vertExtent);
 
             for (int bounce = 0; bounce <= _maxBounces && remainingDistance > 0; bounce++)
             {
-                // Cast ahead to find collision using raycast
-                RaycastHit2D hit = Physics2D.Raycast(
+                // Cast ahead to find collision using CircleCast for more realistic collision detection
+                RaycastHit2D hit = Physics2D.CircleCast(
                     currentPos,
+                    checkRadius,  // Small percentage of actual ball radius
                     currentDir,
                     remainingDistance,
                     LayerMask.GetMask("Default")
@@ -125,7 +132,7 @@ namespace Brain.Gameplay
                     Ball hitBallComponent = hit.collider.GetComponent<Ball>();
                     if (hitBallComponent != null && hitBallComponent.HasFlag(BallFlags.Pinned))
                     {
-                        // Add point where we hit the ball
+                        // Ball collision - stop at hit point
                         _trajectoryPoints.Add(hit.point);
                         break; // Stop trajectory at ball collision
                     }
@@ -138,6 +145,13 @@ namespace Brain.Gameplay
                     // If we hit the top, stop here
                     if (wallNormal == Vector2.down)
                     {
+                        break;
+                    }
+
+                    // Check if there's an edge ball blocking this bounce path
+                    if (IsBlockedByEdgeBall(wallHitPoint, wallNormal))
+                    {
+                        // Can't bounce here - edge ball blocks the gap
                         break;
                     }
 
@@ -201,6 +215,47 @@ namespace Brain.Gameplay
             {
                 _trajectoryLine.enabled = false;
             }
+        }
+
+        /// <summary>
+        /// Checks if a ball is on the edge column of the hex grid
+        /// </summary>
+        private bool IsEdgeColumnBall(Ball ball)
+        {
+            int column = ball.Position.x;
+            int maxCols = Util.GridUtils.GetMaxColumns(ball.Position.y);
+            return column == 0 || column == maxCols - 1;
+        }
+
+        /// <summary>
+        /// Checks if there's an edge ball blocking the path to a wall hit point
+        /// </summary>
+        private bool IsBlockedByEdgeBall(Vector2 wallHitPoint, Vector2 wallNormal)
+        {
+            // Only check for side walls (left/right)
+            if (wallNormal != Vector2.right && wallNormal != Vector2.left)
+                return false;
+
+            // Define the area near the wall hit point to check for edge balls
+            float searchRadius = _ballRadius * 1.5f; // Search for balls within 1.5x ball radius
+
+            // Find all balls near the wall hit point
+            Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(wallHitPoint, searchRadius, LayerMask.GetMask("Default"));
+
+            foreach (var collider in nearbyColliders)
+            {
+                Ball ball = collider.GetComponent<Ball>();
+                if (ball != null && ball.HasFlag(BallFlags.Pinned))
+                {
+                    // Check if this is an edge ball
+                    if (IsEdgeColumnBall(ball))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }

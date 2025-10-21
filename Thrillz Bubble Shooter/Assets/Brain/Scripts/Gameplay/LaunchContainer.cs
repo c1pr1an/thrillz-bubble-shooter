@@ -81,13 +81,12 @@ namespace Brain.Gameplay
 
             // Pick a random color
             BallColor randomColor = (BallColor)Random.Range(0, 6);
-            int colorIndex = (int)randomColor;
 
             // Get prefab from GridManager
-            Ball prefab = GridManager.Instance.GetBallPrefab(colorIndex);
+            Ball prefab = GridManager.Instance.GetBallPrefab(randomColor);
             if (prefab == null)
             {
-                Debug.LogError($"LaunchContainer: Ball prefab for color {randomColor} (index {colorIndex}) not found in GridManager!");
+                Debug.LogError($"LaunchContainer: Ball prefab for color {randomColor} not found in GridManager!");
                 return;
             }
 

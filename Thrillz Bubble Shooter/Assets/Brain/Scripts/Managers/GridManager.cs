@@ -14,7 +14,8 @@ namespace Brain.Managers
         [SerializeField] private float _ballWidth = 1f;
         [SerializeField] private float _ballHeight = 0.87f;
 
-        [SerializeField] private Ball[] _ballPrefabs = new Ball[6];
+        [SerializeField] private List<Ball> _ballPrefabs = new List<Ball>();
+        private Dictionary<BallColor, Ball> _ballPrefabLookup = new Dictionary<BallColor, Ball>();
 
         [Header("Grid Container")]
         [SerializeField] private Transform _gridContainer;
@@ -30,18 +31,65 @@ namespace Brain.Managers
         public float BallHeight => _ballHeight;
         public Transform GridContainer => _gridContainer;
 
-        /// <summary>
-        /// Gets a ball prefab by color index (single source of truth)
-        /// </summary>
-        public Ball GetBallPrefab(int colorIndex)
+        protected override void Awake()
         {
-            if (colorIndex < 0 || colorIndex >= _ballPrefabs.Length)
+            base.Awake();
+            BuildBallPrefabLookup();
+        }
+
+        /// <summary>
+        /// Builds a dictionary lookup for ball prefabs by their color
+        /// </summary>
+        private void BuildBallPrefabLookup()
+        {
+            _ballPrefabLookup.Clear();
+
+            // Build dictionary from prefab list
+            foreach (var prefab in _ballPrefabs)
             {
-                Debug.LogError($"GridManager: Invalid ball color index {colorIndex}");
-                return null;
+                if (prefab != null)
+                {
+                    BallColor color = prefab.Color;
+                    if (_ballPrefabLookup.ContainsKey(color))
+                    {
+                        Debug.LogWarning($"GridManager: Duplicate ball prefab for color {color}! Using the first one found.");
+                    }
+                    else
+                    {
+                        _ballPrefabLookup[color] = prefab;
+                    }
+                }
             }
 
-            return _ballPrefabs[colorIndex];
+            // Check for missing colors and report them
+            foreach (BallColor color in System.Enum.GetValues(typeof(BallColor)))
+            {
+                if (!_ballPrefabLookup.ContainsKey(color))
+                {
+                    Debug.LogError($"GridManager: Missing ball prefab for color {color}! Please assign it in the inspector.");
+                }
+            }
+
+            Debug.Log($"GridManager: Ball prefab lookup built with {_ballPrefabLookup.Count} colors.");
+        }
+
+        /// <summary>
+        /// Gets a ball prefab by BallColor enum
+        /// </summary>
+        public Ball GetBallPrefab(BallColor color)
+        {
+            if (_ballPrefabLookup.Count == 0)
+            {
+                BuildBallPrefabLookup();
+            }
+
+            if (_ballPrefabLookup.TryGetValue(color, out Ball prefab))
+            {
+                return prefab;
+            }
+
+            Debug.LogError($"GridManager: No ball prefab found for color {color}");
+            return null;
         }
 
         /// <summary>
@@ -84,11 +132,11 @@ namespace Brain.Managers
                 return null;
             }
 
-            // Get the correct prefab for this color
-            int colorIndex = (int)color;
-            if (colorIndex < 0 || colorIndex >= _ballPrefabs.Length || _ballPrefabs[colorIndex] == null)
+            // Get the correct prefab for this color using enum lookup
+            Ball prefab = GetBallPrefab(color);
+            if (prefab == null)
             {
-                Debug.LogError($"Ball prefab for color {color} (index {colorIndex}) is not assigned!");
+                Debug.LogError($"Ball prefab for color {color} is not assigned!");
                 return null;
             }
 
@@ -97,7 +145,7 @@ namespace Brain.Managers
             Vector3 worldPos = GridUtils.PosToWorld(gridPos, _ballWidth, _ballHeight, _gridContainer);
 
             // Instantiate the correct ball prefab
-            Ball ball = Instantiate(_ballPrefabs[colorIndex], worldPos, Quaternion.identity, _gridContainer);
+            Ball ball = Instantiate(prefab, worldPos, Quaternion.identity, _gridContainer);
             ball.name = $"Ball_{color}_{row}_{col}";
             ball.SetColor(color);
             ball.SetPosition(gridPos, worldPos);
