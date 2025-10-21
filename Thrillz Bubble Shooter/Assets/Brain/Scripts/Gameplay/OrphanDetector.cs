@@ -1,75 +1,69 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Brain.Gameplay;
+using Brain.Managers;
 using Brain.Util;
 using UnityEngine;
 
-namespace Brain.Managers
+namespace Brain.Gameplay
 {
-    public class SeparatingBallManager : UnitySingleton<SeparatingBallManager>
+    public class OrphanDetector : UnitySingleton<OrphanDetector>
     {
-        // Serialized Fields
         [Header("Settings")]
         [SerializeField] private int _maxIterations = 5;
         [SerializeField] private float _delayBetweenFalls = 0.05f;
 
-        // Private Fields
         private HashSet<Ball> _connectedBalls = new HashSet<Ball>();
+        private bool _isChecking = false;
 
-        // Public Methods
+        public bool IsChecking() => _isChecking;
+
         public void CheckSeparatedBalls()
         {
             StartCoroutine(CheckSeparatedBallsCoroutine());
         }
 
-        // Private Methods - Coroutine to check multiple times for cascading effects
         private IEnumerator CheckSeparatedBallsCoroutine()
         {
+            _isChecking = true;
+
             for (int iteration = 0; iteration < _maxIterations; iteration++)
             {
                 List<Ball> ballsToFall = FindOrphanedBalls();
 
                 if (ballsToFall.Count == 0)
                 {
-                    // No more orphaned balls found
                     break;
                 }
 
-                // Sort by row (bottom to top) for visual effect
                 ballsToFall = ballsToFall.OrderByDescending(ball => ball.Position.y).ToList();
 
-                // Make balls fall with small delays
                 foreach (Ball ball in ballsToFall)
                 {
                     if (ball != null)
                     {
-                        // Remove from grid
                         GridManager.Instance.RemoveBall(ball);
 
-                        // Trigger fall
                         ball.Fall();
 
                         yield return new WaitForSeconds(_delayBetweenFalls);
                     }
                 }
 
-                // Wait a bit before next iteration
                 yield return new WaitForSeconds(0.2f);
             }
+
+            _isChecking = false;
         }
 
         private List<Ball> FindOrphanedBalls()
         {
             GridManager gridManager = GridManager.Instance;
 
-            // Clear previous results
             _connectedBalls.Clear();
 
-            // Clear all marks
             gridManager.ClearAllMarks();
 
-            // Flood-fill from all root balls (top row)
             foreach (Ball rootBall in Ball.s_rootBalls)
             {
                 if (rootBall != null && rootBall.HasFlag(BallFlags.Pinned) && !rootBall.HasFlag(BallFlags.Destroying))
@@ -78,7 +72,6 @@ namespace Brain.Managers
                 }
             }
 
-            // Find orphaned balls (pinned but not connected to root)
             List<Ball> orphanedBalls = new List<Ball>();
             var balls = gridManager.Balls;
 
@@ -110,11 +103,9 @@ namespace Brain.Managers
             if (ball.HasFlag(BallFlags.Destroying)) return;
             if (ball.HasFlag(BallFlags.MarkConnected)) return;
 
-            // Mark as connected
             ball.Flags |= BallFlags.MarkConnected;
             _connectedBalls.Add(ball);
 
-            // Recursively check neighbors
             foreach (Ball neighbor in ball.Neighbors)
             {
                 if (neighbor != null)

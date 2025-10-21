@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Brain.Managers;
 using UnityEngine;
@@ -150,10 +151,9 @@ namespace Brain.Gameplay
 
             // Add launch component and launch along the path
             BallLaunch launcher = _currentBall.gameObject.AddComponent<BallLaunch>();
-            launcher.OnBallStopped += OnBallStopped;
+            launcher.OnBallStopped += (ball) => StartCoroutine(OnBallStopped(ball));
             launcher.LaunchAlongPath(trajectoryPath);
 
-            // Clear current ball reference
             _currentBall = null;
         }
 
@@ -179,15 +179,15 @@ namespace Brain.Gameplay
             }
         }
 
-        private void OnBallStopped(Ball ball)
+        private IEnumerator OnBallStopped(Ball ball)
         {
-            // Process match detection and orphan detection
-            MatchingManager.Instance.ProcessBallStopped(ball);
+            MatchDetector.Instance.ProcessBallStopped(ball);
 
-            // Spawn next ball
+            yield return new WaitWhile(() => DestroyManager.Instance.IsDestroying() ||
+                                            OrphanDetector.Instance.IsChecking());
+
             SpawnNewBall();
 
-            // Re-enable launching
             _canLaunch = true;
         }
 

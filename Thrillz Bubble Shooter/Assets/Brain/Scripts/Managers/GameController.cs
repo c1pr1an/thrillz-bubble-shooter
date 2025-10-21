@@ -1,4 +1,5 @@
 ﻿using Brain.Core;
+using Brain.Gameplay;
 using Brain.Util;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -60,8 +61,7 @@ namespace Brain.Managers
             // Initialize grid structure
             GridManager.Instance.InitializeGrid();
 
-            // Generate procedural level (includes neighbor updates and orphan removal)
-            LevelGenerator.Instance.GenerateLevel();
+            GridGenerator.Instance.GenerateGrid();
 
             // Subscribe to game events
             GridScrollManager.Instance.OnDeathLineTouched += OnDeathLineTouched;

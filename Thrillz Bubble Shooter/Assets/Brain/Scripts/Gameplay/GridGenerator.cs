@@ -1,20 +1,19 @@
-using Brain.Gameplay;
+using Brain.Managers;
 using Brain.Util;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Brain.Managers
+namespace Brain.Gameplay
 {
-    public class LevelGenerator : UnitySingleton<LevelGenerator>
+    public class GridGenerator : UnitySingleton<GridGenerator>
     {
-        // Serialized Fields
         [Header("Generation Settings")]
         [SerializeField] private int _totalRows = 60;
         [SerializeField] private int _startRow = 4;
         [SerializeField][Range(0f, 1f)] private float _fillRate = 0.8f;
         [SerializeField] private bool _removeOrphans = true;
 
-        public void GenerateLevel()
+        public void GenerateGrid()
         {
             GridManager gridManager = GridManager.Instance;
             if (gridManager == null)
@@ -26,7 +25,7 @@ namespace Brain.Managers
             int endRow = _startRow + _totalRows;
             int ballsGenerated = 0;
 
-            Debug.Log($"LevelGenerator: Generating rows {_startRow} to {endRow - 1} (total: {_totalRows} rows)");
+            Debug.Log($"GridGenerator: Generating rows {_startRow} to {endRow - 1} (total: {_totalRows} rows)");
 
             for (int row = _startRow; row < endRow; row++)
             {
@@ -43,28 +42,23 @@ namespace Brain.Managers
                 }
             }
 
-            Debug.Log($"LevelGenerator: Generated {ballsGenerated} balls");
+            Debug.Log($"GridGenerator: Generated {ballsGenerated} balls");
 
-            // Update neighbors BEFORE doing any orphan detection
             gridManager.FinalizeGrid();
 
-            // Mark only the HIGHEST row as ceiling (like toolkit does with y==0)
             MarkCeilingBalls();
 
-            // Remove orphaned balls from generation
             if (_removeOrphans)
             {
                 RemoveOrphanedBalls();
             }
         }
 
-        // Private Methods
         private void MarkCeilingBalls()
         {
             GridManager gridManager = GridManager.Instance;
             if (gridManager == null) return;
 
-            // Find highest row with any ball
             int highestRow = -1;
             for (int row = gridManager.Balls.Count - 1; row >= 0; row--)
             {
@@ -81,7 +75,6 @@ namespace Brain.Managers
 
             if (highestRow == -1) return;
 
-            // Mark ONLY the highest row as ceiling/root (like toolkit marks y==0)
             for (int col = 0; col < gridManager.Balls[highestRow].Count; col++)
             {
                 Ball ball = gridManager.Balls[highestRow][col];
@@ -116,14 +109,12 @@ namespace Brain.Managers
 
             gridManager.ClearAllMarks();
 
-            // Find all connected balls starting from root balls
             HashSet<Ball> connectedBalls = new HashSet<Ball>();
             foreach (Ball rootBall in Ball.s_rootBalls)
             {
                 FindConnectedBalls(rootBall, connectedBalls);
             }
 
-            // Remove balls that aren't connected
             List<Ball> ballsToRemove = new List<Ball>();
             for (int row = 0; row < gridManager.Balls.Count; row++)
             {

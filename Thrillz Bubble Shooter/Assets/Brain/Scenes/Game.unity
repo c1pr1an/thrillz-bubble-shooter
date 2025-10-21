@@ -123,6 +123,50 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &322640716
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 322640717}
+  - component: {fileID: 322640718}
+  m_Layer: 0
+  m_Name: Phantom Balls
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &322640717
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 322640716}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 385195357}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &322640718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 322640716}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d070b730adb5d14db97317a325b683f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &385195352
 GameObject:
   m_ObjectHideFlags: 0
@@ -133,33 +177,19 @@ GameObject:
   m_Component:
   - component: {fileID: 385195357}
   - component: {fileID: 385195356}
-  - component: {fileID: 385195355}
-  - component: {fileID: 385195354}
-  - component: {fileID: 385195353}
   - component: {fileID: 385195360}
+  - component: {fileID: 385195354}
   - component: {fileID: 385195359}
   - component: {fileID: 385195358}
+  - component: {fileID: 385195362}
+  - component: {fileID: 385195361}
   m_Layer: 0
-  m_Name: Match
+  m_Name: Grid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &385195353
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 385195352}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e9eaf14ce81f482782e24945b254bab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _maxIterations: 5
-  _delayBetweenFalls: 0.05
 --- !u!114 &385195354
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,19 +203,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _delayBetweenDestructions: 0.05
---- !u!114 &385195355
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 385195352}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e146b19458bb04cd8ab0c39f3ddf9ebf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _minMatchCount: 3
 --- !u!114 &385195356
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -225,6 +242,7 @@ Transform:
   m_Children:
   - {fileID: 677231495}
   - {fileID: 499342178}
+  - {fileID: 322640717}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &385195358
@@ -263,13 +281,40 @@ MonoBehaviour:
   m_GameObject: {fileID: 385195352}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a332393c924976544be307aea30e2964, type: 3}
+  m_Script: {fileID: 11500000, guid: 137bc6a1a16523442ab92dc278496203, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _totalRows: 60
   _startRow: 4
   _fillRate: 0.6
   _removeOrphans: 1
+--- !u!114 &385195361
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 385195352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63f19810e0aa7804d8d51e6c7c4185d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _maxIterations: 5
+  _delayBetweenFalls: 0.02
+--- !u!114 &385195362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 385195352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89bd347620931cc4bbda36be6750c0d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _minMatchCount: 3
 --- !u!1 &499342177
 GameObject:
   m_ObjectHideFlags: 0
@@ -336,6 +381,7 @@ MonoBehaviour:
   _maxBounces: 3
   _maxDistance: 50
   _ballRadius: 0.35
+  _trajectoryCheckRadiusPercent: 0.15
   _trajectoryLine: {fileID: 535749415}
   _lineWidth: 0.15
 --- !u!1 &535749413
@@ -736,7 +782,7 @@ PrefabInstance:
     - target: {fileID: 8736366521992250491, guid: 58bda9778069aac46979b30e9a6b125f,
         type: 3}
       propertyPath: orthographic size
-      value: 11
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 8736366523661038725, guid: 58bda9778069aac46979b30e9a6b125f,
         type: 3}

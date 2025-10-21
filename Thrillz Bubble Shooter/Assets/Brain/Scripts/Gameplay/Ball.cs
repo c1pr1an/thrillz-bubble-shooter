@@ -107,7 +107,7 @@ namespace Brain.Gameplay
 
             OnDestroyed?.Invoke(this);
 
-            gameObject.layer = LayerMask.NameToLayer("Default");
+            gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 
             Rigidbody2D rb = gameObject.AddComponent<Rigidbody2D>();
             rb.gravityScale = 2f;
