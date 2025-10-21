@@ -119,6 +119,11 @@ namespace Brain.Managers
         public void FinalizeGrid()
         {
             UpdateAllNeighbors();
+
+            if (PhantomBallManager.Exists())
+            {
+                PhantomBallManager.Instance.InitializePhantoms();
+            }
         }
 
         /// <summary>
@@ -216,9 +221,13 @@ namespace Brain.Managers
             // Add to grid matrix
             _balls[gridPos.y][gridPos.x] = ball;
 
-            // Update neighbors
             UpdateNeighbors(ball);
             UpdateAdjacentNeighbors(ball);
+
+            if (PhantomBallManager.Exists())
+            {
+                PhantomBallManager.Instance.OnBallAddedToGrid(ball);
+            }
         }
 
         /// <summary>
@@ -227,6 +236,11 @@ namespace Brain.Managers
         public void RemoveBall(Ball ball)
         {
             if (ball == null) return;
+
+            if (PhantomBallManager.Exists())
+            {
+                PhantomBallManager.Instance.OnBallRemovedFromGrid(ball);
+            }
 
             Vector2Int pos = ball.Position;
             if (pos.y >= 0 && pos.y < _balls.Count && pos.x >= 0 && pos.x < _balls[pos.y].Count)
@@ -237,7 +251,6 @@ namespace Brain.Managers
                 }
             }
 
-            // Update neighbors of adjacent _balls
             UpdateAdjacentNeighbors(ball);
         }
 

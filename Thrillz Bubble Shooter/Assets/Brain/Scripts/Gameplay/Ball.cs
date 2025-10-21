@@ -102,22 +102,19 @@ namespace Brain.Gameplay
 
         public void Fall()
         {
-            // Mark as falling and unpin from grid
             Flags |= BallFlags.Falling;
             Flags &= ~BallFlags.Pinned;
 
-            // Change to falling layer (to avoid collision with launched balls)
+            OnDestroyed?.Invoke(this);
+
             gameObject.layer = LayerMask.NameToLayer("Default");
 
-            // Add gravity-like downward movement
             Rigidbody2D rb = gameObject.AddComponent<Rigidbody2D>();
             rb.gravityScale = 2f;
             rb.velocity = Vector2.down * 2f;
 
-            // Add slight random rotation for visual effect
             transform.DORotate(new Vector3(0, 0, UnityEngine.Random.Range(-180f, 180f)), 1f);
 
-            // Destroy after falling off screen
             Destroy(gameObject, 3f);
         }
 
