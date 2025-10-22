@@ -16,8 +16,10 @@ namespace Brain.Gameplay
         [SerializeField] private BallColor _ballColor;
         [SerializeField] private Color _displayColor;
 
+
         [Header("Components")]
-        private CircleCollider2D _circleCollider;
+        [SerializeField] private CircleCollider2D _circleCollider;
+        [SerializeField] private Transform _model;
         private BallFlags _flags = BallFlags.None;
 
         // Properties
@@ -46,11 +48,6 @@ namespace Brain.Gameplay
 
         // Events
         public Action<Ball> OnDestroyed;
-
-        private void Awake()
-        {
-            _circleCollider = GetComponent<CircleCollider2D>();
-        }
 
         private void OnEnable()
         {
@@ -158,6 +155,32 @@ namespace Brain.Gameplay
                 }
             }
             return false;
+        }
+
+        public void PlayWaveAnimation(Vector3 direction, float amplitude, float duration, Ease easeType)
+        {
+            // Prevent overlapping wave animations
+            if (HasFlag(BallFlags.AnimatingWave)) return;
+
+            // Set animating flag
+            Flags |= BallFlags.AnimatingWave;
+
+            // Create bounce sequence
+            Sequence waveSequence = DOTween.Sequence();
+
+            // Phase 1: Move outward in wave direction
+            waveSequence.Append(_model.DOLocalMove(direction * amplitude, duration)
+                .SetEase(easeType));
+
+            // Phase 2: Return to original position
+            waveSequence.Append(_model.DOLocalMove(Vector3.zero, duration)
+                .SetEase(Ease.InOutSine));
+
+            // Clear flag when animation completes
+            waveSequence.OnComplete(() =>
+            {
+                Flags &= ~BallFlags.AnimatingWave;
+            });
         }
 
 #if UNITY_EDITOR

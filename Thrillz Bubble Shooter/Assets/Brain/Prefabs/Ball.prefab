@@ -164,6 +164,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _ballColor: 0
   _displayColor: {r: 1, g: 1, b: 1, a: 1}
+  _circleCollider: {fileID: 7301100891772221774}
+  _model: {fileID: 1769342424006392153}
 --- !u!58 &7301100891772221774
 CircleCollider2D:
   m_ObjectHideFlags: 0

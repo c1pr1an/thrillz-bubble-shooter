@@ -12,6 +12,7 @@ namespace Brain.Gameplay
         MarkedForDestroy = 1 << 3,    // Ball is queued for destruction
         MarkedForMatch = 1 << 4,      // Ball was found in match check
         MarkConnected = 1 << 5,       // Ball is connected to root (for orphan detection)
-        Root = 1 << 6                 // Ball is a root (top row, can hold other balls)
+        Root = 1 << 6,                // Ball is a root (top row, can hold other balls)
+        AnimatingWave = 1 << 7        // Ball is currently playing a wave animation
     }
 }

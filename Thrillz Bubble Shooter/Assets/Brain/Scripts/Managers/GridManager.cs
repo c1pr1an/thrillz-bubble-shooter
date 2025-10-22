@@ -224,6 +224,12 @@ namespace Brain.Managers
             UpdateNeighbors(ball);
             UpdateAdjacentNeighbors(ball);
 
+            // Trigger wave effect after ball is placed
+            if (WaveEffectManager.Exists())
+            {
+                WaveEffectManager.Instance.TriggerWaveEffect(ball);
+            }
+
             if (PhantomBallManager.Exists())
             {
                 PhantomBallManager.Instance.OnBallAddedToGrid(ball);
