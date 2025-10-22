@@ -14,6 +14,7 @@ namespace Brain.Gameplay
         // Private Fields
         [Header("Ball Properties")]
         [SerializeField] private BallColor _ballColor;
+        [SerializeField] private Color _displayColor;
 
         [Header("Components")]
         private CircleCollider2D _circleCollider;
@@ -23,6 +24,7 @@ namespace Brain.Gameplay
         public Vector2Int Position { get; private set; }
         public Ball[] Neighbors { get; private set; } = new Ball[6];
         public BallColor Color => _ballColor;
+        public Color DisplayColor => _displayColor;
         public BallFlags Flags
         {
             get => _flags;
@@ -111,7 +113,7 @@ namespace Brain.Gameplay
 
             Rigidbody2D rb = gameObject.AddComponent<Rigidbody2D>();
             rb.gravityScale = 2f;
-            rb.velocity = Vector2.down * 2f;
+            rb.velocity = Vector2.down * 4f;
             _circleCollider.enabled = false;
 
             transform.DORotate(new Vector3(0, 0, UnityEngine.Random.Range(-180f, 180f)), 1f);
@@ -125,7 +127,7 @@ namespace Brain.Gameplay
             Flags |= BallFlags.Destroying;
 
             // Simple scale-down destruction animation
-            transform.DOScale(0f, 0.3f).SetEase(Ease.InBack).OnComplete(() =>
+            transform.DOScale(0f, 0.2f).SetEase(Ease.InBack).OnComplete(() =>
             {
                 OnDestroyed?.Invoke(this);
                 Destroy(gameObject);

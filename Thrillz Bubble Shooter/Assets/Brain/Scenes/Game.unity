@@ -228,9 +228,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _deathLineRow: 0
   _targetBufferRows: 4
-  _scrollSpeed: 7
+  _scrollSpeed: 5
   _minScrollDuration: 0.2
-  _scrollEase: 27
+  _scrollEase: 2
 --- !u!114 &385195360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -259,7 +259,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63f19810e0aa7804d8d51e6c7c4185d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxIterations: 5
   _delayBetweenFalls: 0.02
 --- !u!114 &385195362
 MonoBehaviour:
@@ -334,8 +333,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _ballSpawnPoint: {fileID: 832981467}
-  _minAimAngle: 10
-  _maxAimAngle: 170
+  _minAimAngle: 25
+  _maxAimAngle: 155
   _trajectoryPredictor: {fileID: 499342180}
 --- !u!114 &499342180
 MonoBehaviour:
@@ -355,6 +354,7 @@ MonoBehaviour:
   _trajectoryCheckRadiusPercent: 0.15
   _trajectoryLine: {fileID: 535749415}
   _lineWidth: 0.15
+  _lineAlpha: 0.8
 --- !u!1 &535749413
 GameObject:
   m_ObjectHideFlags: 0
@@ -408,7 +408,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: c42047238c6a1ca4280abec89a518fb4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -428,7 +428,7 @@ LineRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_Positions:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 1}
@@ -483,7 +483,7 @@ LineRenderer:
     numCornerVertices: 0
     numCapVertices: 0
     alignment: 0
-    textureMode: 0
+    textureMode: 1
     textureScale: {x: 1, y: 1}
     shadowBias: 0.5
     generateLightingData: 0

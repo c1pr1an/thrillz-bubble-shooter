@@ -17,6 +17,7 @@ namespace Brain.Gameplay
         [Header("Visualization")]
         [SerializeField] private LineRenderer _trajectoryLine;
         [SerializeField] private float _lineWidth = 0.15f;
+        [SerializeField] private float _lineAlpha = 0.8f;
 
         private Camera _mainCamera;
         private List<Vector3> _trajectoryPoints = new List<Vector3>();
@@ -160,7 +161,7 @@ namespace Brain.Gameplay
             return _trajectoryPoints;
         }
 
-        public void ShowTrajectory(Vector3 startPos, Vector2 direction)
+        public void ShowTrajectory(Vector3 startPos, Vector2 direction, Ball ball)
         {
             if (_trajectoryLine == null) return;
 
@@ -176,6 +177,12 @@ namespace Brain.Gameplay
             {
                 points[i] = new Vector3(points[i].x, points[i].y, 0f);
             }
+
+            // Set line color to match ball color from prefab
+            Color lineColor = ball.DisplayColor;
+            lineColor.a = _lineAlpha;
+            _trajectoryLine.startColor = lineColor;
+            _trajectoryLine.endColor = lineColor;
 
             _trajectoryLine.positionCount = points.Count;
             _trajectoryLine.SetPositions(points.ToArray());

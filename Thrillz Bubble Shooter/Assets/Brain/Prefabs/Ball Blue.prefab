@@ -68,6 +68,26 @@ PrefabInstance:
       propertyPath: _ballColor
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1363712116709608783, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: _displayColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1363712116709608783, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: _displayColor.b
+      value: 0.94509804
+      objectReference: {fileID: 0}
+    - target: {fileID: 1363712116709608783, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: _displayColor.g
+      value: 0.39607844
+      objectReference: {fileID: 0}
+    - target: {fileID: 1363712116709608783, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: _displayColor.r
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2896838767014810290, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
       propertyPath: m_Sprite

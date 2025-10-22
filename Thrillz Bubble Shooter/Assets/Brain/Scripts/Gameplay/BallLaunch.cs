@@ -10,7 +10,7 @@ namespace Brain.Gameplay
     {
         // Private Fields
         [Header("Launch Settings")]
-        [SerializeField] private float _speed = 15f;
+        [SerializeField] private float _speed = 25f;
 
         private Ball _ball;
         private CircleCollider2D _circleCollider;
