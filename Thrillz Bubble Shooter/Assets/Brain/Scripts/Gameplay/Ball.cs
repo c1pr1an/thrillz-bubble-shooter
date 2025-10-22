@@ -112,6 +112,7 @@ namespace Brain.Gameplay
             Rigidbody2D rb = gameObject.AddComponent<Rigidbody2D>();
             rb.gravityScale = 2f;
             rb.velocity = Vector2.down * 2f;
+            _circleCollider.enabled = false;
 
             transform.DORotate(new Vector3(0, 0, UnityEngine.Random.Range(-180f, 180f)), 1f);
 

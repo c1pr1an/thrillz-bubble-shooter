@@ -84,7 +84,10 @@ namespace Brain.Managers
 
             GameObject phantomObj = new GameObject($"Phantom_{edgePos.y}_{(isLeftEdge ? "L" : "R")}");
             phantomObj.transform.position = phantomWorldPos;
-            phantomObj.transform.SetParent(transform);
+
+            // Parent to grid container for synchronized movement
+            Transform parentTransform = GridManager.Instance?.GridContainer ?? transform;
+            phantomObj.transform.SetParent(parentTransform);
             phantomObj.layer = LayerMask.NameToLayer("Default");
 
             CircleCollider2D collider = phantomObj.AddComponent<CircleCollider2D>();

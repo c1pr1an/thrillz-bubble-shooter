@@ -1,6 +1,7 @@
 using System;
 using Brain.Gameplay;
 using Brain.Util;
+using DG.Tweening;
 using UnityEngine;
 
 namespace Brain.Managers
@@ -12,9 +13,15 @@ namespace Brain.Managers
         [SerializeField] private int _deathLineRow = 0;
         [SerializeField] private int _targetBufferRows = 4;
 
+        [Header("Animation Settings")]
+        [SerializeField] private float _scrollSpeed = 5f; // Units per second
+        [SerializeField] private float _minScrollDuration = 0.2f; // Minimum duration for very small moves
+        [SerializeField] private Ease _scrollEase = Ease.OutCubic;
+
         // Private Fields
         private Vector3 _initialGridPosition;
         private int _lastLowestRow = -1;
+        private Tween _gridTween;
 
         // Events
         public event Action OnDeathLineTouched;
@@ -26,6 +33,11 @@ namespace Brain.Managers
             {
                 _initialGridPosition = GridManager.Instance.GridContainer.position;
             }
+        }
+
+        private void OnDestroy()
+        {
+            _gridTween?.Kill();
         }
 
         // Public Methods
@@ -80,7 +92,8 @@ namespace Brain.Managers
             if (gridManager == null || gridManager.GridContainer == null) return;
 
             float moveDistance = rows * gridManager.BallHeight;
-            Vector3 newPosition = gridManager.GridContainer.position + new Vector3(0, -moveDistance, 0);
+            Vector3 currentPosition = gridManager.GridContainer.position;
+            Vector3 newPosition = currentPosition + new Vector3(0, -moveDistance, 0);
 
             // Don't move above initial position (anchor limit)
             if (newPosition.y > _initialGridPosition.y)
@@ -88,12 +101,49 @@ namespace Brain.Managers
                 newPosition.y = _initialGridPosition.y;
             }
 
-            gridManager.GridContainer.position = newPosition;
+            // Calculate duration based on distance and speed
+            float actualDistance = Vector3.Distance(currentPosition, newPosition);
+            float duration = Mathf.Max(actualDistance / _scrollSpeed, _minScrollDuration);
+
+            // Kill existing tween to prevent conflicts
+            _gridTween?.Kill();
+
+            // Tween the grid container (phantom balls move automatically as children)
+            _gridTween = gridManager.GridContainer
+                .DOMove(newPosition, duration)
+                .SetEase(_scrollEase);
         }
 
         public void ResetScroll()
         {
             _lastLowestRow = -1;
+
+            // Kill existing tween
+            _gridTween?.Kill();
+
+            // Reset grid position with tween (phantom balls move automatically as children)
+            if (GridManager.Instance != null && GridManager.Instance.GridContainer != null)
+            {
+                // Calculate duration based on distance and speed
+                Vector3 currentPosition = GridManager.Instance.GridContainer.position;
+                float distance = Vector3.Distance(currentPosition, _initialGridPosition);
+                float duration = Mathf.Max(distance / _scrollSpeed, _minScrollDuration);
+
+                _gridTween = GridManager.Instance.GridContainer
+                    .DOMove(_initialGridPosition, duration)
+                    .SetEase(_scrollEase);
+            }
+        }
+
+        // Public method to instantly reset without animation (useful for level start)
+        public void ResetScrollInstant()
+        {
+            _lastLowestRow = -1;
+
+            // Kill existing tween
+            _gridTween?.Kill();
+
+            // Reset position instantly
             if (GridManager.Instance != null && GridManager.Instance.GridContainer != null)
             {
                 GridManager.Instance.GridContainer.position = _initialGridPosition;

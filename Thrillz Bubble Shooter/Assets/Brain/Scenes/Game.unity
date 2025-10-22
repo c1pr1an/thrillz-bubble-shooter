@@ -123,50 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &322640716
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 322640717}
-  - component: {fileID: 322640718}
-  m_Layer: 0
-  m_Name: Phantom Balls
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &322640717
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 322640716}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 385195357}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &322640718
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 322640716}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d070b730adb5d14db97317a325b683f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &385195352
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,6 +139,7 @@ GameObject:
   - component: {fileID: 385195358}
   - component: {fileID: 385195362}
   - component: {fileID: 385195361}
+  - component: {fileID: 385195363}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -242,7 +199,6 @@ Transform:
   m_Children:
   - {fileID: 677231495}
   - {fileID: 499342178}
-  - {fileID: 322640717}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &385195358
@@ -272,6 +228,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _deathLineRow: 0
   _targetBufferRows: 4
+  _scrollSpeed: 7
+  _minScrollDuration: 0.2
+  _scrollEase: 27
 --- !u!114 &385195360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -286,7 +245,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _totalRows: 60
   _startRow: 4
-  _fillRate: 0.6
+  _fillRate: 0.7
   _removeOrphans: 1
 --- !u!114 &385195361
 MonoBehaviour:
@@ -315,6 +274,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _minMatchCount: 3
+--- !u!114 &385195363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 385195352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d070b730adb5d14db97317a325b683f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &499342177
 GameObject:
   m_ObjectHideFlags: 0

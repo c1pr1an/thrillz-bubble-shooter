@@ -10,13 +10,14 @@ namespace Brain.Gameplay
     public class OrphanDetector : UnitySingleton<OrphanDetector>
     {
         [Header("Settings")]
-        [SerializeField] private int _maxIterations = 5;
         [SerializeField] private float _delayBetweenFalls = 0.05f;
 
         private HashSet<Ball> _connectedBalls = new HashSet<Ball>();
         private bool _isChecking = false;
+        private bool _isAnimating = false;
 
         public bool IsChecking() => _isChecking;
+        public bool IsAnimating() => _isAnimating;
 
         public void CheckSeparatedBalls()
         {
@@ -26,34 +27,40 @@ namespace Brain.Gameplay
         private IEnumerator CheckSeparatedBallsCoroutine()
         {
             _isChecking = true;
+            _isAnimating = true;
 
-            for (int iteration = 0; iteration < _maxIterations; iteration++)
+            // Find ALL orphaned balls in a single pass
+            List<Ball> ballsToFall = FindOrphanedBalls();
+
+            if (ballsToFall.Count > 0)
             {
-                List<Ball> ballsToFall = FindOrphanedBalls();
+                // Sort by row (highest rows fall first for better visual effect)
+                ballsToFall = ballsToFall.OrderByDescending(ball => -ball.Position.y).ToList();
 
-                if (ballsToFall.Count == 0)
-                {
-                    break;
-                }
-
-                ballsToFall = ballsToFall.OrderByDescending(ball => ball.Position.y).ToList();
-
+                // Remove from grid immediately (logic update)
                 foreach (Ball ball in ballsToFall)
                 {
                     if (ball != null)
                     {
                         GridManager.Instance.RemoveBall(ball);
-
-                        ball.Fall();
-
-                        yield return new WaitForSeconds(_delayBetweenFalls);
                     }
                 }
-
-                yield return new WaitForSeconds(0.2f);
             }
 
+            // Logic detection is complete, set flag to false
             _isChecking = false;
+
+            // Now handle the animations
+            foreach (Ball ball in ballsToFall)
+            {
+                if (ball != null)
+                {
+                    ball.Fall();
+                    yield return new WaitForSeconds(_delayBetweenFalls);
+                }
+            }
+
+            _isAnimating = false;
         }
 
         private List<Ball> FindOrphanedBalls()

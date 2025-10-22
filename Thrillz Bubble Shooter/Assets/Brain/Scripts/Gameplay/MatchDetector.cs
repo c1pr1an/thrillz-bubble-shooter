@@ -31,7 +31,14 @@ namespace Brain.Gameplay
                 yield return new WaitWhile(() => DestroyManager.Instance.IsDestroying());
             }
 
+            // Check for orphaned balls
             OrphanDetector.Instance.CheckSeparatedBalls();
+
+            // Wait only for logic detection to complete, not animations
+            yield return new WaitWhile(() => OrphanDetector.Instance.IsChecking());
+
+            // Update grid position immediately after logic detection
+            // This happens while balls are still animating their fall
             GridScrollManager.Instance.UpdateGridPosition();
             GameConditionsManager.Instance.CheckWinCondition();
         }
