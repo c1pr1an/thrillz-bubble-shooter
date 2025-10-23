@@ -9,8 +9,7 @@ namespace Brain.Gameplay
 {
     public class OrphanDetector : UnitySingleton<OrphanDetector>
     {
-        [Header("Settings")]
-        [SerializeField] private float _delayBetweenFalls = 0.05f;
+        private float _delayBetweenFalls = 0.02f;
 
         private HashSet<Ball> _connectedBalls = new HashSet<Ball>();
         private bool _isChecking = false;
@@ -50,7 +49,7 @@ namespace Brain.Gameplay
             // Logic detection is complete, set flag to false
             _isChecking = false;
 
-            // Now handle the animations
+            // Handle the animations
             foreach (Ball ball in ballsToFall)
             {
                 if (ball != null)

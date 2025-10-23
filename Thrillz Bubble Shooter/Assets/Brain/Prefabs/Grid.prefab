@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89653fd12ecd14de1b17b2ad857b4983, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _delayBetweenDestructions: 0.05
+  _delayBetweenDestructions: 0.02
 --- !u!114 &5695402136641568378
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -243,8 +243,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _totalRows: 60
   _startRow: 4
-  _fillRate: 0.7
+  _fillRate: 0.75
+  _pattern: 4
+  _clusteringStrength: 0.5
+  _neighborColorWeight: 0.5
+  _randomColorWeight: 0.35
+  _enhanceClusters: 1
+  _removeIsolatedBalls: 1
   _removeOrphans: 1
+  _minMatchableNeighbors: 2
 --- !u!114 &3270011085193532246
 MonoBehaviour:
   m_ObjectHideFlags: 0

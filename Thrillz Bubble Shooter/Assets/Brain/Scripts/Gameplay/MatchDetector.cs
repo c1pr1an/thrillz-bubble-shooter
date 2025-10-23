@@ -8,9 +8,6 @@ namespace Brain.Gameplay
 {
     public class MatchDetector : UnitySingleton<MatchDetector>
     {
-        [Header("Settings")]
-        [SerializeField] private int _minMatchCount = 3;
-
         private List<Ball> _matchList = new List<Ball>();
 
         public void ProcessBallStopped(Ball stoppedBall)
@@ -24,9 +21,10 @@ namespace Brain.Gameplay
         {
             int matchCount = CheckMatch(stoppedBall);
 
-            if (matchCount >= _minMatchCount)
+            if (matchCount >= 3)
             {
-                DestroyManager.Instance.DestroyBalls(_matchList);
+                // Pass the impact ball (stoppedBall) to create wave pattern from impact point
+                DestroyManager.Instance.DestroyBalls(_matchList, stoppedBall);
 
                 yield return new WaitWhile(() => DestroyManager.Instance.IsDestroying());
             }

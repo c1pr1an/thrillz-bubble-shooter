@@ -54,7 +54,7 @@ namespace Brain.Managers
 
         private void OnInitializingEnter()
         {
-            _matchSeed = -2036416939;  //PlayerPrefs.GetInt("GameSeed", System.Environment.TickCount);
+            _matchSeed = PlayerPrefs.GetInt("GameSeed", System.DateTime.Now.Millisecond);
             Random.InitState(_matchSeed);
             Debug.Log($"Starting Bubble Shooter with seed: {MatchSeed}");
 
