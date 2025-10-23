@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using Brain.Util;
 
 namespace Brain.Gameplay
 {
@@ -52,6 +53,7 @@ namespace Brain.Gameplay
         private void OnEnable()
         {
             // Reset state when ball is spawned/enabled
+            transform.localScale = Vector3.one;
             Flags = BallFlags.None;
             Neighbors = new Ball[6];
         }
@@ -113,9 +115,21 @@ namespace Brain.Gameplay
             rb.velocity = Vector2.down * 4f;
             _circleCollider.enabled = false;
 
-            transform.DORotate(new Vector3(0, 0, UnityEngine.Random.Range(-180f, 180f)), 1f);
+            Sequence fallSequence = DOTween.Sequence();
+            fallSequence.Append(transform.DORotate(new Vector3(0, 0, UnityEngine.Random.Range(-180f, 180f)), 1f));
+            fallSequence.AppendInterval(2f);
+            fallSequence.OnComplete(() =>
+            {
+                // Clean up rigidbody before returning to pool
+                if (rb != null)
+                    Destroy(rb);
 
-            Destroy(gameObject, 3f);
+                // Reset layer
+                gameObject.layer = 0;
+
+                // Return to pool
+                ReturnToPool();
+            });
         }
 
         public void DestroyBall()
@@ -127,8 +141,36 @@ namespace Brain.Gameplay
             transform.DOScale(0f, 0.2f).SetEase(Ease.InBack).OnComplete(() =>
             {
                 OnDestroyed?.Invoke(this);
-                Destroy(gameObject);
+                ReturnToPool();
             });
+        }
+
+        public void ReturnToPoolInstantly()
+        {
+            // Kill any running animations
+            transform.DOKill();
+
+            // Reset ball state before returning to pool
+            Flags = BallFlags.None;
+            Neighbors = new Ball[6];
+            transform.localScale = Vector3.one;
+
+            // Invoke destroyed callback if needed
+            OnDestroyed?.Invoke(this);
+
+            // Return to pool
+            ObjectPooler.Instance.Release(gameObject, _ballColor);
+        }
+
+        private void ReturnToPool()
+        {
+            // Reset ball state before returning to pool
+            Flags = BallFlags.None;
+            Neighbors = new Ball[6];
+            transform.localScale = Vector3.one;
+
+            // Return to pool
+            ObjectPooler.Instance.Release(gameObject, _ballColor);
         }
 
         public void SetColliderEnabled(bool enabled)

@@ -442,7 +442,6 @@ MonoBehaviour:
   _blackOverlayImage: {fileID: 5466391524067352886}
   _whiteOverlayImage: {fileID: 2371781471296993194}
   _gameSeedIdTxt: {fileID: 1860485736876383725}
-  _undoButton: {fileID: 0}
   Canvas: {fileID: 2371781471284243359}
   GameplayUI: {fileID: 5884681549491102517}
   OutOfTimePanel: {fileID: 3895548270913401801}
@@ -569,6 +568,24 @@ MonoBehaviour:
     initialSize: 3
     prefab: {fileID: 4845232777371705266, guid: 4156b8dd263ae6740988760736ec8278,
       type: 3}
+  - tag: 1
+    initialSize: 20
+    prefab: {fileID: 629088075965207633, guid: a47adcfb621d94ee1b5b5a06e1625e1f, type: 3}
+  - tag: 2
+    initialSize: 20
+    prefab: {fileID: 629088075965207633, guid: dad3e60a073fb44b2a41b7d6dc78651c, type: 3}
+  - tag: 3
+    initialSize: 20
+    prefab: {fileID: 629088075965207633, guid: bd7e5e61956f745eb9dcdd0c8caa3c65, type: 3}
+  - tag: 4
+    initialSize: 20
+    prefab: {fileID: 629088075965207633, guid: 5c3a67c349a3040a1b5ea62a7ce3bc69, type: 3}
+  - tag: 5
+    initialSize: 20
+    prefab: {fileID: 629088075965207633, guid: 75a7b08cd02c242f68f15b45b959490e, type: 3}
+  - tag: 6
+    initialSize: 20
+    prefab: {fileID: 629088075965207633, guid: 7fffa79251b2046439e8b0fc0e7e4e3e, type: 3}
 --- !u!1 &6317401310308997640
 GameObject:
   m_ObjectHideFlags: 0

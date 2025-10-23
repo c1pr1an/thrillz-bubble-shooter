@@ -1,13 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Brain.Gameplay;
 using UnityEngine;
 
 namespace Brain.Util
 {
     public enum PooledObjectTag
     {
-        AddScoreText
+        AddScoreText,
+        BallYellow,
+        BallBlue,
+        BallRed,
+        BallGreen,
+        BallPurple,
+        BallPink
     }
 
     public class ObjectPooler : UnitySingleton<ObjectPooler>
@@ -44,6 +51,12 @@ namespace Brain.Util
             gameObject.SetActive(false);
         }
 
+        public GameObject Get(BallColor ballColor)
+        {
+            PooledObjectTag tag = GetPoolTag(ballColor);
+            return Get(tag);
+        }
+
         public GameObject Get(PooledObjectTag tag)
         {
             if (!poolDictionary.ContainsKey(tag))
@@ -76,6 +89,12 @@ namespace Brain.Util
             }
         }
 
+        public void Release(GameObject obj, BallColor color)
+        {
+            PooledObjectTag poolTag = GetPoolTag(color);
+            Release(obj, poolTag);
+        }
+
         public void Release(GameObject obj, PooledObjectTag poolTag)
         {
             obj.SetActive(false);
@@ -84,6 +103,28 @@ namespace Brain.Util
             obj.transform.SetParent(transform, false);
 
             poolDictionary[poolTag].Enqueue(obj);
+        }
+
+        public static PooledObjectTag GetPoolTag(BallColor color)
+        {
+            switch (color)
+            {
+                case BallColor.Yellow:
+                    return PooledObjectTag.BallYellow;
+                case BallColor.Blue:
+                    return PooledObjectTag.BallBlue;
+                case BallColor.Red:
+                    return PooledObjectTag.BallRed;
+                case BallColor.Green:
+                    return PooledObjectTag.BallGreen;
+                case BallColor.Purple:
+                    return PooledObjectTag.BallPurple;
+                case BallColor.Pink:
+                    return PooledObjectTag.BallPink;
+                default:
+                    Debug.LogError($"No pool tag defined for color {color}");
+                    return PooledObjectTag.BallRed; // Fallback
+            }
         }
     }
 }

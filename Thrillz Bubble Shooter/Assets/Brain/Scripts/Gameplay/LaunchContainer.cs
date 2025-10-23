@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Brain.Managers;
+using Brain.Util;
 using UnityEngine;
 
 namespace Brain.Gameplay
@@ -80,23 +81,27 @@ namespace Brain.Gameplay
                 return;
             }
 
-            // Pick a random color
-            BallColor randomColor = (BallColor)Random.Range(0, 6);
+            int colorCount = System.Enum.GetValues(typeof(BallColor)).Length;
+            BallColor randomColor = (BallColor)Random.Range(0, colorCount);
 
-            // Get prefab from GridManager
-            Ball prefab = GridManager.Instance.GetBallPrefab(randomColor);
-            if (prefab == null)
+            // Get ball from pool
+            GameObject ballObj = ObjectPooler.Instance.Get(randomColor);
+            _currentBall = ballObj.GetComponent<Ball>();
+            if (_currentBall == null)
             {
-                Debug.LogError($"LaunchContainer: Ball prefab for color {randomColor} not found in GridManager!");
+                Debug.LogError($"LaunchContainer: Pooled object doesn't have Ball component!");
                 return;
             }
 
-            // Instantiate the correct ball prefab
-            _currentBall = Instantiate(prefab, _ballSpawnPoint.position, Quaternion.identity, _ballSpawnPoint);
+            // Configure the ball for launching
+            _currentBall.transform.position = _ballSpawnPoint.position;
+            _currentBall.transform.rotation = Quaternion.identity;
+            _currentBall.transform.SetParent(_ballSpawnPoint);
             _currentBall.SetColor(randomColor);
             _currentBall.name = $"LaunchBall_{randomColor}";
 
-            // Disable collider until launched
+            // Reset ball state and disable collider until launched
+            _currentBall.Flags = BallFlags.None;
             _currentBall.SetColliderEnabled(false);
         }
 

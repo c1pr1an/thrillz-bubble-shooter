@@ -58,9 +58,8 @@ namespace Brain.Managers
             Random.InitState(_matchSeed);
             Debug.Log($"Starting Bubble Shooter with seed: {MatchSeed}");
 
-            // Initialize grid structure
+            ObjectPooler.Instance.Init();
             GridManager.Instance.InitializeGrid();
-
             GridGenerator.Instance.GenerateGrid();
 
             // Subscribe to game events

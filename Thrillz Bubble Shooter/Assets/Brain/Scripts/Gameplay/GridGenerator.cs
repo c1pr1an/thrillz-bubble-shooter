@@ -130,7 +130,7 @@ namespace Brain.Gameplay
             foreach (Ball ball in ballsToRemove)
             {
                 gridManager.RemoveBall(ball);
-                Destroy(ball.gameObject);
+                ball.ReturnToPoolInstantly();
             }
 
             gridManager.ClearAllMarks();
@@ -468,13 +468,15 @@ namespace Brain.Gameplay
 
                 if (maxCount >= _minMatchableNeighbors && mostCommonColor != ball.Color)
                 {
-                    // Store position before destroying
+                    // Store position before returning to pool
                     Vector2Int position = ball.Position;
 
-                    // Destroy the old ball
+                    // Remove from grid and return to pool
                     GridManager gridManager = GridManager.Instance;
                     gridManager.RemoveBall(ball);
-                    Destroy(ball.gameObject);
+
+                    // Return ball to pool instantly (no animation during generation)
+                    ball.ReturnToPoolInstantly();
 
                     // Spawn a new ball with the correct color
                     gridManager.SpawnBall(position.x, position.y, mostCommonColor);
