@@ -123,6 +123,12 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!20 &1015457196 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 8736366521992250491, guid: 58bda9778069aac46979b30e9a6b125f,
+    type: 3}
+  m_PrefabInstance: {fileID: 8736366522431761963}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1631485050
 GameObject:
   m_ObjectHideFlags: 0
@@ -162,6 +168,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2371781471284243359, guid: b9a0a2fa3f6c9564ba8c1e03ca2e2092,
+        type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 1015457196}
     - target: {fileID: 2371781471567028774, guid: b9a0a2fa3f6c9564ba8c1e03ca2e2092,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -216,66 +227,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ------------------ UI ------------------
-      objectReference: {fileID: 0}
-    - target: {fileID: 3771324855592507855, guid: b9a0a2fa3f6c9564ba8c1e03ca2e2092,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3771324855592507855, guid: b9a0a2fa3f6c9564ba8c1e03ca2e2092,
-        type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3771324855592507855, guid: b9a0a2fa3f6c9564ba8c1e03ca2e2092,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3771324855592507855, guid: b9a0a2fa3f6c9564ba8c1e03ca2e2092,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3825706133235975894, guid: b9a0a2fa3f6c9564ba8c1e03ca2e2092,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3825706133235975894, guid: b9a0a2fa3f6c9564ba8c1e03ca2e2092,
-        type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3825706133235975894, guid: b9a0a2fa3f6c9564ba8c1e03ca2e2092,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3825706133235975894, guid: b9a0a2fa3f6c9564ba8c1e03ca2e2092,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7780368281628764580, guid: b9a0a2fa3f6c9564ba8c1e03ca2e2092,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7780368281628764580, guid: b9a0a2fa3f6c9564ba8c1e03ca2e2092,
-        type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7780368281628764580, guid: b9a0a2fa3f6c9564ba8c1e03ca2e2092,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7780368281628764580, guid: b9a0a2fa3f6c9564ba8c1e03ca2e2092,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
