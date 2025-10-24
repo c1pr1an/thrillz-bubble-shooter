@@ -163,7 +163,10 @@ namespace Brain.Gameplay.Containers
 
             if (isGoingToLaunchContainer)
             {
-                ball.AnimateScaleUp();
+                ball.AnimateScaleUp(0.3f, () =>
+                {
+                    ball.transform.DOPunchScale(Vector3.one * 0.1f, 0.25f);
+                });
             }
             else if (isLeavingLaunchContainer)
             {

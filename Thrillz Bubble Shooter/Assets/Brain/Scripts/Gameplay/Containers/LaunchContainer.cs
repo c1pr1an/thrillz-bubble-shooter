@@ -14,9 +14,7 @@ namespace Brain.Gameplay.Containers
         [Header("Trajectory")]
         [SerializeField] private TrajectoryPredictor _trajectoryPredictor;
 
-        [Header("References")]
-        [SerializeField] private BallPreviewContainer _previewContainer;
-
+        private BallPreviewContainer _previewContainer;
         private Camera _mainCamera;
         private bool _canLaunch = true;
         private bool _waitingForBall = false;
@@ -36,8 +34,22 @@ namespace Brain.Gameplay.Containers
             }
         }
 
-        private void Start()
+        public void Init(BallPreviewContainer previewContainer)
         {
+            _previewContainer = previewContainer;
+            if (_previewContainer.HasBall)
+            {
+                Ball previewBall = _previewContainer.CurrentBall;
+                _previewContainer.ReleaseBall();
+
+                previewBall.transform.SetParent(_ballHolder);
+                previewBall.transform.position = _ballHolder.position;
+                previewBall.AnimateScaleTo(1.2f, 0f);
+
+                CurrentBall = previewBall;
+                OnBallReceived(previewBall);
+                _previewContainer.SpawnBall();
+            }
         }
 
         private void Update()

@@ -8,17 +8,17 @@ namespace Brain.Gameplay.Containers
     public class BallPreviewContainer : BallContainerBase
     {
         [Header("Preview Settings")]
-        [SerializeField] private LaunchContainer _launchContainer;
         [SerializeField] private float _spawnDelay = 0.5f;
-        [SerializeField] private bool _enableSwapping = true;
 
         [Header("References")]
         [SerializeField] private Transform _circleArrows;
 
+        private LaunchContainer _launchContainer;
         private CircleCollider2D _collider;
         private float _currentSpawnDelay;
         private BallColor? _nextBallColor;
         private bool _isGeneratingBall = false;
+        private bool _enableSwapping = true;
 
         protected override void Awake()
         {
@@ -32,10 +32,16 @@ namespace Brain.Gameplay.Containers
             }
         }
 
-        private void Start()
+        public void Init(LaunchContainer launchContainer)
         {
-            _currentSpawnDelay = 0f;
-            GenerateNextBall();
+            _launchContainer = launchContainer;
+            SpawnBall();
+        }
+
+        public void SpawnBall()
+        {
+            CurrentBall = SpawnRandomBall();
+            CurrentBall.transform.localScale = Vector3.one;
         }
 
         private void Update()

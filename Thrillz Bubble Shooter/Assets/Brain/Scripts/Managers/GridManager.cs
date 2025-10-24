@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Brain.Gameplay;
+using Brain.Gameplay.Containers;
 using Brain.Util;
 using UnityEngine;
 
@@ -16,6 +17,8 @@ namespace Brain.Managers
 
         [Header("Grid Container")]
         [SerializeField] private Transform _gridContainer;
+        [SerializeField] private BallPreviewContainer _ballPreviewContainer;
+        [SerializeField] private LaunchContainer _ballLaunchContainer;
 
         // 2D grid matrix [row][column] - matches toolkit's structure
         private List<List<Ball>> _balls;
@@ -27,6 +30,8 @@ namespace Brain.Managers
         public float BallWidth => _ballWidth;
         public float BallHeight => _ballHeight;
         public Transform GridContainer => _gridContainer;
+        public BallPreviewContainer BallPreviewContainer => _ballPreviewContainer;
+        public LaunchContainer BallLaunchContainer => _ballLaunchContainer;
 
         protected override void Awake()
         {
@@ -52,6 +57,9 @@ namespace Brain.Managers
 
                 _balls.Add(rowList);
             }
+
+            _ballPreviewContainer.Init(_ballLaunchContainer);
+            _ballLaunchContainer.Init(_ballPreviewContainer);
         }
 
         /// <summary>
