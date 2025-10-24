@@ -519,8 +519,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _ballSpawnPoint: {fileID: 8073911263325634748}
-  _minAimAngle: 25
-  _maxAimAngle: 155
+  _minAimAngle: 17
+  _maxAimAngle: 163
   _trajectoryPredictor: {fileID: 4890551451393313762}
 --- !u!114 &4890551451393313762
 MonoBehaviour:

@@ -11,10 +11,7 @@ namespace Brain.Gameplay
         // Private Fields
         [Header("Settings")]
         [SerializeField] private Transform _ballSpawnPoint;
-
-        [Header("Aiming")]
         [SerializeField] private float _minAimAngle;
-        [SerializeField] private float _maxAimAngle;
 
         [Header("Trajectory")]
         [SerializeField] private TrajectoryPredictor _trajectoryPredictor;
@@ -57,7 +54,7 @@ namespace Brain.Gameplay
 
             // Clamp aim angle (prevent shooting down or too horizontal)
             float angle = Vector2.SignedAngle(Vector2.right, aimDirection);
-            angle = Mathf.Clamp(angle, _minAimAngle, _maxAimAngle);
+            angle = Mathf.Clamp(angle, _minAimAngle, 180 - _minAimAngle);
             aimDirection = Quaternion.Euler(0, 0, angle) * Vector2.right;
 
             // Show trajectory with current ball color
