@@ -138,6 +138,7 @@ namespace Brain.Gameplay.Containers
             ReleaseBall();
 
             launchedBall.transform.SetParent(null);
+            launchedBall.AnimateScaleDown(0.15f);
 
             BallLaunch launcher = launchedBall.gameObject.AddComponent<BallLaunch>();
             launcher.OnBallStopped += (ball) => StartCoroutine(OnBallStopped(ball));

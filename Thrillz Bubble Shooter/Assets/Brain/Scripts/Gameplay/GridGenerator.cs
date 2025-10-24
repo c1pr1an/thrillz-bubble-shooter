@@ -130,7 +130,7 @@ namespace Brain.Gameplay
             foreach (Ball ball in ballsToRemove)
             {
                 gridManager.RemoveBall(ball);
-                ball.ReturnToPoolInstantly();
+                ball.ReturnToPool();
             }
 
             gridManager.ClearAllMarks();
@@ -476,7 +476,7 @@ namespace Brain.Gameplay
                     gridManager.RemoveBall(ball);
 
                     // Return ball to pool instantly (no animation during generation)
-                    ball.ReturnToPoolInstantly();
+                    ball.ReturnToPool();
 
                     // Spawn a new ball with the correct color
                     gridManager.SpawnBall(position.x, position.y, mostCommonColor);

@@ -12,9 +12,8 @@ namespace Brain.Gameplay.Containers
         [SerializeField] private float _spawnDelay = 0.5f;
         [SerializeField] private bool _enableSwapping = true;
 
-        [Header("Visual Feedback")]
-        [SerializeField] private float _swapScalePunch = 0.2f;
-        [SerializeField] private float _swapScaleDuration = 0.3f;
+        [Header("References")]
+        [SerializeField] private Transform _circleArrows;
 
         private CircleCollider2D _collider;
         private float _currentSpawnDelay;
@@ -106,8 +105,6 @@ namespace Brain.Gameplay.Containers
 
         public void SwapWithLauncher()
         {
-            if (!CanSwapWithLauncher()) return;
-
             AnimateSwapFeedback();
 
             if (HapticManager.Exists())
@@ -136,7 +133,8 @@ namespace Brain.Gameplay.Containers
 
         private void AnimateSwapFeedback()
         {
-            transform.DOPunchScale(Vector3.one * _swapScalePunch, _swapScaleDuration, 3, 0.5f);
+            _circleArrows.DOPunchScale(Vector3.one * 0.05f, 0.4f, 3, 0.5f);
+            _circleArrows.DORotate(new Vector3(0, 0, 180), 0.4f, RotateMode.LocalAxisAdd);
         }
 
         public void SetSwappingEnabled(bool enabled)
@@ -148,24 +146,5 @@ namespace Brain.Gameplay.Containers
                 _collider.enabled = enabled;
             }
         }
-
-#if UNITY_EDITOR
-        protected override void OnDrawGizmosSelected()
-        {
-            base.OnDrawGizmosSelected();
-
-            if (_collider != null)
-            {
-                Gizmos.color = Color.cyan;
-                Gizmos.DrawWireSphere(transform.position, _collider.radius);
-            }
-
-            if (_launchContainer != null)
-            {
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawLine(transform.position, _launchContainer.transform.position);
-            }
-        }
-#endif
     }
 }

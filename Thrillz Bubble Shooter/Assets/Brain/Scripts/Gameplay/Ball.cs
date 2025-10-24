@@ -54,6 +54,10 @@ namespace Brain.Gameplay
         {
             // Reset state when ball is spawned/enabled
             transform.localScale = Vector3.one;
+            if (_model != null)
+            {
+                _model.localScale = Vector3.one;
+            }
             Flags = BallFlags.None;
             Neighbors = new Ball[6];
         }
@@ -113,23 +117,10 @@ namespace Brain.Gameplay
             Rigidbody2D rb = gameObject.AddComponent<Rigidbody2D>();
             rb.gravityScale = 2f;
             rb.velocity = Vector2.down * 4f;
+            rb.angularVelocity = UnityEngine.Random.Range(-150f, 150f);
             _circleCollider.enabled = false;
 
-            Sequence fallSequence = DOTween.Sequence();
-            fallSequence.Append(transform.DORotate(new Vector3(0, 0, UnityEngine.Random.Range(-180f, 180f)), 1f));
-            fallSequence.AppendInterval(2f);
-            fallSequence.OnComplete(() =>
-            {
-                // Clean up rigidbody before returning to pool
-                if (rb != null)
-                    Destroy(rb);
-
-                // Reset layer
-                gameObject.layer = 0;
-
-                // Return to pool
-                ReturnToPool();
-            });
+            Invoke("ReturnToPool", 2f);
         }
 
         public void DestroyBall()
@@ -145,31 +136,22 @@ namespace Brain.Gameplay
             });
         }
 
-        public void ReturnToPoolInstantly()
+        public void ReturnToPool()
         {
-            // Kill any running animations
             transform.DOKill();
+            _model.DOKill();
 
-            // Reset ball state before returning to pool
             Flags = BallFlags.None;
             Neighbors = new Ball[6];
-            transform.localScale = Vector3.one;
 
-            // Invoke destroyed callback if needed
+            if (GetComponent<Rigidbody2D>() != null)
+                Destroy(GetComponent<Rigidbody2D>());
+
+            gameObject.layer = 0;
+            transform.localScale = Vector3.one;
+            if (_model != null) _model.localScale = Vector3.one;
+
             OnDestroyed?.Invoke(this);
-
-            // Return to pool
-            ObjectPooler.Instance.Release(gameObject, _ballColor);
-        }
-
-        private void ReturnToPool()
-        {
-            // Reset ball state before returning to pool
-            Flags = BallFlags.None;
-            Neighbors = new Ball[6];
-            transform.localScale = Vector3.one;
-
-            // Return to pool
             ObjectPooler.Instance.Release(gameObject, _ballColor);
         }
 
@@ -179,6 +161,30 @@ namespace Brain.Gameplay
             {
                 _circleCollider.enabled = enabled;
             }
+        }
+
+        public void AnimateScaleTo(float targetScale, float duration = 0.3f, TweenCallback onComplete = null)
+        {
+            _model.DOKill(complete: false);
+            _model.DOScale(Vector3.one * targetScale, duration)
+                .SetEase(Ease.OutBack)
+                .OnComplete(() => onComplete?.Invoke());
+        }
+
+        public void AnimateScaleUp(float duration = 0.3f, TweenCallback onComplete = null)
+        {
+            AnimateScaleTo(1.2f, duration, onComplete);
+        }
+
+        public void AnimateScaleDown(float duration = 0.3f, TweenCallback onComplete = null)
+        {
+            AnimateScaleTo(1f, duration, onComplete);
+        }
+
+        public void SetScaleInstant(float scale)
+        {
+            _model.DOKill(complete: false);
+            _model.localScale = Vector3.one * scale;
         }
 
         public bool MatchesColor(Ball other)

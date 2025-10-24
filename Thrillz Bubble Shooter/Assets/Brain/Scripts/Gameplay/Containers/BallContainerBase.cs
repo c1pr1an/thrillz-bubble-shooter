@@ -135,6 +135,19 @@ namespace Brain.Gameplay.Containers
             Quaternion startRot = ball.transform.rotation;
             Quaternion targetRot = Quaternion.Euler(0, 0, UnityEngine.Random.Range(-180f, 180f));
 
+            // Determine if we need to scale up or down based on destination
+            bool isGoingToLaunchContainer = to is LaunchContainer;
+            bool isLeavingLaunchContainer = from is LaunchContainer;
+
+            if (isGoingToLaunchContainer)
+            {
+                ball.AnimateScaleUp();
+            }
+            else if (isLeavingLaunchContainer)
+            {
+                ball.AnimateScaleDown();
+            }
+
             while (elapsedTime < duration)
             {
                 float t = elapsedTime / duration;
