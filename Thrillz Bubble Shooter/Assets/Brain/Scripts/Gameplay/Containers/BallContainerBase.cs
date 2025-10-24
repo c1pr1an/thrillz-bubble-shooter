@@ -14,6 +14,11 @@ namespace Brain.Gameplay.Containers
 
         [Header("Container Settings")]
         [SerializeField] protected Transform _ballHolder;
+
+        [Header("Swap Animation")]
+        [SerializeField] private Transform _circleCenter;
+        [SerializeField] private float _swapDuration = 0.3f;
+
         protected Ball _savedBall;
         protected Coroutine _switchCoroutine;
         protected bool _isSwapping = false;
@@ -121,21 +126,38 @@ namespace Brain.Gameplay.Containers
         protected IEnumerator SwitchBallAnimation(BallContainerBase from, BallContainerBase to, Ball ball, Action<Ball> onComplete)
         {
             _isSwapping = true;
-
-            float duration = 0.3f;
-            float arcHeight = 2f;
             float elapsedTime = 0f;
 
             ball.transform.SetParent(null);
 
             Vector3 startPos = from._ballHolder.position;
             Vector3 endPos = to._ballHolder.position;
-            Vector3 arcPeak = startPos + (endPos - startPos) * 0.5f + Vector3.up * arcHeight;
+            Vector3 centerPos = _circleCenter != null ? _circleCenter.position : (startPos + endPos) * 0.5f;
 
-            Quaternion startRot = ball.transform.rotation;
-            Quaternion targetRot = Quaternion.Euler(0, 0, UnityEngine.Random.Range(-180f, 180f));
+            // Calculate radius (distance from center to start position)
+            float radius = Vector3.Distance(centerPos, startPos);
 
-            // Determine if we need to scale up or down based on destination
+            // Calculate start and end angles relative to center
+            Vector3 startDir = (startPos - centerPos).normalized;
+            Vector3 endDir = (endPos - centerPos).normalized;
+
+            float startAngle = Mathf.Atan2(startDir.y, startDir.x) * Mathf.Rad2Deg;
+            float endAngle = Mathf.Atan2(endDir.y, endDir.x) * Mathf.Rad2Deg;
+
+            // Ensure anti-clockwise rotation
+            float angleDiff = endAngle - startAngle;
+
+            // Normalize angle difference to be between -180 and 180
+            while (angleDiff > 180f) angleDiff -= 360f;
+            while (angleDiff < -180f) angleDiff += 360f;
+
+            // For anti-clockwise, if the difference would be clockwise (negative), go the long way
+            if (angleDiff < 0)
+            {
+                endAngle = startAngle + (360f + angleDiff);
+            }
+
+            // Determine scaling based on destination
             bool isGoingToLaunchContainer = to is LaunchContainer;
             bool isLeavingLaunchContainer = from is LaunchContainer;
 
@@ -148,21 +170,31 @@ namespace Brain.Gameplay.Containers
                 ball.AnimateScaleDown();
             }
 
-            while (elapsedTime < duration)
+            while (elapsedTime < _swapDuration)
             {
-                float t = elapsedTime / duration;
+                float t = elapsedTime / _swapDuration;
 
-                Vector3 m0 = Vector3.Lerp(startPos, arcPeak, t);
-                Vector3 m1 = Vector3.Lerp(arcPeak, endPos, t);
-                Vector3 position = Vector3.Lerp(m0, m1, t);
+                // Use smooth easing
+                float easedT = Mathf.SmoothStep(0, 1, t);
+
+                // Calculate current angle
+                float currentAngle = Mathf.Lerp(startAngle, endAngle, easedT);
+
+                // Convert to radians and calculate position
+                float radians = currentAngle * Mathf.Deg2Rad;
+                Vector3 position = centerPos + new Vector3(
+                    Mathf.Cos(radians) * radius,
+                    Mathf.Sin(radians) * radius,
+                    0
+                );
 
                 ball.transform.position = position;
-                ball.transform.rotation = Quaternion.Lerp(startRot, targetRot, t);
 
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
 
+            // Set final position and scale
             ball.transform.position = endPos;
             ball.transform.rotation = Quaternion.identity;
             ball.transform.SetParent(to._ballHolder);

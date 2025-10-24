@@ -181,12 +181,6 @@ namespace Brain.Gameplay
             AnimateScaleTo(1f, duration, onComplete);
         }
 
-        public void SetScaleInstant(float scale)
-        {
-            _model.DOKill(complete: false);
-            _model.localScale = Vector3.one * scale;
-        }
-
         public bool MatchesColor(Ball other)
         {
             if (other == null) return false;

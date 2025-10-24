@@ -583,6 +583,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _ballHolder: {fileID: 8073911263325634748}
+  _circleCenter: {fileID: 2024180427609407122}
+  _swapDuration: 0.3
   _minAimAngle: 17
   _trajectoryPredictor: {fileID: 4890551451393313762}
   _previewContainer: {fileID: 7562431825609840932}
@@ -872,6 +874,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _ballHolder: {fileID: 7988109798016801202}
+  _circleCenter: {fileID: 2024180427609407122}
+  _swapDuration: 0.3
   _launchContainer: {fileID: 7609773947653830694}
   _spawnDelay: 0.5
   _enableSwapping: 1
