@@ -23,7 +23,7 @@ namespace Brain.Gameplay.Containers
         protected Coroutine _switchCoroutine;
         protected bool _isSwapping = false;
 
-        public Ball CurrentBall { get; protected set; }
+        public Ball CurrentBall { get; set; }
         public bool IsSwapping => _isSwapping;
         public bool HasBall => CurrentBall != null;
 

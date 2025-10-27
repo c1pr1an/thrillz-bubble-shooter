@@ -21,7 +21,10 @@ namespace Brain.Gameplay
         [Header("Components")]
         [SerializeField] private CircleCollider2D _circleCollider;
         [SerializeField] private Transform _model;
+        [SerializeField] private GameObject _highlightSprite;
+
         private BallFlags _flags = BallFlags.None;
+        private RainbowBall _rainbowComponent;
 
         // Properties
         public Vector2Int Position { get; private set; }
@@ -49,6 +52,12 @@ namespace Brain.Gameplay
 
         // Events
         public Action<Ball> OnDestroyed;
+
+        private void Awake()
+        {
+            // Cache rainbow component if exists
+            _rainbowComponent = GetComponent<RainbowBall>();
+        }
 
         private void OnEnable()
         {
@@ -184,7 +193,31 @@ namespace Brain.Gameplay
         public bool MatchesColor(Ball other)
         {
             if (other == null) return false;
+
+            // Rainbow balls match with any color
+            if (IsRainbow() || other.IsRainbow())
+                return true;
+
             return _ballColor == other._ballColor;
+        }
+
+        /// <summary>
+        /// Check if this ball is a Rainbow bonus ball
+        /// </summary>
+        public bool IsRainbow()
+        {
+            return _rainbowComponent != null && _rainbowComponent.enabled && _rainbowComponent.CanMatchAnyColor();
+        }
+
+        /// <summary>
+        /// Set the highlight state of this ball
+        /// </summary>
+        public void SetHighlight(bool enabled)
+        {
+            if (_highlightSprite != null)
+            {
+                _highlightSprite.SetActive(enabled);
+            }
         }
 
         public bool HasValidNeighbor()

@@ -147,6 +147,10 @@ namespace Brain.Gameplay.Containers
             }
 
             Ball launchedBall = CurrentBall;
+
+            // Check if this is a bonus ball being launched
+            bool isBonusBall = launchedBall.IsRainbow();
+
             ReleaseBall();
 
             launchedBall.transform.SetParent(null);
@@ -157,6 +161,12 @@ namespace Brain.Gameplay.Containers
             launcher.LaunchAlongPath(trajectoryPath);
 
             FireBallLaunchedEvent(launchedBall);
+
+            // Notify bonus power manager if this was a bonus ball
+            if (isBonusBall && BonusPowerManager.Exists())
+            {
+                BonusPowerManager.Instance.UsedBonus();
+            }
         }
 
         private void ClampTrajectoryToScreen(List<Vector3> trajectoryPath)

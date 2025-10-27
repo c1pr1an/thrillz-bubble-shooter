@@ -19,7 +19,17 @@ namespace Brain.Gameplay
 
         private IEnumerator ProcessBallStoppedCoroutine(Ball stoppedBall)
         {
-            int matchCount = CheckMatch(stoppedBall);
+            int matchCount = 0;
+
+            // Special handling for Rainbow balls
+            if (stoppedBall.IsRainbow())
+            {
+                matchCount = CheckRainbowMatch(stoppedBall);
+            }
+            else
+            {
+                matchCount = CheckMatch(stoppedBall);
+            }
 
             if (matchCount >= 3)
             {
@@ -49,6 +59,49 @@ namespace Brain.Gameplay
 
             FindMatches(ball, ball.Color);
 
+            ClearMarks();
+
+            return _matchList.Count;
+        }
+
+        /// <summary>
+        /// Check match for Rainbow ball - matches all adjacent colors
+        /// </summary>
+        public int CheckRainbowMatch(Ball rainbowBall)
+        {
+            if (rainbowBall == null) return 0;
+
+            _matchList.Clear();
+
+            // Add the rainbow ball itself
+            _matchList.Add(rainbowBall);
+            rainbowBall.Flags |= BallFlags.MarkedForMatch;
+
+            // Find all adjacent balls and match ALL colors
+            HashSet<BallColor> colorsToMatch = new HashSet<BallColor>();
+
+            // First, identify all colors touching the rainbow ball
+            foreach (Ball neighbor in rainbowBall.Neighbors)
+            {
+                if (neighbor != null && neighbor.HasFlag(BallFlags.Pinned) && !neighbor.HasFlag(BallFlags.Destroying))
+                {
+                    colorsToMatch.Add(neighbor.Color);
+                }
+            }
+
+            // Now find all connected balls for each color
+            foreach (BallColor color in colorsToMatch)
+            {
+                foreach (Ball neighbor in rainbowBall.Neighbors)
+                {
+                    if (neighbor != null && neighbor.Color == color)
+                    {
+                        FindMatches(neighbor, color);
+                    }
+                }
+            }
+
+            // Clear marks
             ClearMarks();
 
             return _matchList.Count;

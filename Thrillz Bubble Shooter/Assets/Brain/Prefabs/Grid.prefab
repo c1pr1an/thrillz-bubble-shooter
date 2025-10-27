@@ -160,6 +160,7 @@ GameObject:
   - component: {fileID: 7859372708362996966}
   - component: {fileID: 5695402136641568378}
   - component: {fileID: 3072583001038024507}
+  - component: {fileID: 7682664169435399723}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -248,6 +249,20 @@ MonoBehaviour:
   _maxWaveLayers: 3
   _amplitudeAttenuation: 0.05
   _waveEase: 4
+--- !u!114 &7682664169435399723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2955337845684583753}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c44237eaab20d41179118d0f2a295dc2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enableHighlighting: 1
+  _updateInterval: 0.1
 --- !u!1 &2956523709681274247
 GameObject:
   m_ObjectHideFlags: 0
@@ -370,6 +385,7 @@ MonoBehaviour:
   _gridContainer: {fileID: 2696775149510985958}
   _ballPreviewContainer: {fileID: 7562431825609840932}
   _ballLaunchContainer: {fileID: 7609773947653830694}
+  _bonusBallContainer: {fileID: 5994130594536406923}
 --- !u!114 &7208834695071741804
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -503,6 +519,95 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &5645190772527598578
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2525969763018208713}
+  - component: {fileID: 5994130594536406923}
+  - component: {fileID: 3680142964342413492}
+  m_Layer: 0
+  m_Name: Bonus Ball Container
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2525969763018208713
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5645190772527598578}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.05, y: 0.36, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4014541591090162683}
+  m_Father: {fileID: 3642769836695038945}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5994130594536406923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5645190772527598578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 369704873aa954ad39011a925ffda696, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _ballHolder: {fileID: 4014541591090162683}
+  _circleCenter: {fileID: 4014541591090162683}
+  _swapDuration: 0.3
+  _rainbowBallPrefab: {fileID: 4923921571906240741, guid: 871a3f2354c8148688ae622a8e998ff3,
+    type: 3}
+  _testMode: 1
+  _spawnOnStart: 1
+  _circleArrows: {fileID: 0}
+--- !u!58 &3680142964342413492
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5645190772527598578}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 1
 --- !u!1 &6766664698262590339
 GameObject:
   m_ObjectHideFlags: 0
@@ -535,6 +640,7 @@ Transform:
   - {fileID: 2024180427609407122}
   - {fileID: 8964980057032410510}
   - {fileID: 4179928051037604160}
+  - {fileID: 2525969763018208713}
   m_Father: {fileID: 5964721484651990653}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7432831291398093304
@@ -914,3 +1020,34 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 2
+--- !u!1 &9014979079308139132
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4014541591090162683}
+  m_Layer: 0
+  m_Name: Ball Holder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4014541591090162683
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9014979079308139132}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2525969763018208713}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

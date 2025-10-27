@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Brain.Managers;
+using Brain.Util;
 
 namespace Brain.Gameplay
 {
-    public class TrajectoryPredictor : MonoBehaviour
+    public class TrajectoryPredictor : UnitySingleton<TrajectoryPredictor>
     {
         [Header("Trajectory Settings")]
         [SerializeField] private int _maxBounces = 3;
@@ -21,8 +22,12 @@ namespace Brain.Gameplay
 
         private Camera _mainCamera;
         private List<Vector3> _trajectoryPoints = new List<Vector3>();
+        private Vector2 _predictedImpactPosition;
+        private bool _hasValidPrediction = false;
 
         public LineRenderer TrajectoryLine => _trajectoryLine;
+        public Vector2 PredictedImpactPosition => _predictedImpactPosition;
+        public bool HasValidPrediction => _hasValidPrediction;
 
         private void Awake()
         {
@@ -170,8 +175,13 @@ namespace Brain.Gameplay
             if (points.Count < 2)
             {
                 _trajectoryLine.enabled = false;
+                _hasValidPrediction = false;
                 return;
             }
+
+            // Set the predicted impact position (last point in trajectory)
+            _predictedImpactPosition = points[points.Count - 1];
+            _hasValidPrediction = true;
 
             for (int i = 0; i < points.Count; i++)
             {
@@ -195,6 +205,7 @@ namespace Brain.Gameplay
             {
                 _trajectoryLine.enabled = false;
             }
+            _hasValidPrediction = false;
         }
     }
 }

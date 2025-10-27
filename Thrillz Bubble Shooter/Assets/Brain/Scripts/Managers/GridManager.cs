@@ -19,6 +19,7 @@ namespace Brain.Managers
         [SerializeField] private Transform _gridContainer;
         [SerializeField] private BallPreviewContainer _ballPreviewContainer;
         [SerializeField] private LaunchContainer _ballLaunchContainer;
+        [SerializeField] private BonusBallContainer _bonusBallContainer;
 
         // 2D grid matrix [row][column] - matches toolkit's structure
         private List<List<Ball>> _balls;
@@ -32,6 +33,7 @@ namespace Brain.Managers
         public Transform GridContainer => _gridContainer;
         public BallPreviewContainer BallPreviewContainer => _ballPreviewContainer;
         public LaunchContainer BallLaunchContainer => _ballLaunchContainer;
+        public BonusBallContainer BonusBallContainer => _bonusBallContainer;
 
         protected override void Awake()
         {
@@ -60,6 +62,12 @@ namespace Brain.Managers
 
             _ballPreviewContainer.Init(_ballLaunchContainer);
             _ballLaunchContainer.Init(_ballPreviewContainer);
+
+            // Initialize bonus ball container if assigned
+            if (_bonusBallContainer != null)
+            {
+                _bonusBallContainer.Init();
+            }
         }
 
         /// <summary>

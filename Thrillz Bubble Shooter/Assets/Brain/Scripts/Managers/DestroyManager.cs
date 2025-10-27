@@ -27,6 +27,9 @@ namespace Brain.Managers
         {
             _isDestroying = true;
 
+            // Track destroyed balls for power system
+            int destroyedCount = 0;
+
             // Sort balls by distance from impact point (wave pattern)
             if (impactBall != null && balls.Contains(impactBall))
             {
@@ -62,12 +65,24 @@ namespace Brain.Managers
             {
                 if (ball != null && ball.gameObject != null)
                 {
+                    // Don't count rainbow balls themselves toward power
+                    if (!ball.IsRainbow())
+                    {
+                        destroyedCount++;
+                    }
+
                     ball.Flags |= BallFlags.MarkedForDestroy;
                     ball.Flags |= BallFlags.Destroying;
                     GridManager.Instance.RemoveBall(ball);
                     ball.DestroyBall();
                     yield return new WaitForSeconds(_delayBetweenDestructions);
                 }
+            }
+
+            // Add power for destroyed balls
+            if (destroyedCount > 0 && BonusPowerManager.Exists())
+            {
+                BonusPowerManager.Instance.AddPower(destroyedCount);
             }
 
             _isDestroying = false;
