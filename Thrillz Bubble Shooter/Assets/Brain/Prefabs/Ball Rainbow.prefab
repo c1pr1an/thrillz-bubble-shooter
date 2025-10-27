@@ -58,25 +58,81 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2345047516124010955, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4176247645813639465, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4689719254661643444, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.45
+      objectReference: {fileID: 0}
+    - target: {fileID: 4689719254661643444, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.45
+      objectReference: {fileID: 0}
+    - target: {fileID: 4689719254661643444, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.45
+      objectReference: {fileID: 0}
+    - target: {fileID: 7301100891772221774, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8489022529890124695, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 2.56
+      objectReference: {fileID: 0}
+    - target: {fileID: 8489022529890124695, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 2.56
+      objectReference: {fileID: 0}
+    - target: {fileID: 8489022529890124695, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: af010886020aae6438499cbae2ed170d,
+        type: 3}
+    - target: {fileID: 8489022529890124695, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8489022529890124695, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
       propertyPath: m_Color.b
-      value: 0.14288893
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8489022529890124695, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
       propertyPath: m_Color.g
-      value: 0.1792453
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8489022529890124695, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
       propertyPath: m_Color.r
-      value: 0.16618025
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8489022529890124695, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8941219400125624985, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
       propertyPath: m_Name
-      value: Ball Rainbow Variant
+      value: Ball Rainbow
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

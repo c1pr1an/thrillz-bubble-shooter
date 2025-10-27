@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 5442770375372771985}
   - component: {fileID: 4084443258998388959}
   m_Layer: 0
-  m_Name: Image (2)
+  m_Name: Highlight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -111,7 +111,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.4106, y: 0.4106, z: 0.4106}
+  m_LocalScale: {x: 0.48, y: 0.48, z: 0.48}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1769342424006392153}
@@ -157,8 +157,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 4
-  m_Sprite: {fileID: 21300000, guid: ee4f094ae72524ccfb3e68f6c111003a, type: 3}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.9411765}
+  m_Sprite: {fileID: 21300000, guid: e416101226fcc034a8be8b337718b12f, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -179,7 +179,7 @@ GameObject:
   - component: {fileID: 4178458587940636286}
   - component: {fileID: 1413533120291316345}
   m_Layer: 0
-  m_Name: Image (1)
+  m_Name: Color overlay temp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -65,44 +65,82 @@ namespace Brain.Gameplay
         }
 
         /// <summary>
-        /// Check match for Rainbow ball - matches all adjacent colors
+        /// Check match for Rainbow ball - only matches color groups of 3+ (including rainbow)
         /// </summary>
         public int CheckRainbowMatch(Ball rainbowBall)
         {
             if (rainbowBall == null) return 0;
 
             _matchList.Clear();
+            List<Ball> finalMatchList = new List<Ball>();
+            HashSet<Ball> processedBalls = new HashSet<Ball>();
 
-            // Add the rainbow ball itself
-            _matchList.Add(rainbowBall);
-            rainbowBall.Flags |= BallFlags.MarkedForMatch;
+            // Track which colors to check
+            HashSet<BallColor> colorsToCheck = new HashSet<BallColor>();
 
-            // Find all adjacent balls and match ALL colors
-            HashSet<BallColor> colorsToMatch = new HashSet<BallColor>();
-
-            // First, identify all colors touching the rainbow ball
+            // First, identify all colors directly touching the rainbow ball
             foreach (Ball neighbor in rainbowBall.Neighbors)
             {
                 if (neighbor != null && neighbor.HasFlag(BallFlags.Pinned) && !neighbor.HasFlag(BallFlags.Destroying))
                 {
-                    colorsToMatch.Add(neighbor.Color);
+                    colorsToCheck.Add(neighbor.Color);
                 }
             }
 
-            // Now find all connected balls for each color
-            foreach (BallColor color in colorsToMatch)
+            // For each color, check if we have 3+ balls (including the rainbow)
+            foreach (BallColor color in colorsToCheck)
             {
+                // Clear the match list for this color check
+                _matchList.Clear();
+
+                // Find all neighbors of this color and flood fill from one
+                Ball startBall = null;
                 foreach (Ball neighbor in rainbowBall.Neighbors)
                 {
-                    if (neighbor != null && neighbor.Color == color)
+                    if (neighbor != null && neighbor.Color == color && neighbor.HasFlag(BallFlags.Pinned) && !neighbor.HasFlag(BallFlags.Destroying))
                     {
-                        FindMatches(neighbor, color);
+                        startBall = neighbor;
+                        break;
+                    }
+                }
+
+                if (startBall == null) continue;
+
+                // Find all connected balls of this color
+                FindMatches(startBall, color);
+
+                // Clear marks for this color group
+                foreach (Ball ball in _matchList)
+                {
+                    if (ball != null)
+                    {
+                        ball.Flags &= ~BallFlags.MarkedForMatch;
+                    }
+                }
+
+                // If this color group + rainbow ball makes 3 or more, include them
+                if (_matchList.Count >= 2) // 2 color balls + 1 rainbow = 3 total
+                {
+                    foreach (Ball ball in _matchList)
+                    {
+                        if (!processedBalls.Contains(ball))
+                        {
+                            finalMatchList.Add(ball);
+                            processedBalls.Add(ball);
+                        }
                     }
                 }
             }
 
-            // Clear marks
-            ClearMarks();
+            // Only add rainbow ball if we found valid matches
+            if (finalMatchList.Count > 0)
+            {
+                finalMatchList.Add(rainbowBall);
+                rainbowBall.Flags |= BallFlags.MarkedForMatch;
+            }
+
+            // Set the final match list
+            _matchList = finalMatchList;
 
             return _matchList.Count;
         }
@@ -148,6 +186,131 @@ namespace Brain.Gameplay
             ClearMarks();
 
             return new List<Ball>(_matchList);
+        }
+
+        /// <summary>
+        /// Get preview of what would be matched if a ball landed at a position
+        /// Simulates both regular and bonus ball behavior
+        /// </summary>
+        public List<Ball> GetMatchPreviewAtPosition(Ball simulatedBall, Ball targetPosition)
+        {
+            if (targetPosition == null || simulatedBall == null) return new List<Ball>();
+
+            // Check if it's a bonus ball
+            if (simulatedBall.IsRainbow())
+            {
+                return GetRainbowMatchPreview(targetPosition);
+            }
+            else
+            {
+                // For regular balls, check what would match at that position
+                _matchList.Clear();
+
+                // Check if new ball would connect with same-color neighbors
+                List<Ball> sameColorNeighbors = new List<Ball>();
+                foreach (Ball neighbor in targetPosition.Neighbors)
+                {
+                    if (neighbor != null && neighbor.Color == simulatedBall.Color &&
+                        neighbor.HasFlag(BallFlags.Pinned) && !neighbor.HasFlag(BallFlags.Destroying))
+                    {
+                        sameColorNeighbors.Add(neighbor);
+                    }
+                }
+
+                // If no same-color neighbors, no match possible
+                if (sameColorNeighbors.Count == 0)
+                    return new List<Ball>();
+
+                // Find all connected balls of the same color
+                foreach (Ball neighbor in sameColorNeighbors)
+                {
+                    FindMatches(neighbor, simulatedBall.Color);
+                }
+
+                ClearMarks();
+
+                // Only return if we'd have 3+ matches (including the new ball)
+                if (_matchList.Count >= 2) // 2 existing + 1 new = 3
+                {
+                    // Don't include targetPosition - it's where the new ball would go, not a ball to destroy
+                    return new List<Ball>(_matchList);
+                }
+                return new List<Ball>();
+            }
+        }
+
+        /// <summary>
+        /// Preview what a rainbow ball would match at a given position
+        /// </summary>
+        private List<Ball> GetRainbowMatchPreview(Ball targetPosition)
+        {
+            if (targetPosition == null) return new List<Ball>();
+
+            List<Ball> previewList = new List<Ball>();
+            HashSet<Ball> processedBalls = new HashSet<Ball>();
+
+            // Track which colors to check
+            HashSet<BallColor> colorsToCheck = new HashSet<BallColor>();
+
+            // First, identify all colors directly touching the target position
+            foreach (Ball neighbor in targetPosition.Neighbors)
+            {
+                if (neighbor != null && neighbor.HasFlag(BallFlags.Pinned) && !neighbor.HasFlag(BallFlags.Destroying))
+                {
+                    colorsToCheck.Add(neighbor.Color);
+                }
+            }
+
+            // For each color, check if we have 3+ balls (including the rainbow)
+            foreach (BallColor color in colorsToCheck)
+            {
+                // Clear the match list for this color check
+                _matchList.Clear();
+
+                // Find ONE neighbor of this color to start flood fill
+                Ball startBall = null;
+                foreach (Ball neighbor in targetPosition.Neighbors)
+                {
+                    if (neighbor != null && neighbor.Color == color &&
+                        neighbor.HasFlag(BallFlags.Pinned) && !neighbor.HasFlag(BallFlags.Destroying))
+                    {
+                        startBall = neighbor;
+                        break;
+                    }
+                }
+
+                if (startBall == null) continue;
+
+                // Find all connected balls of this color
+                FindMatches(startBall, color);
+
+                // Clear marks for this color group
+                foreach (Ball ball in _matchList)
+                {
+                    if (ball != null)
+                    {
+                        ball.Flags &= ~BallFlags.MarkedForMatch;
+                    }
+                }
+
+                // If this color group + rainbow ball makes 3 or more, include them
+                if (_matchList.Count >= 2) // 2 color balls + 1 rainbow = 3 total
+                {
+                    foreach (Ball ball in _matchList)
+                    {
+                        if (!processedBalls.Contains(ball))
+                        {
+                            previewList.Add(ball);
+                            processedBalls.Add(ball);
+                        }
+                    }
+                }
+            }
+
+            // Don't add the target position - it's just where the rainbow ball would land
+            // The target ball itself doesn't get destroyed
+
+            return previewList;
         }
     }
 }

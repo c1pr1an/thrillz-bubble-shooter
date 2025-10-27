@@ -21,7 +21,7 @@ namespace Brain.Managers
         [SerializeField] private LaunchContainer _ballLaunchContainer;
         [SerializeField] private BonusBallContainer _bonusBallContainer;
 
-        // 2D grid matrix [row][column] - matches toolkit's structure
+        // 2D grid matrix [row][column] 
         private List<List<Ball>> _balls;
 
         // Properties
@@ -35,14 +35,6 @@ namespace Brain.Managers
         public LaunchContainer BallLaunchContainer => _ballLaunchContainer;
         public BonusBallContainer BonusBallContainer => _bonusBallContainer;
 
-        protected override void Awake()
-        {
-            base.Awake();
-        }
-
-        /// <summary>
-        /// Initializes the grid structure
-        /// </summary>
         public void InitializeGrid()
         {
             _balls = new List<List<Ball>>(_maxRows);
@@ -70,9 +62,6 @@ namespace Brain.Managers
             }
         }
 
-        /// <summary>
-        /// Finalizes grid setup after _balls are spawned
-        /// </summary>
         public void FinalizeGrid()
         {
             UpdateAllNeighbors();
@@ -83,9 +72,6 @@ namespace Brain.Managers
             }
         }
 
-        /// <summary>
-        /// Spawns a ball at the given grid position using object pooling
-        /// </summary>
         public Ball SpawnBall(int col, int row, BallColor color)
         {
             if (!GridUtils.IsValidPosition(col, row, _maxColumns, _maxRows))
@@ -127,9 +113,6 @@ namespace Brain.Managers
             return ball;
         }
 
-        /// <summary>
-        /// Gets the exact grid snap position for a given world position
-        /// </summary>
         public Vector3 GetGridSnapPosition(Vector3 worldPosition)
         {
             // Find nearest empty cell using distance-based search
@@ -202,9 +185,6 @@ namespace Brain.Managers
             }
         }
 
-        /// <summary>
-        /// Removes a ball from the grid
-        /// </summary>
         public void RemoveBall(Ball ball)
         {
             if (ball == null) return;

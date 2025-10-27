@@ -7,20 +7,18 @@ using Brain.Managers;
 
 namespace Brain.Gameplay
 {
-    /// <summary>
-    /// Manages highlighting of balls that will be affected by bonus balls
-    /// </summary>
     public class BallHighlightManager : UnitySingleton<BallHighlightManager>
     {
+        // Private Fields
         [Header("Settings")]
         [SerializeField] private bool _enableHighlighting = true;
-        [SerializeField] private float _updateInterval = 0.1f; // Update frequency
 
-        private float _lastUpdateTime;
         private HashSet<Ball> _highlightedBalls = new HashSet<Ball>();
         private LaunchContainer _launchContainer;
         private TrajectoryPredictor _trajectoryPredictor;
         private GridManager _gridManager;
+        private Vector2Int _lastPredictedGridPos = new Vector2Int(-1, -1);
+        private Ball _currentBall;
 
         protected override void Awake()
         {
@@ -45,142 +43,242 @@ namespace Brain.Gameplay
             if (!_enableHighlighting)
                 return;
 
-            // Throttle updates
-            if (Time.time - _lastUpdateTime < _updateInterval)
-                return;
-
-            _lastUpdateTime = Time.time;
-
-            // Check if we have a rainbow ball in launch container
+            // Check if we have a ball in launch container
             if (_launchContainer == null || _launchContainer.CurrentBall == null)
             {
-                ClearAllHighlights();
+                if (_currentBall != null)
+                {
+                    ClearAllHighlights();
+                    _currentBall = null;
+                    _lastPredictedGridPos = new Vector2Int(-1, -1);
+                }
                 return;
             }
 
-            Ball currentBall = _launchContainer.CurrentBall;
-            if (!currentBall.IsRainbow())
+            // Check if ball changed
+            if (_currentBall != _launchContainer.CurrentBall)
             {
-                ClearAllHighlights();
-                return;
+                _currentBall = _launchContainer.CurrentBall;
+                _lastPredictedGridPos = new Vector2Int(-1, -1);
             }
 
-            // Update highlights for rainbow ball
-            UpdateRainbowHighlights(currentBall);
-        }
-
-        /// <summary>
-        /// Update highlights for Rainbow ball
-        /// </summary>
-        private void UpdateRainbowHighlights(Ball rainbowBall)
-        {
-            // Get predicted impact position
+            // Check if trajectory prediction has a valid target
             if (_trajectoryPredictor == null || !_trajectoryPredictor.HasValidPrediction)
             {
                 ClearAllHighlights();
+                _lastPredictedGridPos = new Vector2Int(-1, -1);
                 return;
             }
 
+            // Find the grid position where the ball would actually land (nearest empty cell)
             Vector2 impactPoint = _trajectoryPredictor.PredictedImpactPosition;
 
-            // Find balls that would be affected at impact point
-            HashSet<Ball> affectedBalls = GetRainbowAffectedBalls(impactPoint);
+            // First, find where the ball would snap to (nearest empty cell)
+            Vector2Int gridPos = GridUtils.FindNearestEmptyCell(
+                impactPoint,
+                _gridManager.BallWidth,
+                _gridManager.BallHeight,
+                _gridManager.GridContainer,
+                11, // max columns - should match GridManager
+                20, // max rows - should match GridManager
+                (x, y) => _gridManager.GetBall(x, y) == null
+            );
+
+            // If no valid position found, clear highlights
+            if (gridPos.x < 0 || gridPos.y < 0)
+            {
+                ClearAllHighlights();
+                _lastPredictedGridPos = new Vector2Int(-1, -1);
+                return;
+            }
+
+            // Only update if the predicted grid position changed
+            if (gridPos != _lastPredictedGridPos)
+            {
+                _lastPredictedGridPos = gridPos;
+                UpdateHighlightsForGridPosition(gridPos);
+            }
+        }
+
+        /// <summary>
+        /// Update highlights for a specific grid position
+        /// </summary>
+        private void UpdateHighlightsForGridPosition(Vector2Int gridPos)
+        {
+            if (_currentBall == null)
+            {
+                ClearAllHighlights();
+                return;
+            }
+
+            // Get neighbors at this position
+            List<Ball> neighbors = GetNeighborsAtPosition(gridPos);
+
+            // Use a modified approach for match preview
+            List<Ball> matchPreview = GetMatchPreviewForPosition(gridPos, neighbors);
+
+            // Convert to HashSet for the UpdateHighlights method
+            HashSet<Ball> affectedBalls = new HashSet<Ball>(matchPreview);
 
             // Update highlights
             UpdateHighlights(affectedBalls);
         }
 
         /// <summary>
-        /// Get all balls that would be affected by Rainbow ball at impact
+        /// Get all neighbor balls at a grid position
         /// </summary>
-        private HashSet<Ball> GetRainbowAffectedBalls(Vector2 impactPoint)
+        private List<Ball> GetNeighborsAtPosition(Vector2Int gridPos)
         {
-            HashSet<Ball> affected = new HashSet<Ball>();
+            List<Ball> neighbors = new List<Ball>();
+            Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(gridPos, 11, 20);
 
-            // Find the closest ball to impact point
-            Ball closestBall = FindClosestBall(impactPoint);
-            if (closestBall == null)
-                return affected;
-
-            // Rainbow ball affects all adjacent balls of ANY color
-            // First, add the impact ball
-            affected.Add(closestBall);
-
-            // Then find all connected balls of each color touching the impact
-            HashSet<Ball> processed = new HashSet<Ball>();
-            Queue<Ball> toProcess = new Queue<Ball>();
-
-            // Add all neighbors of impact ball to process
-            foreach (var neighbor in closestBall.Neighbors)
+            for (int i = 0; i < neighborPositions.Length; i++)
             {
-                if (neighbor != null && !neighbor.HasFlag(BallFlags.Destroying))
+                if (neighborPositions[i].HasValue)
                 {
-                    toProcess.Enqueue(neighbor);
-                }
-            }
-
-            // Process each color group
-            while (toProcess.Count > 0)
-            {
-                Ball ball = toProcess.Dequeue();
-                if (processed.Contains(ball))
-                    continue;
-
-                processed.Add(ball);
-                affected.Add(ball);
-
-                // Add same-color neighbors (flood fill per color)
-                foreach (var neighbor in ball.Neighbors)
-                {
-                    if (neighbor != null &&
-                        !processed.Contains(neighbor) &&
-                        !neighbor.HasFlag(BallFlags.Destroying) &&
-                        neighbor.Color == ball.Color)
+                    Ball neighbor = _gridManager.GetBall(neighborPositions[i].Value.x, neighborPositions[i].Value.y);
+                    if (neighbor != null && neighbor.HasFlag(BallFlags.Pinned) && !neighbor.HasFlag(BallFlags.Destroying))
                     {
-                        toProcess.Enqueue(neighbor);
+                        neighbors.Add(neighbor);
                     }
                 }
             }
 
-            return affected;
+            return neighbors;
         }
 
         /// <summary>
-        /// Find the closest ball to a world position
+        /// Calculate match preview without creating GameObjects
         /// </summary>
-        private Ball FindClosestBall(Vector2 worldPos)
+        private List<Ball> GetMatchPreviewForPosition(Vector2Int gridPos, List<Ball> neighbors)
         {
-            if (_gridManager == null || _gridManager.Balls == null)
-                return null;
+            List<Ball> previewList = new List<Ball>();
 
-            Ball closest = null;
-            float minDistance = float.MaxValue;
-
-            // Iterate through the 2D list of balls
-            foreach (var row in _gridManager.Balls)
+            // If it's a rainbow ball, handle special logic
+            if (_currentBall.IsRainbow())
             {
-                if (row == null) continue;
+                // Track which colors to check
+                HashSet<BallColor> colorsToCheck = new HashSet<BallColor>();
+                HashSet<Ball> processedBalls = new HashSet<Ball>();
 
-                foreach (var ball in row)
+                // Identify all colors directly touching the landing position
+                foreach (Ball neighbor in neighbors)
                 {
-                    if (ball == null || ball.HasFlag(BallFlags.Destroying))
-                        continue;
+                    colorsToCheck.Add(neighbor.Color);
+                }
 
-                    float distance = Vector2.Distance(ball.transform.position, worldPos);
-                    if (distance < minDistance)
+                // For each color, check if we have 3+ balls (including the rainbow)
+                foreach (BallColor color in colorsToCheck)
+                {
+                    List<Ball> colorGroup = new List<Ball>();
+
+                    // Find a starting neighbor of this color
+                    Ball startBall = null;
+                    foreach (Ball neighbor in neighbors)
                     {
-                        minDistance = distance;
-                        closest = ball;
+                        if (neighbor.Color == color)
+                        {
+                            startBall = neighbor;
+                            break;
+                        }
+                    }
+
+                    if (startBall == null) continue;
+
+                    // Find all connected balls of this color using flood fill
+                    Queue<Ball> toCheck = new Queue<Ball>();
+                    HashSet<Ball> visited = new HashSet<Ball>();
+                    toCheck.Enqueue(startBall);
+
+                    while (toCheck.Count > 0)
+                    {
+                        Ball current = toCheck.Dequeue();
+                        if (visited.Contains(current)) continue;
+
+                        visited.Add(current);
+                        colorGroup.Add(current);
+
+                        // Check neighbors of same color
+                        foreach (Ball n in current.Neighbors)
+                        {
+                            if (n != null && n.Color == color &&
+                                n.HasFlag(BallFlags.Pinned) && !n.HasFlag(BallFlags.Destroying) &&
+                                !visited.Contains(n))
+                            {
+                                toCheck.Enqueue(n);
+                            }
+                        }
+                    }
+
+                    // If this color group + rainbow makes 3 or more, include them
+                    if (colorGroup.Count >= 2) // 2 color balls + 1 rainbow = 3 total
+                    {
+                        foreach (Ball ball in colorGroup)
+                        {
+                            if (!processedBalls.Contains(ball))
+                            {
+                                previewList.Add(ball);
+                                processedBalls.Add(ball);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Regular ball - check for matches with same color neighbors
+                List<Ball> sameColorNeighbors = new List<Ball>();
+                foreach (Ball neighbor in neighbors)
+                {
+                    if (neighbor.Color == _currentBall.Color)
+                    {
+                        sameColorNeighbors.Add(neighbor);
+                    }
+                }
+
+                // If we have same-color neighbors, check for matches
+                if (sameColorNeighbors.Count > 0)
+                {
+                    HashSet<Ball> allConnected = new HashSet<Ball>();
+
+                    // Find all connected balls of the same color
+                    foreach (Ball startBall in sameColorNeighbors)
+                    {
+                        Queue<Ball> toCheck = new Queue<Ball>();
+                        toCheck.Enqueue(startBall);
+
+                        while (toCheck.Count > 0)
+                        {
+                            Ball current = toCheck.Dequeue();
+                            if (allConnected.Contains(current)) continue;
+
+                            if (current.Color == _currentBall.Color &&
+                                current.HasFlag(BallFlags.Pinned) && !current.HasFlag(BallFlags.Destroying))
+                            {
+                                allConnected.Add(current);
+
+                                foreach (Ball n in current.Neighbors)
+                                {
+                                    if (n != null && !allConnected.Contains(n))
+                                    {
+                                        toCheck.Enqueue(n);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Only highlight if we'd have 3+ matches (including the new ball)
+                    if (allConnected.Count >= 2) // 2 existing + 1 new = 3
+                    {
+                        previewList.AddRange(allConnected);
                     }
                 }
             }
 
-            // Only return if close enough (within ball radius)
-            if (minDistance < 1f) // Adjust threshold as needed
-                return closest;
-
-            return null;
+            return previewList;
         }
+
 
         /// <summary>
         /// Update which balls are highlighted
