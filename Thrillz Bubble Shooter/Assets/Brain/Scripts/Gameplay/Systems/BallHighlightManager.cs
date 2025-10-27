@@ -79,8 +79,6 @@ namespace Brain.Gameplay
                 _gridManager.BallWidth,
                 _gridManager.BallHeight,
                 _gridManager.GridContainer,
-                11, // max columns - should match GridManager
-                20, // max rows - should match GridManager
                 (x, y) => _gridManager.GetBall(x, y) == null
             );
 
@@ -130,7 +128,7 @@ namespace Brain.Gameplay
         private List<Ball> GetNeighborsAtPosition(Vector2Int gridPos)
         {
             List<Ball> neighbors = new List<Ball>();
-            Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(gridPos, 11, 20);
+            Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(gridPos);
 
             for (int i = 0; i < neighborPositions.Length; i++)
             {

@@ -308,9 +308,7 @@ namespace Brain.Gameplay
 
             // Get all 6 potential neighbor positions using GridUtils
             Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(
-                new Vector2Int(col, row),
-                GridUtils.GetMaxColumns(row),
-                _totalRows + _startRow
+                new Vector2Int(col, row)
             );
 
             foreach (Vector2Int? pos in neighborPositions)
@@ -415,9 +413,7 @@ namespace Brain.Gameplay
         {
             // Get all 6 potential neighbor positions using GridUtils
             Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(
-                centerBall.Position,
-                GridUtils.GetMaxColumns(centerBall.Position.y),
-                _totalRows + _startRow
+                centerBall.Position
             );
 
             foreach (Vector2Int? pos in neighborPositions)

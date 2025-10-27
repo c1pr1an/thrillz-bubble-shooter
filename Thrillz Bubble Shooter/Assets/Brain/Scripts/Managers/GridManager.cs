@@ -74,7 +74,7 @@ namespace Brain.Managers
 
         public Ball SpawnBall(int col, int row, BallColor color)
         {
-            if (!GridUtils.IsValidPosition(col, row, _maxColumns, _maxRows))
+            if (!GridUtils.IsValidPosition(col, row))
             {
                 Debug.LogWarning($"Invalid grid position: ({col}, {row})");
                 return null;
@@ -121,8 +121,6 @@ namespace Brain.Managers
                 _ballWidth,
                 _ballHeight,
                 _gridContainer,
-                _maxColumns,
-                _maxRows,
                 (x, y) => GetBall(x, y) == null
             );
 
@@ -147,8 +145,6 @@ namespace Brain.Managers
                 _ballWidth,
                 _ballHeight,
                 _gridContainer,
-                _maxColumns,
-                _maxRows,
                 (x, y) => GetBall(x, y) == null
             );
 
@@ -213,7 +209,7 @@ namespace Brain.Managers
         {
             if (ball == null) return;
 
-            Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(ball.Position, _maxColumns, _maxRows);
+            Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(ball.Position);
             Ball[] neighbors = new Ball[6];
 
             for (int i = 0; i < 6; i++)
@@ -239,7 +235,7 @@ namespace Brain.Managers
         {
             if (ball == null) return;
 
-            Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(ball.Position, _maxColumns, _maxRows);
+            Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(ball.Position);
 
             foreach (var neighborPos in neighborPositions)
             {

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Brain.Managers;
 
 namespace Brain.Util
 {
@@ -26,7 +27,7 @@ namespace Brain.Util
             return gridOrigin.position + new Vector3(worldX, worldY, 0);
         }
 
-        public static Vector2Int WorldToPos(Vector3 worldPos, float ballWidth, float ballHeight, Transform gridOrigin, int maxColumns)
+        public static Vector2Int WorldToPos(Vector3 worldPos, float ballWidth, float ballHeight, Transform gridOrigin)
         {
             Vector3 localPos = worldPos - gridOrigin.position;
 
@@ -44,7 +45,7 @@ namespace Brain.Util
             return new Vector2Int(x, y);
         }
 
-        public static Vector2Int?[] GetNeighborPositions(Vector2Int gridPos, int maxColumns, int maxRows)
+        public static Vector2Int?[] GetNeighborPositions(Vector2Int gridPos)
         {
             Vector2Int?[] neighbors = new Vector2Int?[6];
 
@@ -60,7 +61,7 @@ namespace Brain.Util
                 int neighborRow = checkRow + s_RShifts[i];
 
                 // Check if neighbor is within valid grid bounds
-                if (IsValidPosition(neighborCol, neighborRow, maxColumns, maxRows))
+                if (IsValidPosition(neighborCol, neighborRow))
                 {
                     neighbors[i] = new Vector2Int(neighborCol, neighborRow);
                 }
@@ -73,12 +74,13 @@ namespace Brain.Util
             return neighbors;
         }
 
-        public static bool IsValidPosition(int col, int row, int maxColumns, int maxRows)
+        public static bool IsValidPosition(int col, int row)
         {
-            if (row < 0 || row >= maxRows)
+            if (row < 0 || row >= GridManager.Instance.MaxRows)
                 return false;
 
             int columnMax = GetMaxColumns(row);
+
             if (col < 0 || col >= columnMax)
                 return false;
 
@@ -88,7 +90,7 @@ namespace Brain.Util
         public static int GetMaxColumns(int row)
         {
             // For hexagonal grids, odd rows are typically offset and have one less column
-            return row % 2 == 0 ? 11 : 10;
+            return row % 2 == 0 ? GridManager.Instance.MaxColumns : GridManager.Instance.MaxColumns - 1;
         }
 
         public static int GetGridDistance(Vector2Int posA, Vector2Int posB)
@@ -96,9 +98,9 @@ namespace Brain.Util
             return Mathf.Abs(posA.x - posB.x) + Mathf.Abs(posA.y - posB.y);
         }
 
-        public static Vector2Int FindNearestEmptyCell(Vector3 worldPos, float ballWidth, float ballHeight, Transform gridOrigin, int maxColumns, int maxRows, System.Func<int, int, bool> isCellEmpty)
+        public static Vector2Int FindNearestEmptyCell(Vector3 worldPos, float ballWidth, float ballHeight, Transform gridOrigin, System.Func<int, int, bool> isCellEmpty)
         {
-            Vector2Int centerPos = WorldToPos(worldPos, ballWidth, ballHeight, gridOrigin, maxColumns);
+            Vector2Int centerPos = WorldToPos(worldPos, ballWidth, ballHeight, gridOrigin);
 
             float minDistance = float.MaxValue;
             Vector2Int bestPos = new Vector2Int(-1, -1);
@@ -118,7 +120,7 @@ namespace Brain.Util
                         int checkX = centerPos.x + dx;
                         int checkY = centerPos.y + dy;
 
-                        if (!IsValidPosition(checkX, checkY, maxColumns, maxRows))
+                        if (!IsValidPosition(checkX, checkY))
                             continue;
 
                         if (!isCellEmpty(checkX, checkY))
