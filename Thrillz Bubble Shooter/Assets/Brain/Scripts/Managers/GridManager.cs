@@ -53,13 +53,8 @@ namespace Brain.Managers
             }
 
             _ballPreviewContainer.Init(_ballLaunchContainer, _bonusBallContainer);
-            _ballLaunchContainer.Init(_ballPreviewContainer);
-
-            // Initialize bonus ball container if assigned
-            if (_bonusBallContainer != null)
-            {
-                _bonusBallContainer.Init();
-            }
+            _ballLaunchContainer.Init(_ballPreviewContainer, _bonusBallContainer);
+            _bonusBallContainer.Init(_ballLaunchContainer);
         }
 
         public void FinalizeGrid()

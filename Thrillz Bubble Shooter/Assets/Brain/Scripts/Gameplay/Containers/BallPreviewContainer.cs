@@ -68,7 +68,7 @@ namespace Brain.Gameplay.Containers
             _isGeneratingBall = true;
             _currentSpawnDelay = _spawnDelay;
 
-            if (_bonusBallContainer.CurrentBall != null)
+            if (_bonusBallContainer.CurrentBall != null && _bonusBallContainer.CurrentState == BonusBallState.ReadyToAutoSwap)
             {
                 _bonusBallContainer.SwapBalls(this);
             }

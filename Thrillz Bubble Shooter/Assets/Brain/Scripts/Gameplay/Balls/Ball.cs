@@ -22,6 +22,7 @@ namespace Brain.Gameplay
         [SerializeField] private CircleCollider2D _circleCollider;
         [SerializeField] private Transform _model;
         [SerializeField] private GameObject _highlightSprite;
+        [SerializeField] private SpriteRenderer _spriteRenderer;
 
         private BallFlags _flags = BallFlags.None;
         private RainbowBall _rainbowComponent;
@@ -31,6 +32,7 @@ namespace Brain.Gameplay
         public Ball[] Neighbors { get; private set; } = new Ball[6];
         public BallColor Color => _ballColor;
         public Color DisplayColor => _displayColor;
+        public SpriteRenderer SpriteRenderer => _spriteRenderer;
         public BallFlags Flags
         {
             get => _flags;

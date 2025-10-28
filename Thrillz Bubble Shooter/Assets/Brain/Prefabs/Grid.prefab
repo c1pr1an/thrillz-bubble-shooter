@@ -161,6 +161,7 @@ GameObject:
   - component: {fileID: 5695402136641568378}
   - component: {fileID: 3072583001038024507}
   - component: {fileID: 7682664169435399723}
+  - component: {fileID: 6694773756643403475}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -262,6 +263,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _enableHighlighting: 1
+--- !u!114 &6694773756643403475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2955337845684583753}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45584971c133046378f3cb5de238eaad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _powerPerBall: 0.05
+  _maxPower: 1
+  _currentPower: 0
+  _isBonusReady: 0
+  _isBonusActive: 0
 --- !u!1 &2956523709681274247
 GameObject:
   m_ObjectHideFlags: 0
@@ -569,8 +587,8 @@ MonoBehaviour:
   _swapDuration: 0.3
   _rainbowBallPrefab: {fileID: 4923921571906240741, guid: 871a3f2354c8148688ae622a8e998ff3,
     type: 3}
-  _testMode: 1
-  _spawnOnStart: 1
+  _chargeProgressFill: {fileID: 0}
+  _readyIndicator: {fileID: 0}
 --- !u!58 &3680142964342413492
 CircleCollider2D:
   m_ObjectHideFlags: 0

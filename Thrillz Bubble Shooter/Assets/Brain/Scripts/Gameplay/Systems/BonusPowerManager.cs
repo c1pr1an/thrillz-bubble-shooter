@@ -19,7 +19,7 @@ namespace Brain.Gameplay
         [SerializeField] private bool _isBonusActive = false;
 
         // Events
-        public static event Action<float> OnPowerChanged; // Passes normalized power (0-1)
+        public static event Action<float> OnPowerChanged;
         public static event Action OnBonusReady;
         public static event Action OnBonusActivated;
         public static event Action OnBonusUsed;
@@ -114,7 +114,6 @@ namespace Brain.Gameplay
 
         private void OnDestroy()
         {
-            // Clear events
             OnPowerChanged = null;
             OnBonusReady = null;
             OnBonusActivated = null;

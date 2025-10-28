@@ -1,23 +1,37 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using DG.Tweening;
 using Brain.Managers;
 
 namespace Brain.Gameplay.Containers
 {
+    public enum BonusBallState
+    {
+        Charging,
+        ReadyToUse,
+        ReadyToAutoSwap,
+        Active
+    }
+
     [RequireComponent(typeof(CircleCollider2D))]
     public class BonusBallContainer : BallContainerBase
     {
         [Header("Bonus Ball Settings")]
         [SerializeField] private GameObject _rainbowBallPrefab;
 
-        [Header("Testing Mode")]
-        [SerializeField] private bool _testMode = true; // Enable for testing without UI
-        [SerializeField] private bool _spawnOnStart = true; // Spawn bonus ball immediately
+        [Header("Charge UI")]
+        [SerializeField] private Image _chargeProgressFill;
+        [SerializeField] private GameObject _readyIndicator;
 
         private LaunchContainer _launchContainer;
         private CircleCollider2D _collider;
         private bool _enableSwapping = true;
+        private BonusBallState _currentState;
+        private SpriteRenderer _ballSpriteRenderer;
+        private bool _shouldTransitionToAvailable = false;
+
+        public BonusBallState CurrentState => _currentState;
 
         protected override void Awake()
         {
@@ -31,52 +45,35 @@ namespace Brain.Gameplay.Containers
             }
         }
 
-        /// <summary>
-        /// Initialize the bonus ball container
-        /// </summary>
-        public void Init()
+        public void Init(LaunchContainer launchContainer)
         {
-            // Get reference to launch container
-            if (GridManager.Instance != null)
-            {
-                _launchContainer = GridManager.Instance.BallLaunchContainer;
-            }
-
-            // In test mode, spawn ball immediately
-            if (_testMode && _spawnOnStart)
-            {
-                SpawnBonusBall();
-            }
+            _launchContainer = launchContainer;
+            SpawnBonusBall();
         }
 
         protected override void OnEnable()
         {
             base.OnEnable();
 
-            // Only subscribe to events if not in test mode
-            if (!_testMode)
-            {
-                BonusPowerManager.OnBonusReady += OnBonusReady;
-                BonusPowerManager.OnBonusUsed += OnBonusUsed;
-            }
+            BonusPowerManager.OnPowerChanged += OnPowerChanged;
+            BonusPowerManager.OnBonusReady += OnBonusReady;
+            BonusPowerManager.OnBonusUsed += OnBonusUsed;
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
 
-            if (!_testMode)
-            {
-                BonusPowerManager.OnBonusReady -= OnBonusReady;
-                BonusPowerManager.OnBonusUsed -= OnBonusUsed;
-            }
+            BonusPowerManager.OnPowerChanged -= OnPowerChanged;
+            BonusPowerManager.OnBonusReady -= OnBonusReady;
+            BonusPowerManager.OnBonusUsed -= OnBonusUsed;
         }
 
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.T) && _testMode)
+            if (Input.GetKeyDown(KeyCode.T))
             {
-                if (_testMode && _enableSwapping && CanSwapWithLauncher())
+                if (_enableSwapping && CanSwapWithLauncher())
                 {
                     SwapWithLauncher();
                 }
@@ -85,7 +82,8 @@ namespace Brain.Gameplay.Containers
 
         private bool CanSwapWithLauncher()
         {
-            return _launchContainer != null &&
+            return (_currentState == BonusBallState.ReadyToUse || _currentState == BonusBallState.ReadyToAutoSwap) &&
+                   _launchContainer != null &&
                    _launchContainer.CanLaunch &&
                    _launchContainer.HasBall &&
                    HasBall &&
@@ -112,8 +110,8 @@ namespace Brain.Gameplay.Containers
             // Use base class swap method (same as preview container)
             SwapBalls(_launchContainer);
 
-            // Notify that bonus is now active (only if not in test mode)
-            if (!_testMode && BonusPowerManager.Exists())
+            // Notify that bonus is now active
+            if (BonusPowerManager.Exists())
             {
                 BonusPowerManager.Instance.ActivateBonus();
             }
@@ -132,20 +130,30 @@ namespace Brain.Gameplay.Containers
             DOVirtual.DelayedCall(0.1f, () => { SpawnBonusBall(); });
         }
 
-        /// <summary>
-        /// Called when bonus power is ready
-        /// </summary>
-        private void OnBonusReady()
+        private void OnPowerChanged(float normalizedPower)
         {
-            SpawnBonusBall();
+            UpdateChargeProgress(normalizedPower);
         }
 
-        /// <summary>
-        /// Called when bonus ball is used
-        /// </summary>
+        private void OnBonusReady()
+        {
+            SetBallVisualState(BonusBallState.ReadyToUse);
+            _shouldTransitionToAvailable = true;
+        }
+
         private void OnBonusUsed()
         {
-            // Bonus ball is automatically respawned after swap, no need to do anything here
+            SetBallVisualState(BonusBallState.Charging);
+            _shouldTransitionToAvailable = false;
+        }
+
+        public void NotifyBallShot()
+        {
+            if (_shouldTransitionToAvailable && _currentState == BonusBallState.ReadyToUse)
+            {
+                SetBallVisualState(BonusBallState.ReadyToAutoSwap);
+                _shouldTransitionToAvailable = false;
+            }
         }
 
         /// <summary>
@@ -200,18 +208,72 @@ namespace Brain.Gameplay.Containers
             CurrentBall.transform.localScale = Vector3.zero;
             CurrentBall.transform.DOScale(1f, 0.3f).SetEase(Ease.OutBack);
 
+            // Set initial charging state
+            SetBallVisualState(BonusBallState.Charging);
+
             Debug.Log($"[BonusBallContainer] Spawned {bonusType} bonus ball");
         }
 
+        public void UpdateChargeProgress(float normalizedProgress)
+        {
+            if (_chargeProgressFill != null)
+            {
+                _chargeProgressFill.fillAmount = normalizedProgress;
+            }
+        }
+
+        private void SetBallVisualState(BonusBallState state)
+        {
+            _currentState = state;
+
+            switch (state)
+            {
+                case BonusBallState.Charging:
+                    SetBallAlpha(0.5f);
+                    SetColliderEnabled(false);
+                    if (_readyIndicator != null)
+                        _readyIndicator.SetActive(false);
+                    break;
+
+                case BonusBallState.ReadyToUse:
+                case BonusBallState.ReadyToAutoSwap:
+                    SetBallAlpha(1.0f);
+                    SetColliderEnabled(true);
+                    if (_readyIndicator != null)
+                        _readyIndicator.SetActive(true);
+                    break;
+
+                case BonusBallState.Active:
+                    SetBallAlpha(1.0f);
+                    if (_readyIndicator != null)
+                        _readyIndicator.SetActive(false);
+                    break;
+            }
+        }
+
+        private void SetBallAlpha(float alpha)
+        {
+            if (CurrentBall != null)
+            {
+                Color color = CurrentBall.SpriteRenderer.color;
+                color.a = alpha;
+                CurrentBall.SpriteRenderer.color = color;
+            }
+        }
+
+        private void SetColliderEnabled(bool enabled)
+        {
+            if (_collider != null)
+            {
+                _collider.enabled = enabled && _enableSwapping;
+            }
+        }
 
         public void SetSwappingEnabled(bool enabled)
         {
             _enableSwapping = enabled;
-
-            if (_collider != null)
-            {
-                _collider.enabled = enabled;
-            }
+            bool canSwap = (_currentState == BonusBallState.ReadyToUse || _currentState == BonusBallState.ReadyToAutoSwap) && enabled;
+            SetColliderEnabled(canSwap);
         }
     }
 }

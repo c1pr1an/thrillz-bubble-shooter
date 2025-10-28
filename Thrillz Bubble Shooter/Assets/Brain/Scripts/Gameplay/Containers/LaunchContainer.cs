@@ -15,6 +15,7 @@ namespace Brain.Gameplay.Containers
         [SerializeField] private TrajectoryPredictor _trajectoryPredictor;
 
         private BallPreviewContainer _previewContainer;
+        private BonusBallContainer _bonusBallContainer;
         private Camera _mainCamera;
         private bool _canLaunch = true;
         private bool _waitingForBall = false;
@@ -34,9 +35,10 @@ namespace Brain.Gameplay.Containers
             }
         }
 
-        public void Init(BallPreviewContainer previewContainer)
+        public void Init(BallPreviewContainer previewContainer, BonusBallContainer bonusBallContainer = null)
         {
             _previewContainer = previewContainer;
+            _bonusBallContainer = bonusBallContainer;
             if (_previewContainer.HasBall)
             {
                 Ball previewBall = _previewContainer.CurrentBall;
@@ -161,6 +163,12 @@ namespace Brain.Gameplay.Containers
             launcher.LaunchAlongPath(trajectoryPath);
 
             FireBallLaunchedEvent(launchedBall);
+
+            // Notify bonus ball container that a ball was shot
+            if (_bonusBallContainer != null)
+            {
+                _bonusBallContainer.NotifyBallShot();
+            }
 
             // Notify bonus power manager if this was a bonus ball
             if (isBonusBall && BonusPowerManager.Exists())
