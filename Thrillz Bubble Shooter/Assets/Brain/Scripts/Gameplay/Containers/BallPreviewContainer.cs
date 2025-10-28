@@ -14,6 +14,7 @@ namespace Brain.Gameplay.Containers
         [SerializeField] private Transform _circleArrows;
 
         private LaunchContainer _launchContainer;
+        private BonusBallContainer _bonusBallContainer;
         private CircleCollider2D _collider;
         private float _currentSpawnDelay;
         private BallColor? _nextBallColor;
@@ -32,9 +33,10 @@ namespace Brain.Gameplay.Containers
             }
         }
 
-        public void Init(LaunchContainer launchContainer)
+        public void Init(LaunchContainer launchContainer, BonusBallContainer bonusContainer)
         {
             _launchContainer = launchContainer;
+            _bonusBallContainer = bonusContainer;
             SpawnBall();
         }
 
@@ -66,22 +68,31 @@ namespace Brain.Gameplay.Containers
             _isGeneratingBall = true;
             _currentSpawnDelay = _spawnDelay;
 
-            if (_nextBallColor.HasValue)
+            if (_bonusBallContainer.CurrentBall != null)
+            {
+                _bonusBallContainer.SwapBalls(this);
+            }
+            else if (_nextBallColor.HasValue)
             {
                 CurrentBall = SpawnBall(_nextBallColor.Value);
                 _nextBallColor = null;
+
+                if (CurrentBall != null)
+                {
+                    AnimateBallAppearance();
+                }
             }
             else
             {
                 CurrentBall = SpawnRandomBall();
+
+                if (CurrentBall != null)
+                {
+                    AnimateBallAppearance();
+                }
             }
 
             _isGeneratingBall = false;
-
-            if (CurrentBall != null)
-            {
-                AnimateBallAppearance();
-            }
         }
 
         public void SetNextBallColor(BallColor color)

@@ -52,7 +52,7 @@ namespace Brain.Managers
                 _balls.Add(rowList);
             }
 
-            _ballPreviewContainer.Init(_ballLaunchContainer);
+            _ballPreviewContainer.Init(_ballLaunchContainer, _bonusBallContainer);
             _ballLaunchContainer.Init(_ballPreviewContainer);
 
             // Initialize bonus ball container if assigned

@@ -118,7 +118,6 @@ namespace Brain.Gameplay.Containers
                 BonusPowerManager.Instance.ActivateBonus();
             }
 
-            DOVirtual.DelayedCall(0.1f, () => { SpawnBonusBall(); });
 
             Debug.Log("[BonusBallContainer] Swapped with launch container!");
         }
@@ -126,6 +125,11 @@ namespace Brain.Gameplay.Containers
         private void AnimateSwapFeedback()
         {
 
+        }
+
+        protected override void OnBallReleased(Ball ball)
+        {
+            DOVirtual.DelayedCall(0.1f, () => { SpawnBonusBall(); });
         }
 
         /// <summary>

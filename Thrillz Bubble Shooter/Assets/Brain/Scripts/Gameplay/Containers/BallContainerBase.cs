@@ -266,7 +266,7 @@ namespace Brain.Gameplay.Containers
                 if (isFromBonusContainer)
                 {
                     otherContainer._isSwapping = false;
-                    ObjectPooler.Instance.Release(otherBall.gameObject, otherBall.Color);
+                    if (otherBall != null) ObjectPooler.Instance.Release(otherBall.gameObject, otherBall.Color);
                 }
             });
 
@@ -286,7 +286,6 @@ namespace Brain.Gameplay.Containers
         {
             return CurrentBall != null &&
                    otherContainer != null &&
-                   otherContainer.CurrentBall != null &&
                    !_isSwapping &&
                    !otherContainer._isSwapping;
         }
