@@ -280,11 +280,6 @@ namespace Brain.Gameplay.Containers
                     OnBallSwitched?.Invoke(ball);
                 });
             }
-            else
-            {
-                // From bonus container, just release the other ball
-                ObjectPooler.Instance.Release(otherBall.gameObject, otherBall.Color);
-            }
         }
 
         protected virtual bool CanSwap(BallContainerBase otherContainer)
