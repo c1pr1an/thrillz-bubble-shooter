@@ -15,9 +15,6 @@ namespace Brain.Gameplay.Containers
         [SerializeField] private bool _testMode = true; // Enable for testing without UI
         [SerializeField] private bool _spawnOnStart = true; // Spawn bonus ball immediately
 
-        [Header("References")]
-        [SerializeField] private Transform _circleArrows; // For visual feedback
-
         private Ball _storedNormalBall = null;
         private LaunchContainer _launchContainer;
         private CircleCollider2D _collider;
@@ -130,11 +127,7 @@ namespace Brain.Gameplay.Containers
 
         private void AnimateSwapFeedback()
         {
-            if (_circleArrows != null)
-            {
-                _circleArrows.DOPunchScale(Vector3.one * 0.05f, 0.4f, 3, 0.5f);
-                _circleArrows.DORotate(new Vector3(0, 0, 180), 0.4f, RotateMode.LocalAxisAdd);
-            }
+
         }
 
         /// <summary>

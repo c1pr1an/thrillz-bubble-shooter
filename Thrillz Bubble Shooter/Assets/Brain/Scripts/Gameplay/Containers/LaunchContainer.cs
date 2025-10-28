@@ -54,7 +54,7 @@ namespace Brain.Gameplay.Containers
 
         private void Update()
         {
-            if (CurrentBall == null && !_waitingForBall && _canLaunch)
+            if (CurrentBall == null && !_waitingForBall && _canLaunch && !IsSwapping)
             {
                 PullFromPreview();
                 return;

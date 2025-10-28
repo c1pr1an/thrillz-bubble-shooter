@@ -126,79 +126,20 @@ namespace Brain.Gameplay.Containers
         protected IEnumerator SwitchBallAnimation(BallContainerBase from, BallContainerBase to, Ball ball, Action<Ball> onComplete)
         {
             _isSwapping = true;
-            float elapsedTime = 0f;
-
             ball.transform.SetParent(null);
 
-            Vector3 startPos = from._ballHolder.position;
-            Vector3 endPos = to._ballHolder.position;
-            Vector3 centerPos = _circleCenter != null ? _circleCenter.position : (startPos + endPos) * 0.5f;
+            bool isFromBonusContainer = from is BonusBallContainer;
 
-            // Calculate radius (distance from center to start position)
-            float radius = Vector3.Distance(centerPos, startPos);
-
-            // Calculate start and end angles relative to center
-            Vector3 startDir = (startPos - centerPos).normalized;
-            Vector3 endDir = (endPos - centerPos).normalized;
-
-            float startAngle = Mathf.Atan2(startDir.y, startDir.x) * Mathf.Rad2Deg;
-            float endAngle = Mathf.Atan2(endDir.y, endDir.x) * Mathf.Rad2Deg;
-
-            // Ensure anti-clockwise rotation
-            float angleDiff = endAngle - startAngle;
-
-            // Normalize angle difference to be between -180 and 180
-            while (angleDiff > 180f) angleDiff -= 360f;
-            while (angleDiff < -180f) angleDiff += 360f;
-
-            // For anti-clockwise, if the difference would be clockwise (negative), go the long way
-            if (angleDiff < 0)
+            if (isFromBonusContainer)
             {
-                endAngle = startAngle + (360f + angleDiff);
+                yield return AnimateBonusSwap(from, to, ball);
+            }
+            else
+            {
+                yield return AnimateNormalSwap(from, to, ball);
             }
 
-            // Determine scaling based on destination
-            bool isGoingToLaunchContainer = to is LaunchContainer;
-            bool isLeavingLaunchContainer = from is LaunchContainer;
-
-            if (isGoingToLaunchContainer)
-            {
-                ball.AnimateScaleUp(0.3f, () =>
-                {
-                    ball.transform.DOPunchScale(Vector3.one * 0.1f, 0.25f);
-                });
-            }
-            else if (isLeavingLaunchContainer)
-            {
-                ball.AnimateScaleDown();
-            }
-
-            while (elapsedTime < _swapDuration)
-            {
-                float t = elapsedTime / _swapDuration;
-
-                // Use smooth easing
-                float easedT = Mathf.SmoothStep(0, 1, t);
-
-                // Calculate current angle
-                float currentAngle = Mathf.Lerp(startAngle, endAngle, easedT);
-
-                // Convert to radians and calculate position
-                float radians = currentAngle * Mathf.Deg2Rad;
-                Vector3 position = centerPos + new Vector3(
-                    Mathf.Cos(radians) * radius,
-                    Mathf.Sin(radians) * radius,
-                    0
-                );
-
-                ball.transform.position = position;
-
-                elapsedTime += Time.deltaTime;
-                yield return null;
-            }
-
-            // Set final position and scale
-            ball.transform.position = endPos;
+            ball.transform.position = to._ballHolder.position;
             ball.transform.rotation = Quaternion.identity;
             ball.transform.SetParent(to._ballHolder);
 
@@ -206,6 +147,93 @@ namespace Brain.Gameplay.Containers
             _isSwapping = false;
 
             onComplete?.Invoke(ball);
+        }
+
+        private IEnumerator AnimateBonusSwap(BallContainerBase from, BallContainerBase to, Ball ball)
+        {
+            Vector3 startPos = from._ballHolder.position;
+            Vector3 endPos = to._ballHolder.position;
+            float duration = 0.25f;
+
+            ApplyScaleEffects(ball, from, to);
+            Tween moveTween = ball.transform.DOMove(endPos, duration).SetEase(Ease.InOutQuad);
+
+            yield return moveTween.WaitForCompletion();
+        }
+
+        private IEnumerator AnimateNormalSwap(BallContainerBase from, BallContainerBase to, Ball ball)
+        {
+            Vector3 startPos = from._ballHolder.position;
+            Vector3 endPos = to._ballHolder.position;
+            Vector3 centerPos = _circleCenter != null ? _circleCenter.position : (startPos + endPos) * 0.5f;
+
+            float radius = Vector3.Distance(centerPos, startPos);
+            float duration = _swapDuration;
+            float elapsedTime = 0f;
+
+            float startAngle = GetAngle(startPos - centerPos);
+            float endAngle = GetAngle(endPos - centerPos);
+            endAngle = NormalizeAntiClockwise(startAngle, endAngle);
+
+            ApplyScaleEffects(ball, from, to);
+
+            while (elapsedTime < duration)
+            {
+                float t = elapsedTime / duration;
+                float easedT = Mathf.SmoothStep(0, 1, t);
+                float currentAngle = Mathf.Lerp(startAngle, endAngle, easedT);
+
+                ball.transform.position = GetCircularPosition(centerPos, currentAngle, radius);
+
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+        }
+
+        private float GetAngle(Vector3 direction)
+        {
+            Vector3 normalized = direction.normalized;
+            return Mathf.Atan2(normalized.y, normalized.x) * Mathf.Rad2Deg;
+        }
+
+        private float NormalizeAntiClockwise(float startAngle, float endAngle)
+        {
+            float angleDiff = endAngle - startAngle;
+
+            while (angleDiff > 180f) angleDiff -= 360f;
+            while (angleDiff < -180f) angleDiff += 360f;
+
+            if (angleDiff < 0)
+            {
+                endAngle = startAngle + (360f + angleDiff);
+            }
+
+            return endAngle;
+        }
+
+        private Vector3 GetCircularPosition(Vector3 center, float angle, float radius)
+        {
+            float radians = angle * Mathf.Deg2Rad;
+            return center + new Vector3(
+                Mathf.Cos(radians) * radius,
+                Mathf.Sin(radians) * radius,
+                0
+            );
+        }
+
+        private void ApplyScaleEffects(Ball ball, BallContainerBase from, BallContainerBase to)
+        {
+            if (to is LaunchContainer)
+            {
+                ball.AnimateScaleUp(0.3f, () =>
+                {
+                    ball.transform.DOPunchScale(Vector3.one * 0.1f, 0.25f);
+                });
+            }
+            else if (from is LaunchContainer)
+            {
+                ball.AnimateScaleDown();
+            }
         }
 
         public void SwapBalls(BallContainerBase otherContainer)
@@ -222,18 +250,41 @@ namespace Brain.Gameplay.Containers
             OnBallReleased(myBall);
             otherContainer.OnBallReleased(otherBall);
 
+            bool isFromBonusContainer = this is BonusBallContainer;
+
+            // Set swapping state for the other container when coming from bonus
+            if (isFromBonusContainer)
+            {
+                otherContainer._isSwapping = true;
+            }
+
             SwitchBall(this, otherContainer, myBall, (ball) =>
             {
                 otherContainer.CurrentBall = ball;
                 otherContainer.OnBallReceived(ball);
+
+                if (isFromBonusContainer)
+                {
+                    otherContainer._isSwapping = false;
+                    ObjectPooler.Instance.Release(otherBall.gameObject, otherBall.Color);
+                }
             });
 
-            otherContainer.SwitchBall(otherContainer, this, otherBall, (ball) =>
+            // If not from bonus container, do the normal two-way swap
+            if (!isFromBonusContainer)
             {
-                CurrentBall = ball;
-                OnBallReceived(ball);
-                OnBallSwitched?.Invoke(ball);
-            });
+                otherContainer.SwitchBall(otherContainer, this, otherBall, (ball) =>
+                {
+                    CurrentBall = ball;
+                    OnBallReceived(ball);
+                    OnBallSwitched?.Invoke(ball);
+                });
+            }
+            else
+            {
+                // From bonus container, just release the other ball
+                ObjectPooler.Instance.Release(otherBall.gameObject, otherBall.Color);
+            }
         }
 
         protected virtual bool CanSwap(BallContainerBase otherContainer)
