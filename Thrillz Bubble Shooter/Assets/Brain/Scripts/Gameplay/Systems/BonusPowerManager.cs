@@ -21,7 +21,6 @@ namespace Brain.Gameplay
         // Events
         public static event Action<float> OnPowerChanged;
         public static event Action OnBonusReady;
-        public static event Action OnBonusActivated;
         public static event Action OnBonusUsed;
 
         /// <summary>
@@ -58,22 +57,6 @@ namespace Brain.Gameplay
             }
         }
 
-        /// <summary>
-        /// Activate the bonus ball (called when player taps button)
-        /// </summary>
-        public void ActivateBonus()
-        {
-            if (!_isBonusReady || _isBonusActive)
-                return;
-
-            _isBonusActive = true;
-            OnBonusActivated?.Invoke();
-            Debug.Log("[BonusPowerManager] Bonus ball activated!");
-        }
-
-        /// <summary>
-        /// Called when bonus ball is used (shot)
-        /// </summary>
         public void UsedBonus()
         {
             _currentPower = 0f;
@@ -85,9 +68,6 @@ namespace Brain.Gameplay
             Debug.Log("[BonusPowerManager] Bonus ball used, power reset.");
         }
 
-        /// <summary>
-        /// Get a random bonus ball type (for now just Rainbow)
-        /// </summary>
         public BonusBallType GetRandomBonusType()
         {
             // For now, always return Rainbow
@@ -116,7 +96,6 @@ namespace Brain.Gameplay
         {
             OnPowerChanged = null;
             OnBonusReady = null;
-            OnBonusActivated = null;
             OnBonusUsed = null;
         }
     }

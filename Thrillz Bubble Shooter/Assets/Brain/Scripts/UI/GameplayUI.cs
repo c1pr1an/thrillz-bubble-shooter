@@ -21,9 +21,6 @@ namespace Brain.UI
         [SerializeField] private TextMeshProUGUI _timerText;
         [SerializeField] private TextMeshProUGUI _scoreText;
 
-        [Header("Bonus Ball")]
-        [SerializeField] private BonusBallUI _bonusBallUI;
-
         // Private Fields
         private bool _oneMinuteLeftShown = false;
         private bool _isTimeTextPulsing = false;

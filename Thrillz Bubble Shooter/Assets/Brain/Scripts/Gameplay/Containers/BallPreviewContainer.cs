@@ -71,6 +71,7 @@ namespace Brain.Gameplay.Containers
             if (_bonusBallContainer.CurrentBall != null && _bonusBallContainer.CurrentState == BonusBallState.ReadyToAutoSwap)
             {
                 _bonusBallContainer.SwapBalls(this);
+                BonusPowerManager.Instance.UsedBonus();
             }
             else if (_nextBallColor.HasValue)
             {

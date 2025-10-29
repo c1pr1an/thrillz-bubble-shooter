@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Brain.Managers;
@@ -8,6 +9,8 @@ namespace Brain.Gameplay.Containers
 {
     public class LaunchContainer : BallContainerBase
     {
+        public event Action<Ball> OnBallLaunched;
+
         [Header("Launch Settings")]
         [SerializeField] private float _minAimAngle;
 
@@ -149,10 +152,6 @@ namespace Brain.Gameplay.Containers
             }
 
             Ball launchedBall = CurrentBall;
-
-            // Check if this is a bonus ball being launched
-            bool isBonusBall = launchedBall.IsRainbow();
-
             ReleaseBall();
 
             launchedBall.transform.SetParent(null);
@@ -162,19 +161,7 @@ namespace Brain.Gameplay.Containers
             launcher.OnBallStopped += (ball) => StartCoroutine(OnBallStopped(ball));
             launcher.LaunchAlongPath(trajectoryPath);
 
-            FireBallLaunchedEvent(launchedBall);
-
-            // Notify bonus ball container that a ball was shot
-            if (_bonusBallContainer != null)
-            {
-                _bonusBallContainer.NotifyBallShot();
-            }
-
-            // Notify bonus power manager if this was a bonus ball
-            if (isBonusBall && BonusPowerManager.Exists())
-            {
-                BonusPowerManager.Instance.UsedBonus();
-            }
+            OnBallLaunched?.Invoke(launchedBall);
         }
 
         private void ClampTrajectoryToScreen(List<Vector3> trajectoryPath)

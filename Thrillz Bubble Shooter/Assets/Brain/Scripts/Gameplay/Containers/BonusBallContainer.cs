@@ -22,13 +22,11 @@ namespace Brain.Gameplay.Containers
 
         [Header("Charge UI")]
         [SerializeField] private Image _chargeProgressFill;
-        [SerializeField] private GameObject _readyIndicator;
 
         private LaunchContainer _launchContainer;
         private CircleCollider2D _collider;
         private bool _enableSwapping = true;
         private BonusBallState _currentState;
-        private SpriteRenderer _ballSpriteRenderer;
         private bool _shouldTransitionToAvailable = false;
 
         public BonusBallState CurrentState => _currentState;
@@ -48,6 +46,7 @@ namespace Brain.Gameplay.Containers
         public void Init(LaunchContainer launchContainer)
         {
             _launchContainer = launchContainer;
+            _launchContainer.OnBallLaunched += OnBallLaunched;
             SpawnBonusBall();
         }
 
@@ -67,6 +66,7 @@ namespace Brain.Gameplay.Containers
             BonusPowerManager.OnPowerChanged -= OnPowerChanged;
             BonusPowerManager.OnBonusReady -= OnBonusReady;
             BonusPowerManager.OnBonusUsed -= OnBonusUsed;
+            _launchContainer.OnBallLaunched -= OnBallLaunched;
         }
 
         void Update()
@@ -91,32 +91,16 @@ namespace Brain.Gameplay.Containers
                    !_launchContainer.IsSwapping;
         }
 
-        /// <summary>
-        /// Swap balls with launch container using base class method
-        /// </summary>
         public void SwapWithLauncher()
         {
             if (!CanSwapWithLauncher())
                 return;
 
-            // Visual feedback
             AnimateSwapFeedback();
+            HapticManager.Instance.TriggerHaptic(HapticType.Selection);
 
-            if (HapticManager.Exists())
-            {
-                HapticManager.Instance.TriggerHaptic(HapticType.Selection);
-            }
-
-            // Use base class swap method (same as preview container)
             SwapBalls(_launchContainer);
-
-            // Notify that bonus is now active
-            if (BonusPowerManager.Exists())
-            {
-                BonusPowerManager.Instance.ActivateBonus();
-            }
-
-
+            BonusPowerManager.Instance.UsedBonus();
             Debug.Log("[BonusBallContainer] Swapped with launch container!");
         }
 
@@ -132,7 +116,7 @@ namespace Brain.Gameplay.Containers
 
         private void OnPowerChanged(float normalizedPower)
         {
-            UpdateChargeProgress(normalizedPower);
+            _chargeProgressFill.fillAmount = normalizedPower;
         }
 
         private void OnBonusReady()
@@ -147,7 +131,7 @@ namespace Brain.Gameplay.Containers
             _shouldTransitionToAvailable = false;
         }
 
-        public void NotifyBallShot()
+        public void OnBallLaunched(Ball ball)
         {
             if (_shouldTransitionToAvailable && _currentState == BonusBallState.ReadyToUse)
             {
@@ -214,14 +198,6 @@ namespace Brain.Gameplay.Containers
             Debug.Log($"[BonusBallContainer] Spawned {bonusType} bonus ball");
         }
 
-        public void UpdateChargeProgress(float normalizedProgress)
-        {
-            if (_chargeProgressFill != null)
-            {
-                _chargeProgressFill.fillAmount = normalizedProgress;
-            }
-        }
-
         private void SetBallVisualState(BonusBallState state)
         {
             _currentState = state;
@@ -231,22 +207,19 @@ namespace Brain.Gameplay.Containers
                 case BonusBallState.Charging:
                     SetBallAlpha(0.5f);
                     SetColliderEnabled(false);
-                    if (_readyIndicator != null)
-                        _readyIndicator.SetActive(false);
+                    CurrentBall?.SetHighlight(false);
                     break;
 
                 case BonusBallState.ReadyToUse:
                 case BonusBallState.ReadyToAutoSwap:
                     SetBallAlpha(1.0f);
                     SetColliderEnabled(true);
-                    if (_readyIndicator != null)
-                        _readyIndicator.SetActive(true);
+                    CurrentBall.SetHighlight(true);
                     break;
 
                 case BonusBallState.Active:
                     SetBallAlpha(1.0f);
-                    if (_readyIndicator != null)
-                        _readyIndicator.SetActive(false);
+                    CurrentBall.SetHighlight(true);
                     break;
             }
         }

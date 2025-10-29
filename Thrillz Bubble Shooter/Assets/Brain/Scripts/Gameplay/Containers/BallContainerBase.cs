@@ -8,10 +8,6 @@ namespace Brain.Gameplay.Containers
 {
     public abstract class BallContainerBase : MonoBehaviour
     {
-        public static event Action<Ball> OnBallLaunched;
-        public static event Action<Ball> OnBallSwitched;
-        public static event Action<Ball> OnBallSpawned;
-
         [Header("Container Settings")]
         [SerializeField] protected Transform _ballHolder;
 
@@ -78,7 +74,6 @@ namespace Brain.Gameplay.Containers
             ball.SetColliderEnabled(false);
 
             CurrentBall = ball;
-            OnBallSpawned?.Invoke(ball);
 
             return ball;
         }
@@ -277,7 +272,6 @@ namespace Brain.Gameplay.Containers
                 {
                     CurrentBall = ball;
                     OnBallReceived(ball);
-                    OnBallSwitched?.Invoke(ball);
                 });
             }
         }
@@ -307,11 +301,6 @@ namespace Brain.Gameplay.Containers
                 ball.transform.SetParent(_ballHolder);
                 ball.transform.localPosition = Vector3.zero;
             }
-        }
-
-        protected void FireBallLaunchedEvent(Ball ball)
-        {
-            OnBallLaunched?.Invoke(ball);
         }
 
 #if UNITY_EDITOR
