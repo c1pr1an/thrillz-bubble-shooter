@@ -147,8 +147,41 @@ namespace Brain.Gameplay
                 return previewList;
             }
 
+            // If it's a lightning ball, show horizontal strike
+            if (_currentBall.IsLightning())
+            {
+                // Get lightning component to check range
+                var lightningComponent = _currentBall.GetComponent<LightningBall>();
+                int horizontalRange = lightningComponent != null ? lightningComponent.GetHorizontalRange() : 4;
+
+                // Collect balls to the left
+                for (int x = gridPos.x - 1; x >= gridPos.x - horizontalRange; x--)
+                {
+                    if (!GridUtils.IsValidPosition(x, gridPos.y))
+                        break;
+
+                    Ball ballAtPos = _gridManager.GetBall(x, gridPos.y);
+                    if (ballAtPos != null && ballAtPos.HasFlag(BallFlags.Pinned) && !ballAtPos.HasFlag(BallFlags.Destroying))
+                    {
+                        previewList.Add(ballAtPos);
+                    }
+                }
+
+                // Collect balls to the right
+                for (int x = gridPos.x + 1; x <= gridPos.x + horizontalRange; x++)
+                {
+                    if (!GridUtils.IsValidPosition(x, gridPos.y))
+                        break;
+
+                    Ball ballAtPos = _gridManager.GetBall(x, gridPos.y);
+                    if (ballAtPos != null && ballAtPos.HasFlag(BallFlags.Pinned) && !ballAtPos.HasFlag(BallFlags.Destroying))
+                    {
+                        previewList.Add(ballAtPos);
+                    }
+                }
+            }
             // If it's a bomb ball, show explosion radius
-            if (_currentBall.IsBomb())
+            else if (_currentBall.IsBomb())
             {
                 // Get bomb component to check radius
                 var bombComponent = _currentBall.GetComponent<BombBall>();

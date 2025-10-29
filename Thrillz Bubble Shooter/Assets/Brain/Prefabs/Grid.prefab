@@ -802,6 +802,8 @@ MonoBehaviour:
     type: 3}
   _bombBallPrefab: {fileID: 4923921571906240741, guid: 2bbc65df240874d7db0f06445f746c57,
     type: 3}
+  _lightningBallPrefab: {fileID: 4923921571906240741, guid: bf9a5bccb0baf4b0797e012199cf49ec,
+    type: 3}
   _chargeProgressFill: {fileID: 1832410671553127706}
 --- !u!58 &3680142964342413492
 CircleCollider2D:

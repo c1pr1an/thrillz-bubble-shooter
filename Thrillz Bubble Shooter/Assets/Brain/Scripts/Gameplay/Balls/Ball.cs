@@ -28,6 +28,7 @@ namespace Brain.Gameplay
         private BallFlags _flags = BallFlags.None;
         private RainbowBall _rainbowComponent;
         private BombBall _bombComponent;
+        private LightningBall _lightningComponent;
 
         // Properties
         public Vector2Int GridPosition { get; private set; }
@@ -64,6 +65,7 @@ namespace Brain.Gameplay
             {
                 _rainbowComponent = GetComponent<RainbowBall>();
                 _bombComponent = GetComponent<BombBall>();
+                _lightningComponent = GetComponent<LightningBall>();
             }
         }
 
@@ -223,6 +225,14 @@ namespace Brain.Gameplay
         public bool IsBomb()
         {
             return _bombComponent != null && _bombComponent.enabled && _bombComponent.IsBomb();
+        }
+
+        /// <summary>
+        /// Check if this ball is a Lightning bonus ball
+        /// </summary>
+        public bool IsLightning()
+        {
+            return _lightningComponent != null && _lightningComponent.enabled && _lightningComponent.IsLightning();
         }
 
         /// <summary>

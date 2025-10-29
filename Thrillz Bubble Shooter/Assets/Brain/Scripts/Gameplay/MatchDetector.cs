@@ -21,8 +21,13 @@ namespace Brain.Gameplay
         {
             int matchCount = 0;
 
+            // Special handling for Lightning balls
+            if (stoppedBall.IsLightning())
+            {
+                matchCount = CheckLightningStrike(stoppedBall);
+            }
             // Special handling for Bomb balls
-            if (stoppedBall.IsBomb())
+            else if (stoppedBall.IsBomb())
             {
                 matchCount = CheckBombExplosion(stoppedBall);
             }
@@ -36,7 +41,7 @@ namespace Brain.Gameplay
                 matchCount = CheckMatch(stoppedBall);
             }
 
-            if (matchCount >= 3 || (stoppedBall.IsBomb() && matchCount > 0))
+            if (matchCount >= 3 || (stoppedBall.IsBomb() && matchCount > 0) || (stoppedBall.IsLightning() && matchCount > 0))
             {
                 // Pass the impact ball (stoppedBall) to create wave pattern from impact point
                 DestroyManager.Instance.DestroyBalls(_matchList, stoppedBall);
@@ -65,6 +70,62 @@ namespace Brain.Gameplay
             FindMatches(ball, ball.Color);
 
             ClearMarks();
+
+            return _matchList.Count;
+        }
+
+        /// <summary>
+        /// Check lightning strike - destroys balls horizontally
+        /// </summary>
+        public int CheckLightningStrike(Ball lightningBall)
+        {
+            if (lightningBall == null) return 0;
+
+            _matchList.Clear();
+
+            // Get lightning component to check range
+            var lightningComponent = lightningBall.GetComponent<LightningBall>();
+            int horizontalRange = lightningComponent != null ? lightningComponent.GetHorizontalRange() : 4;
+
+            // Get the lightning ball's grid position
+            Vector2Int lightningPos = lightningBall.GridPosition;
+
+            // Collect balls to the left
+            for (int x = lightningPos.x - 1; x >= lightningPos.x - horizontalRange; x--)
+            {
+                if (!GridUtils.IsValidPosition(x, lightningPos.y))
+                    break;
+
+                Ball ballAtPos = GridManager.Instance.GetBall(x, lightningPos.y);
+                if (ballAtPos != null && ballAtPos.HasFlag(BallFlags.Pinned) && !ballAtPos.HasFlag(BallFlags.Destroying))
+                {
+                    _matchList.Add(ballAtPos);
+                    ballAtPos.Flags |= BallFlags.MarkedForMatch;
+                }
+            }
+
+            // Collect balls to the right
+            for (int x = lightningPos.x + 1; x <= lightningPos.x + horizontalRange; x++)
+            {
+                if (!GridUtils.IsValidPosition(x, lightningPos.y))
+                    break;
+
+                Ball ballAtPos = GridManager.Instance.GetBall(x, lightningPos.y);
+                if (ballAtPos != null && ballAtPos.HasFlag(BallFlags.Pinned) && !ballAtPos.HasFlag(BallFlags.Destroying))
+                {
+                    _matchList.Add(ballAtPos);
+                    ballAtPos.Flags |= BallFlags.MarkedForMatch;
+                }
+            }
+
+            // Add the lightning ball itself to be destroyed
+            if (!_matchList.Contains(lightningBall))
+            {
+                _matchList.Add(lightningBall);
+                lightningBall.Flags |= BallFlags.MarkedForMatch;
+            }
+
+            Debug.Log($"[MatchDetector] Lightning strike at {lightningPos} destroyed {_matchList.Count} balls");
 
             return _matchList.Count;
         }
@@ -242,8 +303,13 @@ namespace Brain.Gameplay
         {
             if (targetPosition == null || simulatedBall == null) return new List<Ball>();
 
+            // Check if it's a lightning ball
+            if (simulatedBall.IsLightning())
+            {
+                return GetLightningStrikePreview(simulatedBall, targetPosition);
+            }
             // Check if it's a bomb ball
-            if (simulatedBall.IsBomb())
+            else if (simulatedBall.IsBomb())
             {
                 return GetBombExplosionPreview(simulatedBall, targetPosition);
             }
@@ -288,6 +354,53 @@ namespace Brain.Gameplay
                 }
                 return new List<Ball>();
             }
+        }
+
+        /// <summary>
+        /// Preview what a lightning ball would destroy at a given position
+        /// </summary>
+        private List<Ball> GetLightningStrikePreview(Ball lightningBall, Ball targetPosition)
+        {
+            if (targetPosition == null || lightningBall == null) return new List<Ball>();
+
+            List<Ball> previewList = new List<Ball>();
+
+            // Get lightning component to check range
+            var lightningComponent = lightningBall.GetComponent<LightningBall>();
+            int horizontalRange = lightningComponent != null ? lightningComponent.GetHorizontalRange() : 4;
+
+            // Get the target grid position
+            Vector2Int targetPos = targetPosition.GridPosition;
+
+            // Collect balls to the left
+            for (int x = targetPos.x - 1; x >= targetPos.x - horizontalRange; x--)
+            {
+                if (!GridUtils.IsValidPosition(x, targetPos.y))
+                    break;
+
+                Ball ballAtPos = GridManager.Instance.GetBall(x, targetPos.y);
+                if (ballAtPos != null && ballAtPos.HasFlag(BallFlags.Pinned) && !ballAtPos.HasFlag(BallFlags.Destroying))
+                {
+                    previewList.Add(ballAtPos);
+                }
+            }
+
+            // Collect balls to the right
+            for (int x = targetPos.x + 1; x <= targetPos.x + horizontalRange; x++)
+            {
+                if (!GridUtils.IsValidPosition(x, targetPos.y))
+                    break;
+
+                Ball ballAtPos = GridManager.Instance.GetBall(x, targetPos.y);
+                if (ballAtPos != null && ballAtPos.HasFlag(BallFlags.Pinned) && !ballAtPos.HasFlag(BallFlags.Destroying))
+                {
+                    previewList.Add(ballAtPos);
+                }
+            }
+
+            // Don't add the target position - it's just where the lightning would land
+
+            return previewList;
         }
 
         /// <summary>
