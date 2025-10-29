@@ -413,7 +413,7 @@ namespace Brain.Gameplay
         {
             // Get all 6 potential neighbor positions using GridUtils
             Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(
-                centerBall.Position
+                centerBall.GridPosition
             );
 
             foreach (Vector2Int? pos in neighborPositions)
@@ -465,7 +465,7 @@ namespace Brain.Gameplay
                 if (maxCount >= _minMatchableNeighbors && mostCommonColor != ball.Color)
                 {
                     // Store position before returning to pool
-                    Vector2Int position = ball.Position;
+                    Vector2Int position = ball.GridPosition;
 
                     // Remove from grid and return to pool
                     GridManager gridManager = GridManager.Instance;

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using Brain.Managers;
+using Brain.Gameplay;
 
 namespace Brain.Gameplay.Containers
 {
@@ -19,6 +20,7 @@ namespace Brain.Gameplay.Containers
     {
         [Header("Bonus Ball Settings")]
         [SerializeField] private GameObject _rainbowBallPrefab;
+        [SerializeField] private GameObject _bombBallPrefab;
 
         [Header("Charge UI")]
         [SerializeField] private Image _chargeProgressFill;
@@ -151,13 +153,16 @@ namespace Brain.Gameplay.Containers
                 return;
             }
 
-            var bonusType = BonusBallType.Rainbow;//BonusPowerManager.Instance.GetRandomBonusType();
+            var bonusType = BonusPowerManager.Instance.GetRandomBonusType();
 
             GameObject prefab = null;
             switch (bonusType)
             {
                 case BonusBallType.Rainbow:
                     prefab = _rainbowBallPrefab;
+                    break;
+                case BonusBallType.Bomb:
+                    prefab = _bombBallPrefab;
                     break;
                 // Add other bonus types here in future
                 default:
@@ -167,7 +172,7 @@ namespace Brain.Gameplay.Containers
 
             if (prefab == null)
             {
-                Debug.LogError("[BonusBallContainer] Rainbow ball prefab not assigned!");
+                Debug.LogError($"[BonusBallContainer] {bonusType} ball prefab not assigned!");
                 return;
             }
 
@@ -179,13 +184,6 @@ namespace Brain.Gameplay.Containers
                 Debug.LogError("[BonusBallContainer] Spawned prefab doesn't have Ball component!");
                 Destroy(ballGO);
                 return;
-            }
-
-            // Set as bonus ball
-            var rainbowComponent = CurrentBall.GetComponent<RainbowBall>();
-            if (rainbowComponent != null)
-            {
-                rainbowComponent.enabled = true;
             }
 
             // Visual spawn effect

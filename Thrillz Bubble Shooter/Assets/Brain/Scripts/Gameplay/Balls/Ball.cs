@@ -16,6 +16,7 @@ namespace Brain.Gameplay
         [Header("Ball Properties")]
         [SerializeField] private BallColor _ballColor;
         [SerializeField] private Color _displayColor;
+        [SerializeField] private bool _isBonusBall;
 
 
         [Header("Components")]
@@ -26,12 +27,14 @@ namespace Brain.Gameplay
 
         private BallFlags _flags = BallFlags.None;
         private RainbowBall _rainbowComponent;
+        private BombBall _bombComponent;
 
         // Properties
-        public Vector2Int Position { get; private set; }
+        public Vector2Int GridPosition { get; private set; }
         public Ball[] Neighbors { get; private set; } = new Ball[6];
         public BallColor Color => _ballColor;
         public Color DisplayColor => _displayColor;
+        public bool IsBonusBall => _isBonusBall;
         public SpriteRenderer SpriteRenderer => _spriteRenderer;
         public BallFlags Flags
         {
@@ -57,8 +60,11 @@ namespace Brain.Gameplay
 
         private void Awake()
         {
-            // Cache rainbow component if exists
-            _rainbowComponent = GetComponent<RainbowBall>();
+            if (_isBonusBall)
+            {
+                _rainbowComponent = GetComponent<RainbowBall>();
+                _bombComponent = GetComponent<BombBall>();
+            }
         }
 
         private void OnEnable()
@@ -86,7 +92,7 @@ namespace Brain.Gameplay
 
         public void SetPosition(Vector2Int gridPos, Vector3 worldPos)
         {
-            Position = gridPos;
+            GridPosition = gridPos;
             transform.position = worldPos;
 
             // Mark as pinned (static on grid)
@@ -209,6 +215,14 @@ namespace Brain.Gameplay
         public bool IsRainbow()
         {
             return _rainbowComponent != null && _rainbowComponent.enabled && _rainbowComponent.CanMatchAnyColor();
+        }
+
+        /// <summary>
+        /// Check if this ball is a Bomb bonus ball
+        /// </summary>
+        public bool IsBomb()
+        {
+            return _bombComponent != null && _bombComponent.enabled && _bombComponent.IsBomb();
         }
 
         /// <summary>

@@ -34,7 +34,7 @@ namespace Brain.Gameplay
             if (ballsToFall.Count > 0)
             {
                 // Sort by row (highest rows fall first for better visual effect)
-                ballsToFall = ballsToFall.OrderByDescending(ball => -ball.Position.y).ToList();
+                ballsToFall = ballsToFall.OrderByDescending(ball => -ball.GridPosition.y).ToList();
 
                 // Remove from grid immediately (logic update)
                 foreach (Ball ball in ballsToFall)

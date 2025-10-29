@@ -1,5 +1,6 @@
 using UnityEngine;
 using Brain.Managers;
+using System.Collections.Generic;
 
 namespace Brain.Util
 {
@@ -72,6 +73,44 @@ namespace Brain.Util
             }
 
             return neighbors;
+        }
+
+        /// <summary>
+        /// Gets all grid positions within a specified depth from the center position.
+        /// Depth 1 = direct neighbors (up to 6), Depth 2 = neighbors + their neighbors (up to 18 excluding center)
+        /// </summary>
+        public static List<Vector2Int> GetExtendedNeighborPositions(Vector2Int center, int depth)
+        {
+            var result = new List<Vector2Int>();
+            var visited = new HashSet<Vector2Int>();
+            var currentLayer = new List<Vector2Int> { center };
+
+            visited.Add(center);
+
+            // Breadth-first search for the specified depth
+            for (int d = 0; d < depth; d++)
+            {
+                var nextLayer = new List<Vector2Int>();
+
+                foreach (var pos in currentLayer)
+                {
+                    var neighbors = GetNeighborPositions(pos);
+
+                    foreach (var neighbor in neighbors)
+                    {
+                        if (neighbor.HasValue && !visited.Contains(neighbor.Value))
+                        {
+                            visited.Add(neighbor.Value);
+                            nextLayer.Add(neighbor.Value);
+                            result.Add(neighbor.Value);
+                        }
+                    }
+                }
+
+                currentLayer = nextLayer;
+            }
+
+            return result;
         }
 
         public static bool IsValidPosition(int col, int row)

@@ -46,7 +46,7 @@ namespace Brain.Managers
             if (ball == null || !ball.HasFlag(BallFlags.Pinned))
                 return;
 
-            Vector2Int pos = ball.Position;
+            Vector2Int pos = ball.GridPosition;
             int maxCols = GridUtils.GetMaxColumns(pos.y);
 
             if (pos.x == 0)
@@ -72,7 +72,7 @@ namespace Brain.Managers
             if (edgeBall == null) return;
             if (_ballToPhantom.ContainsKey(edgeBall)) return;
 
-            Vector2Int edgePos = edgeBall.Position;
+            Vector2Int edgePos = edgeBall.GridPosition;
             int maxCols = GridUtils.GetMaxColumns(edgePos.y);
 
             Vector2Int phantomGridPos = isLeftEdge

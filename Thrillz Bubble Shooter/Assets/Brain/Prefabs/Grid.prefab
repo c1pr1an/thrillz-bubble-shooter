@@ -381,7 +381,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7f8c9d4b3e54f44b9c8e7d2f6a1b3c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _waveAmplitude: 0.1
+  _waveAmplitude: 0.15
   _waveDuration: 0.1
   _delayBetweenLayers: 0.015
   _maxWaveLayers: 3
@@ -800,8 +800,9 @@ MonoBehaviour:
   _swapDuration: 0.3
   _rainbowBallPrefab: {fileID: 4923921571906240741, guid: 871a3f2354c8148688ae622a8e998ff3,
     type: 3}
+  _bombBallPrefab: {fileID: 4923921571906240741, guid: 2bbc65df240874d7db0f06445f746c57,
+    type: 3}
   _chargeProgressFill: {fileID: 1832410671553127706}
-  _readyIndicator: {fileID: 0}
 --- !u!58 &3680142964342413492
 CircleCollider2D:
   m_ObjectHideFlags: 0

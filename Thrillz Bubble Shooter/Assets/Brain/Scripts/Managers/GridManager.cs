@@ -185,7 +185,7 @@ namespace Brain.Managers
                 PhantomBallManager.Instance.OnBallRemovedFromGrid(ball);
             }
 
-            Vector2Int pos = ball.Position;
+            Vector2Int pos = ball.GridPosition;
             if (pos.y >= 0 && pos.y < _balls.Count && pos.x >= 0 && pos.x < _balls[pos.y].Count)
             {
                 if (_balls[pos.y][pos.x] == ball)
@@ -204,7 +204,7 @@ namespace Brain.Managers
         {
             if (ball == null) return;
 
-            Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(ball.Position);
+            Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(ball.GridPosition);
             Ball[] neighbors = new Ball[6];
 
             for (int i = 0; i < 6; i++)
@@ -230,7 +230,7 @@ namespace Brain.Managers
         {
             if (ball == null) return;
 
-            Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(ball.Position);
+            Vector2Int?[] neighborPositions = GridUtils.GetNeighborPositions(ball.GridPosition);
 
             foreach (var neighborPos in neighborPositions)
             {

@@ -20,7 +20,6 @@ namespace Brain.Gameplay
         [SerializeField] private float _lineWidth = 0.15f;
         [SerializeField] private float _lineAlpha = 0.8f;
 
-        private Camera _mainCamera;
         private List<Vector3> _trajectoryPoints = new List<Vector3>();
         private Vector2 _predictedImpactPosition;
         private bool _hasValidPrediction = false;
@@ -29,23 +28,11 @@ namespace Brain.Gameplay
         public Vector2 PredictedImpactPosition => _predictedImpactPosition;
         public bool HasValidPrediction => _hasValidPrediction;
 
-        private void Awake()
-        {
-            _mainCamera = Camera.main;
-        }
-
         private void Start()
         {
-            if (_trajectoryLine != null)
-            {
-                _trajectoryLine.startWidth = _lineWidth;
-                _trajectoryLine.endWidth = _lineWidth;
-                _trajectoryLine.enabled = false;
-            }
-            else
-            {
-                Debug.LogError("TrajectoryPredictor: No LineRenderer assigned! Please assign one in the Inspector.");
-            }
+            _trajectoryLine.startWidth = _lineWidth;
+            _trajectoryLine.endWidth = _lineWidth;
+            _trajectoryLine.enabled = false;
         }
 
         public List<Vector3> CalculateTrajectory(Vector3 startPos, Vector2 direction)
@@ -59,7 +46,7 @@ namespace Brain.Gameplay
 
             float checkRadius = _ballRadius * _trajectoryCheckRadiusPercent;
 
-            float vertExtent = _mainCamera.orthographicSize;
+            float vertExtent = Cameras.Instance.MainCam.orthographicSize;
             float horzExtent = vertExtent * Screen.width / Screen.height;
             Vector2 screenBoundsMin = new Vector2(-horzExtent + checkRadius, -vertExtent);
             Vector2 screenBoundsMax = new Vector2(horzExtent - checkRadius, vertExtent);

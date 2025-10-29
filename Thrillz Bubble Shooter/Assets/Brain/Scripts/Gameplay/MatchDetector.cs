@@ -21,8 +21,13 @@ namespace Brain.Gameplay
         {
             int matchCount = 0;
 
+            // Special handling for Bomb balls
+            if (stoppedBall.IsBomb())
+            {
+                matchCount = CheckBombExplosion(stoppedBall);
+            }
             // Special handling for Rainbow balls
-            if (stoppedBall.IsRainbow())
+            else if (stoppedBall.IsRainbow())
             {
                 matchCount = CheckRainbowMatch(stoppedBall);
             }
@@ -31,7 +36,7 @@ namespace Brain.Gameplay
                 matchCount = CheckMatch(stoppedBall);
             }
 
-            if (matchCount >= 3)
+            if (matchCount >= 3 || (stoppedBall.IsBomb() && matchCount > 0))
             {
                 // Pass the impact ball (stoppedBall) to create wave pattern from impact point
                 DestroyManager.Instance.DestroyBalls(_matchList, stoppedBall);
@@ -60,6 +65,47 @@ namespace Brain.Gameplay
             FindMatches(ball, ball.Color);
 
             ClearMarks();
+
+            return _matchList.Count;
+        }
+
+        /// <summary>
+        /// Check explosion for Bomb ball - destroys all balls within radius
+        /// </summary>
+        public int CheckBombExplosion(Ball bombBall)
+        {
+            if (bombBall == null) return 0;
+
+            _matchList.Clear();
+
+            // Get bomb component to check radius
+            var bombComponent = bombBall.GetComponent<BombBall>();
+            int explosionRadius = bombComponent != null ? bombComponent.GetExplosionRadius() : 2;
+
+            Vector2Int bombGridPos = bombBall.GridPosition;
+
+            // Get all positions within explosion radius using our new GridUtils method
+            List<Vector2Int> explosionPositions = GridUtils.GetExtendedNeighborPositions(bombGridPos, explosionRadius);
+
+            // Add all balls at these positions to the match list
+            foreach (Vector2Int pos in explosionPositions)
+            {
+                Ball ballAtPos = GridManager.Instance.GetBall(pos.x, pos.y);
+                if (ballAtPos != null && ballAtPos.HasFlag(BallFlags.Pinned) && !ballAtPos.HasFlag(BallFlags.Destroying))
+                {
+                    _matchList.Add(ballAtPos);
+                    ballAtPos.Flags |= BallFlags.MarkedForMatch;
+                }
+            }
+
+            // Add the bomb ball itself to be destroyed
+            if (!_matchList.Contains(bombBall))
+            {
+                _matchList.Add(bombBall);
+                bombBall.Flags |= BallFlags.MarkedForMatch;
+            }
+
+            Debug.Log($"[MatchDetector] Bomb explosion at {bombGridPos} destroyed {_matchList.Count} balls");
 
             return _matchList.Count;
         }
@@ -196,8 +242,13 @@ namespace Brain.Gameplay
         {
             if (targetPosition == null || simulatedBall == null) return new List<Ball>();
 
-            // Check if it's a bonus ball
-            if (simulatedBall.IsRainbow())
+            // Check if it's a bomb ball
+            if (simulatedBall.IsBomb())
+            {
+                return GetBombExplosionPreview(simulatedBall, targetPosition);
+            }
+            // Check if it's a rainbow ball
+            else if (simulatedBall.IsRainbow())
             {
                 return GetRainbowMatchPreview(targetPosition);
             }
@@ -237,6 +288,41 @@ namespace Brain.Gameplay
                 }
                 return new List<Ball>();
             }
+        }
+
+        /// <summary>
+        /// Preview what a bomb ball would destroy at a given position
+        /// </summary>
+        private List<Ball> GetBombExplosionPreview(Ball bombBall, Ball targetPosition)
+        {
+            if (targetPosition == null || bombBall == null) return new List<Ball>();
+
+            List<Ball> previewList = new List<Ball>();
+
+            // Get bomb component to check radius
+            var bombComponent = bombBall.GetComponent<BombBall>();
+            int explosionRadius = bombComponent != null ? bombComponent.GetExplosionRadius() : 2;
+
+            // Get the target grid position
+            Vector2Int targetGridPos = targetPosition.GridPosition;
+
+            // Get all positions within explosion radius
+            List<Vector2Int> explosionPositions = GridUtils.GetExtendedNeighborPositions(targetGridPos, explosionRadius);
+
+            // Add all balls at these positions to preview
+            foreach (Vector2Int pos in explosionPositions)
+            {
+                Ball ballAtPos = GridManager.Instance.GetBall(pos.x, pos.y);
+                if (ballAtPos != null && ballAtPos.HasFlag(BallFlags.Pinned) && !ballAtPos.HasFlag(BallFlags.Destroying))
+                {
+                    previewList.Add(ballAtPos);
+                }
+            }
+
+            // Don't add the target position - it's just where the bomb would land
+            // The target ball itself doesn't get destroyed since it's an empty position
+
+            return previewList;
         }
 
         /// <summary>

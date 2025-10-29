@@ -20,22 +20,11 @@ namespace Brain.Gameplay
         private Vector2Int _lastPredictedGridPos = new Vector2Int(-1, -1);
         private Ball _currentBall;
 
-        protected override void Awake()
+        public void Init(GridManager gridManager, TrajectoryPredictor trajectoryPredictor)
         {
-            base.Awake();
-        }
-
-        private void Start()
-        {
-            // Cache references
-            _gridManager = GridManager.Instance;
-
-            if (_gridManager != null)
-            {
-                _launchContainer = _gridManager.BallLaunchContainer;
-            }
-
-            _trajectoryPredictor = TrajectoryPredictor.Instance;
+            _gridManager = gridManager;
+            _launchContainer = gridManager.BallLaunchContainer;
+            _trajectoryPredictor = trajectoryPredictor;
         }
 
         private void Update()
@@ -152,8 +141,34 @@ namespace Brain.Gameplay
         {
             List<Ball> previewList = new List<Ball>();
 
+            if (!_currentBall.IsBonusBall)
+            {
+                // No highlights for regular balls
+                return previewList;
+            }
+
+            // If it's a bomb ball, show explosion radius
+            if (_currentBall.IsBomb())
+            {
+                // Get bomb component to check radius
+                var bombComponent = _currentBall.GetComponent<BombBall>();
+                int explosionRadius = bombComponent != null ? bombComponent.GetExplosionRadius() : 2;
+
+                // Get all positions within explosion radius
+                List<Vector2Int> explosionPositions = GridUtils.GetExtendedNeighborPositions(gridPos, explosionRadius);
+
+                // Add all balls at these positions to preview
+                foreach (Vector2Int pos in explosionPositions)
+                {
+                    Ball ballAtPos = _gridManager.GetBall(pos.x, pos.y);
+                    if (ballAtPos != null && ballAtPos.HasFlag(BallFlags.Pinned) && !ballAtPos.HasFlag(BallFlags.Destroying))
+                    {
+                        previewList.Add(ballAtPos);
+                    }
+                }
+            }
             // If it's a rainbow ball, handle special logic
-            if (_currentBall.IsRainbow())
+            else if (_currentBall.IsRainbow())
             {
                 // Track which colors to check
                 HashSet<BallColor> colorsToCheck = new HashSet<BallColor>();
@@ -219,57 +234,6 @@ namespace Brain.Gameplay
                                 processedBalls.Add(ball);
                             }
                         }
-                    }
-                }
-            }
-            else
-            {
-                // Regular ball - check for matches with same color neighbors
-                List<Ball> sameColorNeighbors = new List<Ball>();
-                foreach (Ball neighbor in neighbors)
-                {
-                    if (neighbor.Color == _currentBall.Color)
-                    {
-                        sameColorNeighbors.Add(neighbor);
-                    }
-                }
-
-                // If we have same-color neighbors, check for matches
-                if (sameColorNeighbors.Count > 0)
-                {
-                    HashSet<Ball> allConnected = new HashSet<Ball>();
-
-                    // Find all connected balls of the same color
-                    foreach (Ball startBall in sameColorNeighbors)
-                    {
-                        Queue<Ball> toCheck = new Queue<Ball>();
-                        toCheck.Enqueue(startBall);
-
-                        while (toCheck.Count > 0)
-                        {
-                            Ball current = toCheck.Dequeue();
-                            if (allConnected.Contains(current)) continue;
-
-                            if (current.Color == _currentBall.Color &&
-                                current.HasFlag(BallFlags.Pinned) && !current.HasFlag(BallFlags.Destroying))
-                            {
-                                allConnected.Add(current);
-
-                                foreach (Ball n in current.Neighbors)
-                                {
-                                    if (n != null && !allConnected.Contains(n))
-                                    {
-                                        toCheck.Enqueue(n);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Only highlight if we'd have 3+ matches (including the new ball)
-                    if (allConnected.Count >= 2) // 2 existing + 1 new = 3
-                    {
-                        previewList.AddRange(allConnected);
                     }
                 }
             }
