@@ -147,8 +147,94 @@ namespace Brain.Gameplay
                 return previewList;
             }
 
+            // If it's a rocket ball, show path based on trajectory
+            if (_currentBall.IsRocket())
+            {
+                // Get rocket component settings
+                var rocketComponent = _currentBall.GetComponent<RocketBall>();
+                if (rocketComponent != null)
+                {
+                    int ballsPerRow = rocketComponent.GetBallsPerRow();
+                    int maxRows = rocketComponent.GetMaxRows();
+
+                    // Calculate trajectory direction from current position to target
+                    Vector2 currentPos = _currentBall.transform.position;
+                    Vector2 targetPos = GridUtils.PosToWorld(gridPos, _gridManager.BallWidth, _gridManager.BallHeight, _gridManager.GridContainer);
+                    Vector2 trajectoryDirection = (targetPos - currentPos).normalized;
+
+                    // The rocket continues forward after landing - search in same direction
+                    Vector2 searchDirection = trajectoryDirection;
+
+                    // For each row distance forward from impact
+                    for (int row = 1; row <= maxRows; row++)
+                    {
+                        List<Ball> ballsInRow = new List<Ball>();
+                        float searchDistance = row * _gridManager.BallHeight;
+                        Vector2 rowCenter = targetPos + searchDirection * searchDistance;
+
+                        // Find balls near this row position
+                        float rowTolerance = _gridManager.BallHeight * 0.6f;
+
+                        // Check all balls in the grid
+                        for (int y = 0; y < _gridManager.MaxRows; y++)
+                        {
+                            for (int x = 0; x < GridUtils.GetMaxColumns(y); x++)
+                            {
+                                Ball ball = _gridManager.GetBall(x, y);
+                                if (ball != null && ball.HasFlag(BallFlags.Pinned) && !ball.HasFlag(BallFlags.Destroying))
+                                {
+                                    // Check if this ball is roughly at the right distance
+                                    float distanceFromTarget = Vector2.Distance(ball.transform.position, targetPos);
+                                    float expectedDistance = row * _gridManager.BallHeight;
+
+                                    if (Mathf.Abs(distanceFromTarget - expectedDistance) <= rowTolerance)
+                                    {
+                                        // Check if the ball is in the search direction
+                                        Vector2 toBall = (Vector2)ball.transform.position - targetPos;
+                                        float dotProduct = Vector2.Dot(toBall.normalized, searchDirection);
+
+                                        if (dotProduct > 0.5f)
+                                        {
+                                            // Calculate perpendicular distance from the direction line
+                                            Vector2 projection = Vector2.Dot(toBall, searchDirection) * searchDirection;
+                                            Vector2 perpendicular = toBall - projection;
+                                            float perpendicularDistance = perpendicular.magnitude;
+
+                                            if (perpendicularDistance <= _gridManager.BallWidth * 1.5f)
+                                            {
+                                                ballsInRow.Add(ball);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Sort balls by distance from the direction line (closest first)
+                        ballsInRow.Sort((a, b) =>
+                        {
+                            Vector2 toA = (Vector2)a.transform.position - targetPos;
+                            Vector2 projA = Vector2.Dot(toA, searchDirection) * searchDirection;
+                            float distA = (toA - projA).magnitude;
+
+                            Vector2 toB = (Vector2)b.transform.position - targetPos;
+                            Vector2 projB = Vector2.Dot(toB, searchDirection) * searchDirection;
+                            float distB = (toB - projB).magnitude;
+
+                            return distA.CompareTo(distB);
+                        });
+
+                        // Take up to ballsPerRow balls from this row
+                        int ballsToTake = Mathf.Min(ballsInRow.Count, ballsPerRow);
+                        for (int i = 0; i < ballsToTake; i++)
+                        {
+                            previewList.Add(ballsInRow[i]);
+                        }
+                    }
+                }
+            }
             // If it's a lightning ball, show horizontal strike
-            if (_currentBall.IsLightning())
+            else if (_currentBall.IsLightning())
             {
                 // Get lightning component to check range
                 var lightningComponent = _currentBall.GetComponent<LightningBall>();

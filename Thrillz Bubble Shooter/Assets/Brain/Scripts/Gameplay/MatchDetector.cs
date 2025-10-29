@@ -21,8 +21,13 @@ namespace Brain.Gameplay
         {
             int matchCount = 0;
 
+            // Special handling for Rocket balls
+            if (stoppedBall.IsRocket())
+            {
+                matchCount = CheckRocketPath(stoppedBall);
+            }
             // Special handling for Lightning balls
-            if (stoppedBall.IsLightning())
+            else if (stoppedBall.IsLightning())
             {
                 matchCount = CheckLightningStrike(stoppedBall);
             }
@@ -41,7 +46,7 @@ namespace Brain.Gameplay
                 matchCount = CheckMatch(stoppedBall);
             }
 
-            if (matchCount >= 3 || (stoppedBall.IsBomb() && matchCount > 0) || (stoppedBall.IsLightning() && matchCount > 0))
+            if (matchCount >= 3 || (stoppedBall.IsBomb() && matchCount > 0) || (stoppedBall.IsLightning() && matchCount > 0) || (stoppedBall.IsRocket() && matchCount > 0))
             {
                 // Pass the impact ball (stoppedBall) to create wave pattern from impact point
                 DestroyManager.Instance.DestroyBalls(_matchList, stoppedBall);
@@ -70,6 +75,125 @@ namespace Brain.Gameplay
             FindMatches(ball, ball.Color);
 
             ClearMarks();
+
+            return _matchList.Count;
+        }
+
+        /// <summary>
+        /// Check rocket path - destroys balls in the shooting direction
+        /// </summary>
+        public int CheckRocketPath(Ball rocketBall)
+        {
+            if (rocketBall == null) return 0;
+
+            _matchList.Clear();
+
+            // Get rocket component to check settings and direction
+            var rocketComponent = rocketBall.GetComponent<RocketBall>();
+            if (rocketComponent == null) return 0;
+
+            int ballsPerRow = rocketComponent.GetBallsPerRow();
+            int maxRows = rocketComponent.GetMaxRows();
+            Vector2 impactDirection = rocketComponent.GetLastVelocity();
+
+            // If no direction stored, can't determine path
+            if (impactDirection == Vector2.zero)
+            {
+                Debug.LogWarning("[MatchDetector] Rocket ball has no impact direction!");
+                return 0;
+            }
+
+            // Get the rocket's grid position
+            Vector2Int rocketPos = rocketBall.GridPosition;
+
+            // Normalize direction and determine primary axis
+            impactDirection = impactDirection.normalized;
+
+            // The rocket continues forward after landing, clearing balls in its path
+            // Search in the same direction as the impact (forward from landing point)
+            Vector2 searchDirection = impactDirection; // Continue in shooting direction
+
+            // For each row distance
+            for (int row = 1; row <= maxRows; row++)
+            {
+                List<Ball> ballsInRow = new List<Ball>();
+
+                // Calculate approximate row position in the search direction
+                float searchDistance = row * GridManager.Instance.BallHeight;
+                Vector2 rowCenter = (Vector2)rocketBall.transform.position + searchDirection * searchDistance;
+
+                // Find balls near this row position
+                // We'll check a wider area and filter by distance to the direction line
+                float rowTolerance = GridManager.Instance.BallHeight * 0.6f;
+
+                // Check all balls in the grid
+                for (int y = 0; y < GridManager.Instance.MaxRows; y++)
+                {
+                    for (int x = 0; x < GridUtils.GetMaxColumns(y); x++)
+                    {
+                        Ball ball = GridManager.Instance.GetBall(x, y);
+                        if (ball != null && ball != rocketBall && ball.HasFlag(BallFlags.Pinned) && !ball.HasFlag(BallFlags.Destroying))
+                        {
+                            // Check if this ball is roughly at the right distance for this row
+                            float distanceFromRocket = Vector2.Distance(ball.transform.position, rocketBall.transform.position);
+                            float expectedDistance = row * GridManager.Instance.BallHeight;
+
+                            if (Mathf.Abs(distanceFromRocket - expectedDistance) <= rowTolerance)
+                            {
+                                // Check if the ball is close to the direction line
+                                Vector2 toBall = (Vector2)(ball.transform.position - rocketBall.transform.position);
+                                float dotProduct = Vector2.Dot(toBall.normalized, searchDirection);
+
+                                // Ball should be in the search direction (dot > 0.5 means roughly in direction)
+                                if (dotProduct > 0.5f)
+                                {
+                                    // Calculate perpendicular distance from the direction line
+                                    Vector2 projection = Vector2.Dot(toBall, searchDirection) * searchDirection;
+                                    Vector2 perpendicular = toBall - projection;
+                                    float perpendicularDistance = perpendicular.magnitude;
+
+                                    // Consider balls within a reasonable perpendicular distance
+                                    if (perpendicularDistance <= GridManager.Instance.BallWidth * 1.5f)
+                                    {
+                                        ballsInRow.Add(ball);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Sort balls by distance from the direction line (closest first)
+                ballsInRow.Sort((a, b) =>
+                {
+                    Vector2 toA = (Vector2)(a.transform.position - rocketBall.transform.position);
+                    Vector2 projA = Vector2.Dot(toA, searchDirection) * searchDirection;
+                    float distA = (toA - projA).magnitude;
+
+                    Vector2 toB = (Vector2)(b.transform.position - rocketBall.transform.position);
+                    Vector2 projB = Vector2.Dot(toB, searchDirection) * searchDirection;
+                    float distB = (toB - projB).magnitude;
+
+                    return distA.CompareTo(distB);
+                });
+
+                // Take up to ballsPerRow balls from this row
+                int ballsToTake = Mathf.Min(ballsInRow.Count, ballsPerRow);
+                for (int i = 0; i < ballsToTake; i++)
+                {
+                    _matchList.Add(ballsInRow[i]);
+                    ballsInRow[i].Flags |= BallFlags.MarkedForMatch;
+                }
+            }
+
+            // Add the rocket ball itself to be destroyed
+            if (!_matchList.Contains(rocketBall))
+            {
+                _matchList.Add(rocketBall);
+                rocketBall.Flags |= BallFlags.MarkedForMatch;
+            }
+
+            Debug.Log($"[MatchDetector] Rocket at {rocketPos} destroyed {_matchList.Count} balls continuing in direction {searchDirection}");
 
             return _matchList.Count;
         }
@@ -303,8 +427,13 @@ namespace Brain.Gameplay
         {
             if (targetPosition == null || simulatedBall == null) return new List<Ball>();
 
+            // Check if it's a rocket ball
+            if (simulatedBall.IsRocket())
+            {
+                return GetRocketPathPreview(simulatedBall, targetPosition);
+            }
             // Check if it's a lightning ball
-            if (simulatedBall.IsLightning())
+            else if (simulatedBall.IsLightning())
             {
                 return GetLightningStrikePreview(simulatedBall, targetPosition);
             }
@@ -354,6 +483,18 @@ namespace Brain.Gameplay
                 }
                 return new List<Ball>();
             }
+        }
+
+        /// <summary>
+        /// Preview what a rocket ball would destroy at a given position
+        /// NOTE: This is approximate since we don't have the actual trajectory direction yet
+        /// </summary>
+        private List<Ball> GetRocketPathPreview(Ball rocketBall, Ball targetPosition)
+        {
+            // For preview, we can't accurately predict the rocket path since we don't know
+            // the trajectory direction yet. Return empty for now - the actual highlighting
+            // will be done in BallHighlightManager using the current trajectory.
+            return new List<Ball>();
         }
 
         /// <summary>

@@ -22,6 +22,7 @@ namespace Brain.Gameplay.Containers
         [SerializeField] private GameObject _rainbowBallPrefab;
         [SerializeField] private GameObject _bombBallPrefab;
         [SerializeField] private GameObject _lightningBallPrefab;
+        [SerializeField] private GameObject _rocketBallPrefab;
 
         [Header("Charge UI")]
         [SerializeField] private Image _chargeProgressFill;
@@ -167,6 +168,9 @@ namespace Brain.Gameplay.Containers
                     break;
                 case BonusBallType.Lightning:
                     prefab = _lightningBallPrefab;
+                    break;
+                case BonusBallType.Rocket:
+                    prefab = _rocketBallPrefab;
                     break;
                 // Add other bonus types here in future
                 default:

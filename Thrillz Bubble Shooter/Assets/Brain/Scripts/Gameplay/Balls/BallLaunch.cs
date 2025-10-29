@@ -104,6 +104,22 @@ namespace Brain.Gameplay
         {
             _isMoving = false;
 
+            // Store the final trajectory direction for rocket balls
+            if (_ball.IsRocket() && _trajectoryPath != null && _trajectoryPath.Count >= 2)
+            {
+                // Get the direction of the last segment (impact direction)
+                Vector3 lastSegmentStart = _trajectoryPath[Mathf.Max(0, _trajectoryPath.Count - 2)];
+                Vector3 lastSegmentEnd = _trajectoryPath[_trajectoryPath.Count - 1];
+                Vector2 impactDirection = (lastSegmentEnd - lastSegmentStart).normalized;
+
+                // Store the direction in the rocket component
+                RocketBall rocketComponent = _ball.GetComponent<RocketBall>();
+                if (rocketComponent != null)
+                {
+                    rocketComponent.SetLastVelocity(impactDirection);
+                }
+            }
+
             // Re-enable collider now that ball is at final position
             _circleCollider.enabled = true;
 

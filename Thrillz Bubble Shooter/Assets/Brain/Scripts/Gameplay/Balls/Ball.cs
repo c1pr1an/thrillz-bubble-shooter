@@ -29,6 +29,7 @@ namespace Brain.Gameplay
         private RainbowBall _rainbowComponent;
         private BombBall _bombComponent;
         private LightningBall _lightningComponent;
+        private RocketBall _rocketComponent;
 
         // Properties
         public Vector2Int GridPosition { get; private set; }
@@ -66,6 +67,7 @@ namespace Brain.Gameplay
                 _rainbowComponent = GetComponent<RainbowBall>();
                 _bombComponent = GetComponent<BombBall>();
                 _lightningComponent = GetComponent<LightningBall>();
+                _rocketComponent = GetComponent<RocketBall>();
             }
         }
 
@@ -233,6 +235,14 @@ namespace Brain.Gameplay
         public bool IsLightning()
         {
             return _lightningComponent != null && _lightningComponent.enabled && _lightningComponent.IsLightning();
+        }
+
+        /// <summary>
+        /// Check if this ball is a Rocket bonus ball
+        /// </summary>
+        public bool IsRocket()
+        {
+            return _rocketComponent != null && _rocketComponent.enabled && _rocketComponent.IsRocket();
         }
 
         /// <summary>
