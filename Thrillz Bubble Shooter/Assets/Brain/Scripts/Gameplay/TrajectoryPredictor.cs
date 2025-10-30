@@ -27,6 +27,7 @@ namespace Brain.Gameplay
         public LineRenderer TrajectoryLine => _trajectoryLine;
         public Vector2 PredictedImpactPosition => _predictedImpactPosition;
         public bool HasValidPrediction => _hasValidPrediction;
+        public List<Vector3> CurrentTrajectoryPoints => _trajectoryPoints;
 
         private void Start()
         {
@@ -184,6 +185,21 @@ namespace Brain.Gameplay
             _trajectoryLine.positionCount = points.Count;
             _trajectoryLine.SetPositions(points.ToArray());
             _trajectoryLine.enabled = true;
+        }
+
+        /// <summary>
+        /// Get the direction of the last segment in the trajectory (for accurate impact angle)
+        /// </summary>
+        public Vector2 GetLastSegmentDirection()
+        {
+            if (_trajectoryPoints.Count < 2)
+                return Vector2.up; // Default direction if no valid trajectory
+
+            // Get the last two points to determine the final impact direction
+            Vector3 secondToLast = _trajectoryPoints[_trajectoryPoints.Count - 2];
+            Vector3 last = _trajectoryPoints[_trajectoryPoints.Count - 1];
+
+            return ((Vector2)(last - secondToLast)).normalized;
         }
 
         public void HideTrajectory()

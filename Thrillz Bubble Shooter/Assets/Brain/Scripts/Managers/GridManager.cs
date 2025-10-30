@@ -134,7 +134,27 @@ namespace Brain.Managers
         /// </summary>
         public void AddBallToGrid(Ball ball, Vector3 worldPosition)
         {
-            // Find nearest empty cell using distance-based search
+            // Special handling for rocket balls - they don't snap to grid
+            if (ball.IsRocket())
+            {
+                // Parent to grid container so it moves with the grid
+                ball.transform.SetParent(_gridContainer);
+
+                // Keep rocket at its exact position
+                ball.transform.position = worldPosition;
+
+                // Set a dummy grid position for consistency (used for debugging)
+                Vector2Int approximateGridPos = GridUtils.WorldToPos(worldPosition, _ballWidth, _ballHeight, _gridContainer);
+                ball.SetPosition(approximateGridPos, worldPosition);
+
+                // Mark as pinned so it can be properly destroyed
+                ball.Flags |= BallFlags.Pinned;
+
+                // Don't add to grid matrix or update neighbors - rocket exists outside the grid
+                return;
+            }
+
+            // Normal ball handling - find nearest empty cell
             Vector2Int gridPos = GridUtils.FindNearestEmptyCell(
                 worldPosition,
                 _ballWidth,

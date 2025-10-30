@@ -20,6 +20,12 @@ namespace Brain.Gameplay
         private Vector2Int _lastPredictedGridPos = new Vector2Int(-1, -1);
         private Ball _currentBall;
 
+        // Debug visualization for rocket runway
+        private bool _showRocketRunway = false;
+        private Vector2 _debugRunwayCenter;
+        private Vector2 _debugRunwaySize;
+        private float _debugRunwayAngle;
+
         public void Init(GridManager gridManager, TrajectoryPredictor trajectoryPredictor)
         {
             _gridManager = gridManager;
@@ -59,32 +65,129 @@ namespace Brain.Gameplay
                 return;
             }
 
-            // Find the grid position where the ball would actually land (nearest empty cell)
+            // Find the grid position where the ball would actually land
             Vector2 impactPoint = _trajectoryPredictor.PredictedImpactPosition;
 
-            // First, find where the ball would snap to (nearest empty cell)
-            Vector2Int gridPos = GridUtils.FindNearestEmptyCell(
-                impactPoint,
-                _gridManager.BallWidth,
-                _gridManager.BallHeight,
-                _gridManager.GridContainer,
-                (x, y) => _gridManager.GetBall(x, y) == null
-            );
+            // For rocket balls, we need to update more frequently since they don't snap to grid
+            if (_currentBall != null && _currentBall.IsRocket())
+            {
+                // For rockets, update based on actual impact position changes
+                // Use a small threshold to avoid constant updates from tiny movements
+                Vector2 impactDifference = impactPoint - (Vector2)GridUtils.PosToWorld(_lastPredictedGridPos, _gridManager.BallWidth, _gridManager.BallHeight, _gridManager.GridContainer);
 
-            // If no valid position found, clear highlights
-            if (gridPos.x < 0 || gridPos.y < 0)
+                if (impactDifference.magnitude > 0.1f || _lastPredictedGridPos.x < 0)
+                {
+                    // Use approximate grid position for tracking, but update based on actual position
+                    Vector2Int approximateGridPos = GridUtils.WorldToPos(impactPoint, _gridManager.BallWidth, _gridManager.BallHeight, _gridManager.GridContainer);
+                    _lastPredictedGridPos = approximateGridPos;
+                    UpdateHighlightsForRocket(impactPoint);
+                }
+            }
+            else
+            {
+                // For regular balls, find where they would snap to (nearest empty cell)
+                Vector2Int gridPos = GridUtils.FindNearestEmptyCell(
+                    impactPoint,
+                    _gridManager.BallWidth,
+                    _gridManager.BallHeight,
+                    _gridManager.GridContainer,
+                    (x, y) => _gridManager.GetBall(x, y) == null
+                );
+
+                // If no valid position found, clear highlights
+                if (gridPos.x < 0 || gridPos.y < 0)
+                {
+                    ClearAllHighlights();
+                    _lastPredictedGridPos = new Vector2Int(-1, -1);
+                    return;
+                }
+
+                // Only update if the predicted grid position changed
+                if (gridPos != _lastPredictedGridPos)
+                {
+                    _lastPredictedGridPos = gridPos;
+                    UpdateHighlightsForGridPosition(gridPos);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Update highlights for rocket ball using actual impact position
+        /// </summary>
+        private void UpdateHighlightsForRocket(Vector2 impactPosition)
+        {
+            if (_currentBall == null || !_currentBall.IsRocket())
             {
                 ClearAllHighlights();
-                _lastPredictedGridPos = new Vector2Int(-1, -1);
                 return;
             }
 
-            // Only update if the predicted grid position changed
-            if (gridPos != _lastPredictedGridPos)
+            // Get rocket component settings
+            var rocketComponent = _currentBall.GetComponent<RocketBall>();
+            if (rocketComponent == null || _trajectoryPredictor == null)
             {
-                _lastPredictedGridPos = gridPos;
-                UpdateHighlightsForGridPosition(gridPos);
+                ClearAllHighlights();
+                return;
             }
+
+            // Get the last segment direction for accurate impact angle (handles bounces)
+            Vector2 trajectoryDirection = _trajectoryPredictor.GetLastSegmentDirection();
+
+            // Runway dimensions
+            float ballDiameter = _gridManager.BallWidth;
+            float runwayLength = _gridManager.BallHeight * 6f; // 6 balls forward
+            float runwayWidth = ballDiameter * 2f; // 2 balls wide
+
+            // Calculate the center of the runway (offset forward from impact position)
+            Vector2 runwayCenter = impactPosition + (trajectoryDirection * runwayLength * 0.5f);
+
+            // Calculate rotation angle for the box (aligned with trajectory)
+            float angle = Mathf.Atan2(trajectoryDirection.y, trajectoryDirection.x) * Mathf.Rad2Deg;
+
+            // Store debug info for visualization
+            _showRocketRunway = true;
+            _debugRunwayCenter = runwayCenter;
+            _debugRunwaySize = new Vector2(runwayLength, runwayWidth);
+            _debugRunwayAngle = angle;
+
+            // Use OverlapBox to detect all balls in the runway area
+            int ballLayer = LayerMask.NameToLayer("Default");
+            ContactFilter2D contactFilter = new ContactFilter2D();
+            contactFilter.useTriggers = false;
+            contactFilter.SetLayerMask(1 << ballLayer);
+            contactFilter.useLayerMask = true;
+
+            // Get all colliders in the runway area
+            Collider2D[] hitColliders = new Collider2D[100];
+            Vector2 boxSize = new Vector2(runwayLength, runwayWidth);
+            int numHits = Physics2D.OverlapBox(runwayCenter, boxSize, angle, contactFilter, hitColliders);
+
+            // Process all hit balls
+            HashSet<Ball> affectedBalls = new HashSet<Ball>();
+            for (int i = 0; i < numHits; i++)
+            {
+                if (hitColliders[i] != null)
+                {
+                    Ball ball = hitColliders[i].GetComponent<Ball>();
+
+                    // Check if it's a valid ball (pinned and not already destroying)
+                    if (ball != null && ball.HasFlag(BallFlags.Pinned) && !ball.HasFlag(BallFlags.Destroying))
+                    {
+                        // Additional check: make sure the ball is in front of the impact position
+                        Vector2 toBall = (Vector2)ball.transform.position - impactPosition;
+                        float dotProduct = Vector2.Dot(toBall.normalized, trajectoryDirection);
+
+                        // Only include balls that are in front (dot product > 0)
+                        if (dotProduct > 0)
+                        {
+                            affectedBalls.Add(ball);
+                        }
+                    }
+                }
+            }
+
+            // Update highlights
+            UpdateHighlights(affectedBalls);
         }
 
         /// <summary>
@@ -147,95 +250,18 @@ namespace Brain.Gameplay
                 return previewList;
             }
 
-            // If it's a rocket ball, show path based on trajectory
+            // If it's a rocket ball, show path based on physics detection
             if (_currentBall.IsRocket())
             {
-                // Get rocket component settings
-                var rocketComponent = _currentBall.GetComponent<RocketBall>();
-                if (rocketComponent != null)
-                {
-                    int ballsPerRow = rocketComponent.GetBallsPerRow();
-                    int maxRows = rocketComponent.GetMaxRows();
-
-                    // Calculate trajectory direction from current position to target
-                    Vector2 currentPos = _currentBall.transform.position;
-                    Vector2 targetPos = GridUtils.PosToWorld(gridPos, _gridManager.BallWidth, _gridManager.BallHeight, _gridManager.GridContainer);
-                    Vector2 trajectoryDirection = (targetPos - currentPos).normalized;
-
-                    // The rocket continues forward after landing - search in same direction
-                    Vector2 searchDirection = trajectoryDirection;
-
-                    // For each row distance forward from impact
-                    for (int row = 1; row <= maxRows; row++)
-                    {
-                        List<Ball> ballsInRow = new List<Ball>();
-                        float searchDistance = row * _gridManager.BallHeight;
-                        Vector2 rowCenter = targetPos + searchDirection * searchDistance;
-
-                        // Find balls near this row position
-                        float rowTolerance = _gridManager.BallHeight * 0.6f;
-
-                        // Check all balls in the grid
-                        for (int y = 0; y < _gridManager.MaxRows; y++)
-                        {
-                            for (int x = 0; x < GridUtils.GetMaxColumns(y); x++)
-                            {
-                                Ball ball = _gridManager.GetBall(x, y);
-                                if (ball != null && ball.HasFlag(BallFlags.Pinned) && !ball.HasFlag(BallFlags.Destroying))
-                                {
-                                    // Check if this ball is roughly at the right distance
-                                    float distanceFromTarget = Vector2.Distance(ball.transform.position, targetPos);
-                                    float expectedDistance = row * _gridManager.BallHeight;
-
-                                    if (Mathf.Abs(distanceFromTarget - expectedDistance) <= rowTolerance)
-                                    {
-                                        // Check if the ball is in the search direction
-                                        Vector2 toBall = (Vector2)ball.transform.position - targetPos;
-                                        float dotProduct = Vector2.Dot(toBall.normalized, searchDirection);
-
-                                        if (dotProduct > 0.5f)
-                                        {
-                                            // Calculate perpendicular distance from the direction line
-                                            Vector2 projection = Vector2.Dot(toBall, searchDirection) * searchDirection;
-                                            Vector2 perpendicular = toBall - projection;
-                                            float perpendicularDistance = perpendicular.magnitude;
-
-                                            if (perpendicularDistance <= _gridManager.BallWidth * 1.5f)
-                                            {
-                                                ballsInRow.Add(ball);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        // Sort balls by distance from the direction line (closest first)
-                        ballsInRow.Sort((a, b) =>
-                        {
-                            Vector2 toA = (Vector2)a.transform.position - targetPos;
-                            Vector2 projA = Vector2.Dot(toA, searchDirection) * searchDirection;
-                            float distA = (toA - projA).magnitude;
-
-                            Vector2 toB = (Vector2)b.transform.position - targetPos;
-                            Vector2 projB = Vector2.Dot(toB, searchDirection) * searchDirection;
-                            float distB = (toB - projB).magnitude;
-
-                            return distA.CompareTo(distB);
-                        });
-
-                        // Take up to ballsPerRow balls from this row
-                        int ballsToTake = Mathf.Min(ballsInRow.Count, ballsPerRow);
-                        for (int i = 0; i < ballsToTake; i++)
-                        {
-                            previewList.Add(ballsInRow[i]);
-                        }
-                    }
-                }
+                // Rocket balls don't use grid position, return empty
+                // The highlighting is handled separately in UpdateHighlightsForRocket
+                return previewList;
             }
             // If it's a lightning ball, show horizontal strike
             else if (_currentBall.IsLightning())
             {
+                // Clear rocket runway debug when not showing rocket
+                _showRocketRunway = false;
                 // Get lightning component to check range
                 var lightningComponent = _currentBall.GetComponent<LightningBall>();
                 int horizontalRange = lightningComponent != null ? lightningComponent.GetHorizontalRange() : 4;
@@ -269,6 +295,8 @@ namespace Brain.Gameplay
             // If it's a bomb ball, show explosion radius
             else if (_currentBall.IsBomb())
             {
+                // Clear rocket runway debug when not showing rocket
+                _showRocketRunway = false;
                 // Get bomb component to check radius
                 var bombComponent = _currentBall.GetComponent<BombBall>();
                 int explosionRadius = bombComponent != null ? bombComponent.GetExplosionRadius() : 2;
@@ -289,6 +317,8 @@ namespace Brain.Gameplay
             // If it's a rainbow ball, handle special logic
             else if (_currentBall.IsRainbow())
             {
+                // Clear rocket runway debug when not showing rocket
+                _showRocketRunway = false;
                 // Track which colors to check
                 HashSet<BallColor> colorsToCheck = new HashSet<BallColor>();
                 HashSet<Ball> processedBalls = new HashSet<Ball>();
@@ -356,6 +386,11 @@ namespace Brain.Gameplay
                     }
                 }
             }
+            else
+            {
+                // Clear rocket runway debug for other ball types
+                _showRocketRunway = false;
+            }
 
             return previewList;
         }
@@ -408,6 +443,57 @@ namespace Brain.Gameplay
         private void OnDestroy()
         {
             ClearAllHighlights();
+        }
+
+        /// <summary>
+        /// Draw debug visualization for rocket runway
+        /// </summary>
+        private void OnDrawGizmos()
+        {
+            if (!_showRocketRunway) return;
+
+            // Draw the overlap box that represents the rocket runway
+            Gizmos.color = new Color(1f, 0.5f, 0f, 0.3f); // Orange with transparency
+
+            // Convert angle to rotation matrix
+            float angleRad = _debugRunwayAngle * Mathf.Deg2Rad;
+            Vector2 right = new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
+            Vector2 up = new Vector2(-Mathf.Sin(angleRad), Mathf.Cos(angleRad));
+
+            // Calculate the four corners of the rotated box
+            Vector2 halfSize = _debugRunwaySize * 0.5f;
+            Vector3[] corners = new Vector3[4];
+            corners[0] = _debugRunwayCenter + right * halfSize.x + up * halfSize.y;
+            corners[1] = _debugRunwayCenter - right * halfSize.x + up * halfSize.y;
+            corners[2] = _debugRunwayCenter - right * halfSize.x - up * halfSize.y;
+            corners[3] = _debugRunwayCenter + right * halfSize.x - up * halfSize.y;
+
+            // Draw the box outline
+            Gizmos.color = Color.red;
+            for (int i = 0; i < 4; i++)
+            {
+                Gizmos.DrawLine(corners[i], corners[(i + 1) % 4]);
+            }
+
+            // Draw diagonal lines to show it's a filled area
+            Gizmos.color = new Color(1f, 0.5f, 0f, 0.2f);
+            Gizmos.DrawLine(corners[0], corners[2]);
+            Gizmos.DrawLine(corners[1], corners[3]);
+
+            // Draw center point
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(_debugRunwayCenter, 0.1f);
+
+            // Draw direction arrow from center
+            Vector3 arrowEnd = (Vector3)_debugRunwayCenter + (Vector3)(right * _debugRunwaySize.x * 0.4f);
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(_debugRunwayCenter, arrowEnd);
+
+            // Draw arrow head
+            Vector3 arrowLeft = arrowEnd - (Vector3)(right * 0.2f) + (Vector3)(up * 0.2f);
+            Vector3 arrowRight = arrowEnd - (Vector3)(right * 0.2f) - (Vector3)(up * 0.2f);
+            Gizmos.DrawLine(arrowEnd, arrowLeft);
+            Gizmos.DrawLine(arrowEnd, arrowRight);
         }
     }
 }

@@ -137,9 +137,13 @@ namespace Brain.Gameplay.Containers
 
             if (trajectoryPath.Count > 0)
             {
-                Vector3 originalEndpoint = trajectoryPath[trajectoryPath.Count - 1];
-                Vector3 snapPosition = GridManager.Instance.GetGridSnapPosition(originalEndpoint);
-                trajectoryPath[trajectoryPath.Count - 1] = snapPosition;
+                // Rocket balls should follow exact trajectory without grid snapping
+                if (CurrentBall != null && !CurrentBall.IsRocket())
+                {
+                    Vector3 originalEndpoint = trajectoryPath[trajectoryPath.Count - 1];
+                    Vector3 snapPosition = GridManager.Instance.GetGridSnapPosition(originalEndpoint);
+                    trajectoryPath[trajectoryPath.Count - 1] = snapPosition;
+                }
 
                 ClampTrajectoryToScreen(trajectoryPath);
             }

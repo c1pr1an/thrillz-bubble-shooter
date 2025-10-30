@@ -123,9 +123,7 @@ namespace Brain.Gameplay
             // Re-enable collider now that ball is at final position
             _circleCollider.enabled = true;
 
-            // Add ball to grid at the position it's already at (pre-snapped)
-            // The ball is already at the grid snap position, so AddBallToGrid
-            // will find the same position and just register it in the grid
+            // Add ball to grid - rocket balls get special handling
             GridManager.Instance.AddBallToGrid(_ball, transform.position);
 
             // Trigger stopped event
