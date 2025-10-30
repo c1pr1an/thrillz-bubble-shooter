@@ -1,13 +1,15 @@
+using System.Collections.Generic;
 using UnityEngine;
+using Brain.Managers;
 
 namespace Brain.Gameplay
 {
     /// <summary>
     /// Component that marks a ball as a Rocket bonus ball.
-    /// Rocket balls destroy balls in the shooting direction (2 per row, max 4 rows).
+    /// Rocket balls destroy balls in a runway pattern in the shooting direction.
     /// </summary>
     [RequireComponent(typeof(Ball))]
-    public class RocketBall : MonoBehaviour
+    public class RocketBall : MonoBehaviour, IBonusBallDetector
     {
         private Ball _ball;
 
@@ -17,8 +19,8 @@ namespace Brain.Gameplay
         [SerializeField] private float _thrustPulseSpeed = 3f;
 
         [Header("Rocket Settings")]
-        [SerializeField] private int _ballsPerRow = 2; // Balls to destroy per row
-        [SerializeField] private int _maxRows = 4; // Maximum rows to clear
+        [SerializeField] private float _runwayLength = 6f; // Length in ball heights
+        [SerializeField] private float _runwayWidth = 1.25f; // Width in ball diameters
 
         private Transform _transform;
         private SpriteRenderer _spriteRenderer;
@@ -63,22 +65,6 @@ namespace Brain.Gameplay
         }
 
         /// <summary>
-        /// Get the number of balls to destroy per row
-        /// </summary>
-        public int GetBallsPerRow()
-        {
-            return _ballsPerRow;
-        }
-
-        /// <summary>
-        /// Get the maximum number of rows to clear
-        /// </summary>
-        public int GetMaxRows()
-        {
-            return _maxRows;
-        }
-
-        /// <summary>
         /// Store the velocity for impact direction calculation
         /// </summary>
         public void SetLastVelocity(Vector2 velocity)
@@ -94,9 +80,167 @@ namespace Brain.Gameplay
             return _lastVelocity;
         }
 
+        #region IBonusBallDetector Implementation
+
+        /// <summary>
+        /// Get all balls that would be affected by the rocket's runway pattern
+        /// </summary>
+        public List<Ball> GetAffectedBalls(Vector2 impactPosition, Vector2 impactDirection = default)
+        {
+            List<Ball> affectedBalls = new List<Ball>();
+
+            // Use stored velocity if no direction provided
+            if (impactDirection == default)
+                impactDirection = _lastVelocity;
+
+            // If still no direction, can't determine path
+            if (impactDirection == Vector2.zero)
+            {
+                Debug.LogWarning("[RocketBall] No impact direction available!");
+                return affectedBalls;
+            }
+
+            // Normalize direction
+            impactDirection = impactDirection.normalized;
+
+            // Get grid manager for ball dimensions
+            GridManager gridManager = GridManager.Instance;
+            if (gridManager == null)
+                return affectedBalls;
+
+            // Calculate runway dimensions
+            float ballDiameter = gridManager.BallWidth;
+            float ballHeight = gridManager.BallHeight;
+            float runwayLength = ballHeight * _runwayLength;
+            float runwayWidth = ballDiameter * _runwayWidth;
+
+            // Calculate the center of the runway (offset forward from impact position)
+            Vector2 runwayCenter = impactPosition + (impactDirection * runwayLength * 0.5f);
+
+            // Calculate rotation angle for the box
+            float angle = Mathf.Atan2(impactDirection.y, impactDirection.x) * Mathf.Rad2Deg;
+
+            // Use OverlapBox to detect all balls in the runway area
+            int ballLayer = LayerMask.NameToLayer("Default");
+            ContactFilter2D contactFilter = new ContactFilter2D();
+            contactFilter.useTriggers = false;
+            contactFilter.SetLayerMask(1 << ballLayer);
+            contactFilter.useLayerMask = true;
+
+            // Get all colliders in the runway area
+            Collider2D[] hitColliders = new Collider2D[100];
+            Vector2 boxSize = new Vector2(runwayLength, runwayWidth);
+            int numHits = Physics2D.OverlapBox(runwayCenter, boxSize, angle, contactFilter, hitColliders);
+
+            // Process all hit balls
+            for (int i = 0; i < numHits; i++)
+            {
+                if (hitColliders[i] != null)
+                {
+                    Ball ball = hitColliders[i].GetComponent<Ball>();
+
+                    // Check if it's a valid ball (not the rocket itself, pinned, and not already destroying)
+                    if (ball != null && ball != _ball &&
+                        ball.HasFlag(BallFlags.Pinned) && !ball.HasFlag(BallFlags.Destroying))
+                    {
+                        // Additional check: make sure the ball is in front of the rocket
+                        Vector2 toBall = (Vector2)ball.transform.position - impactPosition;
+                        float dotProduct = Vector2.Dot(toBall.normalized, impactDirection);
+
+                        // Only include balls that are in front (dot product > 0)
+                        if (dotProduct > 0)
+                        {
+                            affectedBalls.Add(ball);
+                            ball.Flags |= BallFlags.MarkedForMatch;
+                        }
+                    }
+                }
+            }
+
+            // Add the rocket ball itself to be destroyed
+            if (_ball != null && !affectedBalls.Contains(_ball))
+            {
+                affectedBalls.Add(_ball);
+                _ball.Flags |= BallFlags.MarkedForMatch;
+            }
+
+            return affectedBalls;
+        }
+
+        /// <summary>
+        /// Draw debug visualization for the rocket runway
+        /// </summary>
+        public void DrawDebugVisualization(Vector2 impactPosition, Vector2 impactDirection = default)
+        {
+            // Use stored velocity if no direction provided
+            if (impactDirection == default)
+                impactDirection = _lastVelocity;
+
+            // If still no direction, can't draw
+            if (impactDirection == Vector2.zero)
+                return;
+
+            // Normalize direction
+            impactDirection = impactDirection.normalized;
+
+            // Get grid manager for ball dimensions
+            GridManager gridManager = GridManager.Instance;
+            if (gridManager == null)
+                return;
+
+            // Calculate runway dimensions
+            float ballDiameter = gridManager.BallWidth;
+            float ballHeight = gridManager.BallHeight;
+            float runwayLength = ballHeight * _runwayLength;
+            float runwayWidth = ballDiameter * _runwayWidth;
+
+            // Calculate the center of the runway
+            Vector2 runwayCenter = impactPosition + (impactDirection * runwayLength * 0.5f);
+
+            // Calculate rotation angle
+            float angle = Mathf.Atan2(impactDirection.y, impactDirection.x) * Mathf.Rad2Deg;
+
+            // Convert angle to rotation matrix
+            float angleRad = angle * Mathf.Deg2Rad;
+            Vector2 right = new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
+            Vector2 up = new Vector2(-Mathf.Sin(angleRad), Mathf.Cos(angleRad));
+
+            // Calculate the four corners of the rotated box
+            Vector2 halfSize = new Vector2(runwayLength * 0.5f, runwayWidth * 0.5f);
+            Vector3[] corners = new Vector3[4];
+            corners[0] = runwayCenter + right * halfSize.x + up * halfSize.y;
+            corners[1] = runwayCenter - right * halfSize.x + up * halfSize.y;
+            corners[2] = runwayCenter - right * halfSize.x - up * halfSize.y;
+            corners[3] = runwayCenter + right * halfSize.x - up * halfSize.y;
+
+            // Draw the box outline using Debug.DrawLine for runtime visualization
+            Color redColor = Color.red;
+            for (int i = 0; i < 4; i++)
+            {
+                Debug.DrawLine(corners[i], corners[(i + 1) % 4], redColor);
+            }
+
+            // Draw diagonal lines to show it's a filled area
+            Color orangeColor = new Color(1f, 0.5f, 0f, 0.5f);
+            Debug.DrawLine(corners[0], corners[2], orangeColor);
+            Debug.DrawLine(corners[1], corners[3], orangeColor);
+
+            // Draw center point (approximated as a cross since Debug doesn't have DrawWireSphere)
+            Color yellowColor = Color.yellow;
+            Debug.DrawLine(runwayCenter + Vector2.left * 0.1f, runwayCenter + Vector2.right * 0.1f, yellowColor);
+            Debug.DrawLine(runwayCenter + Vector2.up * 0.1f, runwayCenter + Vector2.down * 0.1f, yellowColor);
+
+            // Draw direction arrow
+            Vector3 arrowEnd = (Vector3)runwayCenter + (Vector3)(right * halfSize.x * 0.8f);
+            Color greenColor = Color.green;
+            Debug.DrawLine(runwayCenter, arrowEnd, greenColor);
+        }
+
+        #endregion
+
         private void OnEnable()
         {
-            Debug.Log($"[RocketBall] Rocket ball activated! Clears {_ballsPerRow} balls per row, max {_maxRows} rows");
+            Debug.Log($"[RocketBall] Rocket ball activated! Runway: {_runwayLength} balls forward, {_runwayWidth} balls wide");
         }
 
         private void OnDisable()
