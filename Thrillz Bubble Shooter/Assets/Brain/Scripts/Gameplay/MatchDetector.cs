@@ -107,7 +107,7 @@ namespace Brain.Gameplay
             // Runway dimensions (length is along trajectory, width is perpendicular)
             float ballDiameter = GridManager.Instance.BallWidth;
             float runwayLength = GridManager.Instance.BallHeight * 6f; // 6 balls forward
-            float runwayWidth = ballDiameter * 2f; // 2 balls wide
+            float runwayWidth = ballDiameter * 1.5f; // 1.5 balls wide
 
             // Calculate the center of the runway (offset forward from impact position)
             Vector2 rocketPosition = rocketBall.transform.position;
