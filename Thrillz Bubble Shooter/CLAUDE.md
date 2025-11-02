@@ -2,25 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**For coding patterns, architecture guidelines, and standards, see:** `.claude/skills/unity-brain-development/SKILL.md`
+
 ## Project Overview
 
 **Thrillz Bubble Shooter** is a Unity 2022.3.47f1 game with a custom implementation in the **Brain** layer.
 
 ### Important: About BubbleShooterGameToolkit
 
-The `Assets/BubbleShooterGameToolkit/` directory contains a **reference asset purchased for inspiration only**. It is NOT part of the actual game implementation and should NOT be used, linked, or integrated in any way.
-
-**DO NOT:**
-- Use toolkit classes, managers, or systems in Brain code
-- Create dependencies on toolkit code
-- Follow toolkit's architecture patterns unless explicitly reimplemented in Brain
-- Reference toolkit namespaces in new code
-
-**DO:**
-- Study toolkit code for implementation ideas
-- Use it as a reference for bubble shooter mechanics
-- Understand bubble shooter game patterns from it
-- Implement your own versions inspired by toolkit concepts
+The `Assets/BubbleShooterGameToolkit/` directory is a **reference asset for inspiration only** - DO NOT use, link, or integrate it. See skill for details.
 
 ## Architecture
 
@@ -56,29 +46,6 @@ All actual game implementation lives in `Assets/Brain/Scripts/` with the followi
 - `JsonHelper` - JSON serialization helpers
 - `PersistentObject` - DontDestroyOnLoad wrapper
 
-### State Machine Pattern
-
-The game uses a custom generic state machine (`Brain.Core.StateMachine<T>`):
-- Takes any enum as phase type
-- Supports enter/exit callbacks via `State<T>` objects
-- Used in `GameController` for game phases (Initializing, Playing)
-- Pattern: Define enum → Create states with callbacks → Add to machine → Change states
-
-Example from GameController:
-```csharp
-public enum GamePhase { Initializing, Playing }
-_stateMachine = new StateMachine<GamePhase>("Game State Machine");
-_stateMachine.AddState(new State<GamePhase>(GamePhase.Initializing, OnInitializingEnter, null));
-_stateMachine.ChangeState(GamePhase.Initializing);
-```
-
-### Singleton Pattern
-
-The Brain layer uses `UnitySingleton<T>` for manager classes:
-- Simple FindObjectOfType-based singleton
-- Prevents multiple instances with automatic cleanup
-- Access via `ClassName.Instance`
-- Check existence with `ClassName.Exists()`
 
 ## Core Systems
 
@@ -103,13 +70,6 @@ The Level system is currently skeletal:
 - **Actual bubble shooter gameplay mechanics need to be implemented**
 
 When implementing gameplay, refer to the toolkit for patterns but build custom systems.
-
-### Object Pooling
-
-Use `Brain.Util.ObjectPooler` for frequently spawned objects:
-- Pre-instantiate pools in editor
-- Good candidates: bubbles, projectiles, effects, UI elements
-- Reduces instantiation overhead during gameplay
 
 ## Development Notes
 
@@ -143,15 +103,7 @@ Key packages (`Packages/manifest.json`):
 
 ### Namespace Convention
 
-All game code uses the `Brain.*` namespace pattern:
-- `Brain.Managers` - Manager classes
-- `Brain.Gameplay` - Gameplay logic
-- `Brain.Core` - Core systems (state machine, data)
-- `Brain.UI` - UI components
-- `Brain.Util` - Utilities and helpers
-- `Brain.Audio` - Audio management (if implemented)
-
-Third-party plugins use their own namespaces (e.g., `DG.Tweening` for DOTween).
+All game code uses the `Brain.*` namespace pattern. See skill for details.
 
 ### Random Seed Management
 
@@ -169,14 +121,6 @@ Editor-only debug controls in `GameController`:
 - `Escape` - Restart scene
 
 Frame rate set to 120 FPS in editor, 60 FPS in builds.
-
-### MonoBehaviour Lifecycle
-
-When modifying managers:
-- Initialize in `Awake()` for singletons
-- Subscribe to events in `OnEnable()`
-- Always unsubscribe in `OnDisable()` to prevent memory leaks and missing reference errors
-- Use coroutines for multi-frame operations
 
 ### Current Implementation Patterns
 

@@ -1,0 +1,67 @@
+{
+  "unity-brain-development": {
+    "type": "domain",
+    "enforcement": "suggest",
+    "priority": "high",
+    "description": "Comprehensive guidelines for Unity Brain layer development including architecture patterns, code standards, and best practices",
+    "promptTriggers": {
+      "keywords": [
+        "class",
+        "method",
+        "field",
+        "property",
+        "naming",
+        "format",
+        "structure",
+        "organize",
+        "singleton",
+        "manager",
+        "state machine",
+        "MonoBehaviour",
+        "Awake",
+        "Start",
+        "OnEnable",
+        "OnDisable",
+        "coroutine",
+        "Brain",
+        "architecture",
+        "pattern",
+        "namespace",
+        "event",
+        "pooling",
+        "object pool",
+        "lifecycle",
+        "standards",
+        "conventions",
+        "best practices"
+      ],
+      "intentPatterns": [
+        "(create|add|write|implement).*?(class|manager|script|component)",
+        "(how to|best practice).*?(structure|organize|format|name)",
+        "format.*?(code|class|method)",
+        "(refactor|restructure|reorganize)",
+        "(create|implement).*?(singleton|state machine|manager)",
+        "follow.*?(standard|convention|pattern)",
+        "fix.*?(naming|format|structure)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": [
+        "Assets/Brain/Scripts/**/*.cs",
+        "**/Brain/**/*.cs"
+      ],
+      "contentPatterns": [
+        "namespace Brain",
+        "UnitySingleton",
+        "StateMachine<",
+        "State<",
+        "MonoBehaviour",
+        "Brain\\.Managers",
+        "Brain\\.Gameplay",
+        "Brain\\.Core",
+        "Brain\\.UI",
+        "Brain\\.Util"
+      ]
+    }
+  }
+}
