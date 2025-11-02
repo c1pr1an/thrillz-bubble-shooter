@@ -124,12 +124,7 @@ namespace Brain.Gameplay.Containers
         public void SwapWithLauncher()
         {
             AnimateSwapFeedback();
-
-            if (HapticManager.Exists())
-            {
-                HapticManager.Instance.TriggerHaptic(HapticType.Selection);
-            }
-
+            HapticManager.Instance.TriggerHaptic(HapticType.Selection);
             SwapBalls(_launchContainer);
             _currentSpawnDelay = _spawnDelay;
         }

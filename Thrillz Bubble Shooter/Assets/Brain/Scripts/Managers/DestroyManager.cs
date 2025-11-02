@@ -80,7 +80,7 @@ namespace Brain.Managers
             }
 
             // Add power for destroyed balls
-            if (destroyedCount > 0 && BonusPowerManager.Exists())
+            if (destroyedCount > 0)
             {
                 BonusPowerManager.Instance.AddPower(destroyedCount);
             }

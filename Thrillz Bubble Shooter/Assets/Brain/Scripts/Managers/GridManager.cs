@@ -61,10 +61,7 @@ namespace Brain.Managers
         {
             UpdateAllNeighbors();
 
-            if (PhantomBallManager.Exists())
-            {
-                PhantomBallManager.Instance.InitializePhantoms();
-            }
+            PhantomBallManager.Instance.InitializePhantoms();
         }
 
         public Ball SpawnBall(int col, int row, BallColor color)
@@ -185,25 +182,15 @@ namespace Brain.Managers
             UpdateAdjacentNeighbors(ball);
 
             // Trigger wave effect after ball is placed
-            if (WaveEffectManager.Exists())
-            {
-                WaveEffectManager.Instance.TriggerWaveEffect(ball);
-            }
-
-            if (PhantomBallManager.Exists())
-            {
-                PhantomBallManager.Instance.OnBallAddedToGrid(ball);
-            }
+            WaveEffectManager.Instance.TriggerWaveEffect(ball);
+            PhantomBallManager.Instance.OnBallAddedToGrid(ball);
         }
 
         public void RemoveBall(Ball ball)
         {
             if (ball == null) return;
 
-            if (PhantomBallManager.Exists())
-            {
-                PhantomBallManager.Instance.OnBallRemovedFromGrid(ball);
-            }
+            PhantomBallManager.Instance.OnBallRemovedFromGrid(ball);
 
             Vector2Int pos = ball.GridPosition;
             if (pos.y >= 0 && pos.y < _balls.Count && pos.x >= 0 && pos.x < _balls[pos.y].Count)
