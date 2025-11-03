@@ -121,7 +121,11 @@ namespace Brain.Gameplay.Containers
 
         private void OnPowerChanged(float normalizedPower)
         {
-            _chargeProgressFill.fillAmount = normalizedPower;
+            _chargeProgressFill.DOKill();
+            if (normalizedPower == 0)
+                _chargeProgressFill.fillAmount = 0f;
+            else
+                _chargeProgressFill.DOFillAmount(normalizedPower, 0.3f).SetEase(Ease.OutQuad);
         }
 
         private void OnBonusReady()

@@ -49,6 +49,22 @@ namespace Brain.Gameplay
             // Logic detection is complete, set flag to false
             _isChecking = false;
 
+            // Count falling balls for bonus power (excluding rainbow balls)
+            int fallingCount = 0;
+            foreach (Ball ball in ballsToFall)
+            {
+                if (ball != null && !ball.IsRainbow())
+                {
+                    fallingCount++;
+                }
+            }
+
+            // Add power for falling balls
+            if (fallingCount > 0)
+            {
+                BonusPowerManager.Instance.AddPower(fallingCount);
+            }
+
             // Handle the animations
             foreach (Ball ball in ballsToFall)
             {
