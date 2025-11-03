@@ -22,7 +22,7 @@ namespace Brain.Gameplay
         [Header("Components")]
         [SerializeField] private CircleCollider2D _circleCollider;
         [SerializeField] private Transform _model;
-        [SerializeField] private GameObject _highlightSprite;
+        [SerializeField] private SpriteRenderer _highlightSprite;
         [SerializeField] private SpriteRenderer _spriteRenderer;
 
         private BallFlags _flags = BallFlags.None;
@@ -252,7 +252,8 @@ namespace Brain.Gameplay
         {
             if (_highlightSprite != null)
             {
-                _highlightSprite.SetActive(enabled);
+                _highlightSprite.gameObject.SetActive(enabled);
+                _spriteRenderer.sortingOrder = enabled ? _highlightSprite.sortingOrder + 1 : _highlightSprite.sortingOrder - 1;
             }
         }
 
