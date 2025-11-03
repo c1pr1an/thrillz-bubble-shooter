@@ -15,7 +15,12 @@ namespace Brain.Util
         BallGreen,
         BallPurple,
         BallPink,
+        BallYellow_VFX,
+        BallBlue_VFX,
         BallRed_VFX,
+        BallGreen_VFX,
+        BallPurple_VFX,
+        BallPink_VFX,
     }
 
     public class ObjectPooler : UnitySingleton<ObjectPooler>
@@ -125,6 +130,28 @@ namespace Brain.Util
                 default:
                     Debug.LogError($"No pool tag defined for color {color}");
                     return PooledObjectTag.BallRed; // Fallback
+            }
+        }
+
+        public static PooledObjectTag GetVFXPoolTag(BallColor color)
+        {
+            switch (color)
+            {
+                case BallColor.Yellow:
+                    return PooledObjectTag.BallYellow_VFX;
+                case BallColor.Blue:
+                    return PooledObjectTag.BallBlue_VFX;
+                case BallColor.Red:
+                    return PooledObjectTag.BallRed_VFX;
+                case BallColor.Green:
+                    return PooledObjectTag.BallGreen_VFX;
+                case BallColor.Purple:
+                    return PooledObjectTag.BallPurple_VFX;
+                case BallColor.Pink:
+                    return PooledObjectTag.BallPink_VFX;
+                default:
+                    Debug.LogError($"No VFX pool tag defined for color {color}");
+                    return PooledObjectTag.BallRed_VFX; // Fallback
             }
         }
     }

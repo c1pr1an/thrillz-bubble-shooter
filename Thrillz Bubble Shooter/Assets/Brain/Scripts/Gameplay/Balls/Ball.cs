@@ -149,11 +149,8 @@ namespace Brain.Gameplay
             // Mark as destroying
             Flags |= BallFlags.Destroying;
 
-            GameObject vfx = ObjectPooler.Instance.Get(PooledObjectTag.BallRed_VFX);
-            vfx.transform.SetParent(null);
-            vfx.transform.localScale = Vector3.one;
-            vfx.transform.position = transform.position;
-            vfx.SetActive(true);
+            // Spawn VFX matching ball color
+            SpawnDestructionVFX();
 
             // Simple scale-down destruction animation
             transform.DOScale(0f, 0.2f).SetEase(Ease.InBack).OnComplete(() =>
@@ -161,6 +158,19 @@ namespace Brain.Gameplay
                 OnDestroyed?.Invoke(this);
                 ReturnToPool();
             });
+        }
+
+        private void SpawnDestructionVFX()
+        {
+            PooledObjectTag vfxTag = ObjectPooler.GetVFXPoolTag(_ballColor);
+            GameObject vfx = ObjectPooler.Instance.Get(vfxTag);
+
+            if (vfx == null) return;
+
+            vfx.transform.SetParent(null);
+            vfx.transform.localScale = Vector3.one;
+            vfx.transform.position = transform.position;
+            vfx.SetActive(true);
         }
 
         public void ReturnToPool()
