@@ -14,7 +14,8 @@ namespace Brain.Util
         BallRed,
         BallGreen,
         BallPurple,
-        BallPink
+        BallPink,
+        BallRed_VFX,
     }
 
     public class ObjectPooler : UnitySingleton<ObjectPooler>

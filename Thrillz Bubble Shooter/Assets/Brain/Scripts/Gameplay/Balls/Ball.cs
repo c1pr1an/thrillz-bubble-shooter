@@ -149,6 +149,12 @@ namespace Brain.Gameplay
             // Mark as destroying
             Flags |= BallFlags.Destroying;
 
+            GameObject vfx = ObjectPooler.Instance.Get(PooledObjectTag.BallRed_VFX);
+            vfx.transform.SetParent(null);
+            vfx.transform.localScale = Vector3.one;
+            vfx.transform.position = transform.position;
+            vfx.SetActive(true);
+
             // Simple scale-down destruction animation
             transform.DOScale(0f, 0.2f).SetEase(Ease.InBack).OnComplete(() =>
             {

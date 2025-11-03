@@ -15,6 +15,7 @@ namespace Brain.Managers
         [SerializeField] private Image _blackOverlayImage;
         [SerializeField] private Image _whiteOverlayImage;
         [SerializeField] private TextMeshProUGUI _gameSeedIdTxt;
+        [SerializeField] private UIObjectPooler _uiObjectPooler;
 
         // Public Fields
         public Canvas Canvas;
@@ -23,6 +24,9 @@ namespace Brain.Managers
         public OutOfLivesPanel OutOfLivesPanel;
         public GameFinishedPanel GameFinishedPanel;
         //public GlobalPauseMode GlobalPauseMode;
+
+        // Properties
+        public UIObjectPooler UIObjectPooler => _uiObjectPooler;
 
         // Public Methods
         public void Init()

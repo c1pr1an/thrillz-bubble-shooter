@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1226404563603592306
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1344157408025339421}
+  - component: {fileID: 4805454701622024887}
+  m_Layer: 5
+  m_Name: Object Pooler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1344157408025339421
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1226404563603592306}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4805454701622024887
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1226404563603592306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7af636aad1bcfe3488a4a7dc6c2554e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pools:
+  - tag: 1
+    initialSize: 20
+    prefab: {fileID: 629088075965207633, guid: a47adcfb621d94ee1b5b5a06e1625e1f, type: 3}
+  - tag: 2
+    initialSize: 20
+    prefab: {fileID: 629088075965207633, guid: dad3e60a073fb44b2a41b7d6dc78651c, type: 3}
+  - tag: 3
+    initialSize: 20
+    prefab: {fileID: 629088075965207633, guid: bd7e5e61956f745eb9dcdd0c8caa3c65, type: 3}
+  - tag: 4
+    initialSize: 20
+    prefab: {fileID: 629088075965207633, guid: 5c3a67c349a3040a1b5ea62a7ce3bc69, type: 3}
+  - tag: 5
+    initialSize: 20
+    prefab: {fileID: 629088075965207633, guid: 75a7b08cd02c242f68f15b45b959490e, type: 3}
+  - tag: 6
+    initialSize: 20
+    prefab: {fileID: 629088075965207633, guid: 7fffa79251b2046439e8b0fc0e7e4e3e, type: 3}
+  - tag: 7
+    initialSize: 5
+    prefab: {fileID: 2640799543301741715, guid: 58e89b49b9d28445f93588e497d966af,
+      type: 3}
