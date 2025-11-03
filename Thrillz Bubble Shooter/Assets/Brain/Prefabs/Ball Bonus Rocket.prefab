@@ -190,5 +190,5 @@ MonoBehaviour:
   _enableThrustEffect: 1
   _rotationSpeed: 90
   _thrustPulseSpeed: 3
-  _ballsPerRow: 2
-  _maxRows: 4
+  _runwayLength: 4.25
+  _runwayWidth: 0.75

@@ -19,8 +19,8 @@ namespace Brain.Gameplay
         [SerializeField] private float _thrustPulseSpeed = 3f;
 
         [Header("Rocket Settings")]
-        [SerializeField] private float _runwayLength = 6f; // Length in ball heights
-        [SerializeField] private float _runwayWidth = 1.25f; // Width in ball diameters
+        [SerializeField] private float _runwayLength;
+        [SerializeField] private float _runwayWidth;
 
         private Transform _transform;
         private SpriteRenderer _spriteRenderer;
