@@ -299,6 +299,7 @@ GameObject:
   - component: {fileID: 3072583001038024507}
   - component: {fileID: 7682664169435399723}
   - component: {fileID: 6694773756643403475}
+  - component: {fileID: 1670654598428708808}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -417,6 +418,18 @@ MonoBehaviour:
   _currentPower: 0
   _isBonusReady: 0
   _isBonusActive: 0
+--- !u!114 &1670654598428708808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2955337845684583753}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b0f9d191d811492681044d54f1de226, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2956523709681274247
 GameObject:
   m_ObjectHideFlags: 0
@@ -537,6 +550,7 @@ MonoBehaviour:
   _ballWidth: 1
   _ballHeight: 0.87
   _gridContainer: {fileID: 2696775149510985958}
+  _limitLine: {fileID: 4586937798943844194}
   _ballPreviewContainer: {fileID: 7562431825609840932}
   _ballLaunchContainer: {fileID: 7609773947653830694}
   _bonusBallContainer: {fileID: 5994130594536406923}
@@ -759,7 +773,7 @@ GameObject:
   - component: {fileID: 2525969763018208713}
   - component: {fileID: 5994130594536406923}
   - component: {fileID: 3680142964342413492}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Bonus Ball Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -841,7 +855,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 1
+  m_Radius: 1.5
 --- !u!1 &6447585988877022820
 GameObject:
   m_ObjectHideFlags: 0
@@ -1002,7 +1016,7 @@ MonoBehaviour:
   _ballHolder: {fileID: 8073911263325634748}
   _circleCenter: {fileID: 2024180427609407122}
   _swapDuration: 0.3
-  _minAimAngle: 17
+  _minAimAngle: 10
   _trajectoryPredictor: {fileID: 4890551451393313762}
 --- !u!114 &4890551451393313762
 MonoBehaviour:
@@ -1254,7 +1268,7 @@ GameObject:
   - component: {fileID: 4179928051037604160}
   - component: {fileID: 7562431825609840932}
   - component: {fileID: 8774093301546932249}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Ball Preview
   m_TagString: Untagged
   m_Icon: {fileID: 0}

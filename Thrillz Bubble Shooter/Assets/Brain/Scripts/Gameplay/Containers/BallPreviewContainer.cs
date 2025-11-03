@@ -15,28 +15,31 @@ namespace Brain.Gameplay.Containers
 
         private LaunchContainer _launchContainer;
         private BonusBallContainer _bonusBallContainer;
-        private CircleCollider2D _collider;
         private float _currentSpawnDelay;
         private BallColor? _nextBallColor;
         private bool _isGeneratingBall = false;
-        private bool _enableSwapping = true;
 
-        protected override void Awake()
+        protected override void OnEnable()
         {
-            base.Awake();
+            base.OnEnable();
 
-            _collider = GetComponent<CircleCollider2D>();
-            if (_collider != null)
-            {
-                _collider.isTrigger = true;
-                _collider.radius = 0.5f;
-            }
+            // Subscribe to InputManager click event
+            InputManager.OnPreviewContainerClicked += OnContainerClicked;
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+
+            // Unsubscribe from InputManager click event
+            InputManager.OnPreviewContainerClicked -= OnContainerClicked;
         }
 
         public void Init(LaunchContainer launchContainer, BonusBallContainer bonusContainer)
         {
             _launchContainer = launchContainer;
             _bonusBallContainer = bonusContainer;
+
             SpawnBall();
         }
 
@@ -44,6 +47,12 @@ namespace Brain.Gameplay.Containers
         {
             CurrentBall = SpawnRandomBall();
             CurrentBall.transform.localScale = Vector3.one;
+
+            // Disable ball's collider so it doesn't block container clicks
+            if (CurrentBall != null)
+            {
+                CurrentBall.SetColliderEnabled(false);
+            }
         }
 
         private void Update()
@@ -80,6 +89,7 @@ namespace Brain.Gameplay.Containers
 
                 if (CurrentBall != null)
                 {
+                    CurrentBall.SetColliderEnabled(false);
                     AnimateBallAppearance();
                 }
             }
@@ -89,6 +99,7 @@ namespace Brain.Gameplay.Containers
 
                 if (CurrentBall != null)
                 {
+                    CurrentBall.SetColliderEnabled(false);
                     AnimateBallAppearance();
                 }
             }
@@ -101,9 +112,10 @@ namespace Brain.Gameplay.Containers
             _nextBallColor = color;
         }
 
-        private void OnMouseDown()
+        private void OnContainerClicked(BallPreviewContainer container)
         {
-            if (!_enableSwapping) return;
+            // Only process if this is the clicked container
+            if (container != this) return;
 
             if (CanSwapWithLauncher())
             {
@@ -148,16 +160,6 @@ namespace Brain.Gameplay.Containers
         {
             _circleArrows.DOPunchScale(Vector3.one * 0.05f, 0.4f, 3, 0.5f);
             _circleArrows.DORotate(new Vector3(0, 0, 180), 0.4f, RotateMode.LocalAxisAdd);
-        }
-
-        public void SetSwappingEnabled(bool enabled)
-        {
-            _enableSwapping = enabled;
-
-            if (_collider != null)
-            {
-                _collider.enabled = enabled;
-            }
         }
     }
 }

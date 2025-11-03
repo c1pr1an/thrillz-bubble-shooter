@@ -70,8 +70,7 @@ namespace Brain.Gameplay
 
         public BonusBallType GetRandomBonusType()
         {
-            // For testing: return Rocket type
-            return BonusBallType.Lightning;
+            return BonusBallType.Rocket;
 
             // Future implementation:
             // var types = new[] { BonusBallType.Rainbow, BonusBallType.Bomb, BonusBallType.Lightning, BonusBallType.Rocket };

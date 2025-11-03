@@ -38,19 +38,14 @@ namespace Brain.Gameplay.Containers
         protected override void Awake()
         {
             base.Awake();
-
             _collider = GetComponent<CircleCollider2D>();
-            if (_collider != null)
-            {
-                _collider.isTrigger = true;
-                _collider.radius = 0.5f;
-            }
         }
 
         public void Init(LaunchContainer launchContainer)
         {
             _launchContainer = launchContainer;
             _launchContainer.OnBallLaunched += OnBallLaunched;
+
             SpawnBonusBall();
         }
 
@@ -61,6 +56,9 @@ namespace Brain.Gameplay.Containers
             BonusPowerManager.OnPowerChanged += OnPowerChanged;
             BonusPowerManager.OnBonusReady += OnBonusReady;
             BonusPowerManager.OnBonusUsed += OnBonusUsed;
+
+            // Subscribe to InputManager click event
+            InputManager.OnBonusContainerClicked += OnContainerClicked;
         }
 
         protected override void OnDisable()
@@ -71,16 +69,19 @@ namespace Brain.Gameplay.Containers
             BonusPowerManager.OnBonusReady -= OnBonusReady;
             BonusPowerManager.OnBonusUsed -= OnBonusUsed;
             _launchContainer.OnBallLaunched -= OnBallLaunched;
+
+            // Unsubscribe from InputManager click event
+            InputManager.OnBonusContainerClicked -= OnContainerClicked;
         }
 
-        void Update()
+        private void OnContainerClicked(BonusBallContainer container)
         {
-            if (Input.GetKeyDown(KeyCode.T))
+            // Only process if this is the clicked container
+            if (container != this) return;
+
+            if (_enableSwapping && CanSwapWithLauncher())
             {
-                if (_enableSwapping && CanSwapWithLauncher())
-                {
-                    SwapWithLauncher();
-                }
+                SwapWithLauncher();
             }
         }
 
@@ -193,6 +194,9 @@ namespace Brain.Gameplay.Containers
                 Destroy(ballGO);
                 return;
             }
+
+            // Disable ball's collider so it doesn't block container clicks
+            CurrentBall.SetColliderEnabled(false);
 
             // Visual spawn effect
             CurrentBall.transform.localScale = Vector3.zero;

@@ -17,6 +17,7 @@ namespace Brain.Managers
 
         [Header("Grid Container")]
         [SerializeField] private Transform _gridContainer;
+        [SerializeField] private Transform _limitLine;
         [SerializeField] private BallPreviewContainer _ballPreviewContainer;
         [SerializeField] private LaunchContainer _ballLaunchContainer;
         [SerializeField] private BonusBallContainer _bonusBallContainer;
@@ -31,6 +32,7 @@ namespace Brain.Managers
         public float BallWidth => _ballWidth;
         public float BallHeight => _ballHeight;
         public Transform GridContainer => _gridContainer;
+        public Transform LimitLine => _limitLine;
         public BallPreviewContainer BallPreviewContainer => _ballPreviewContainer;
         public LaunchContainer BallLaunchContainer => _ballLaunchContainer;
         public BonusBallContainer BonusBallContainer => _bonusBallContainer;
@@ -55,6 +57,7 @@ namespace Brain.Managers
             _ballPreviewContainer.Init(_ballLaunchContainer, _bonusBallContainer);
             _ballLaunchContainer.Init(_ballPreviewContainer, _bonusBallContainer);
             _bonusBallContainer.Init(_ballLaunchContainer);
+            InputManager.Instance.Init(_ballPreviewContainer, _bonusBallContainer);
         }
 
         public void FinalizeGrid()

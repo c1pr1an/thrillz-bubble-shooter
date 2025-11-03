@@ -38,6 +38,28 @@ namespace Brain.Gameplay.Containers
             }
         }
 
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+
+            // Subscribe to InputManager events
+            InputManager.OnAimingStarted += OnAimingStarted;
+            InputManager.OnAimingUpdated += OnAimingUpdated;
+            InputManager.OnAimingReleased += OnAimingReleased;
+            InputManager.OnAimingCancelled += OnAimingCancelled;
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+
+            // Unsubscribe from InputManager events
+            InputManager.OnAimingStarted -= OnAimingStarted;
+            InputManager.OnAimingUpdated -= OnAimingUpdated;
+            InputManager.OnAimingReleased -= OnAimingReleased;
+            InputManager.OnAimingCancelled -= OnAimingCancelled;
+        }
+
         public void Init(BallPreviewContainer previewContainer, BonusBallContainer bonusBallContainer = null)
         {
             _previewContainer = previewContainer;
@@ -64,27 +86,59 @@ namespace Brain.Gameplay.Containers
                 PullFromPreview();
                 return;
             }
+        }
 
+        private void OnAimingStarted(Vector2 position)
+        {
+            // Only start aiming if we can launch
             if (!_canLaunch || CurrentBall == null) return;
 
-            Vector3 mousePos = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            mousePos.z = 0;
+            UpdateTrajectory(position);
+        }
 
-            Vector2 aimDirection = (mousePos - transform.position).normalized;
+        private void OnAimingUpdated(Vector2 position)
+        {
+            // Continue showing trajectory while aiming
+            if (!_canLaunch || CurrentBall == null) return;
+
+            UpdateTrajectory(position);
+        }
+
+        private void OnAimingReleased(Vector2 position)
+        {
+            // Launch the ball when input is released
+            if (!_canLaunch || CurrentBall == null) return;
+
+            Vector2 aimDirection = CalculateAimDirection(position);
+            LaunchBall(aimDirection);
+        }
+
+        private void OnAimingCancelled()
+        {
+            // Hide trajectory when aiming is cancelled
+            if (_trajectoryPredictor != null)
+            {
+                _trajectoryPredictor.HideTrajectory();
+            }
+        }
+
+        private void UpdateTrajectory(Vector2 inputPosition)
+        {
+            if (_trajectoryPredictor == null || CurrentBall == null) return;
+
+            Vector2 aimDirection = CalculateAimDirection(inputPosition);
+            _trajectoryPredictor.ShowTrajectory(_ballHolder.position, aimDirection, CurrentBall);
+        }
+
+        private Vector2 CalculateAimDirection(Vector2 inputPosition)
+        {
+            Vector2 aimDirection = (inputPosition - (Vector2)transform.position).normalized;
 
             float angle = Vector2.SignedAngle(Vector2.right, aimDirection);
             angle = Mathf.Clamp(angle, _minAimAngle, 180 - _minAimAngle);
             aimDirection = Quaternion.Euler(0, 0, angle) * Vector2.right;
 
-            if (_trajectoryPredictor != null && CurrentBall != null)
-            {
-                _trajectoryPredictor.ShowTrajectory(_ballHolder.position, aimDirection, CurrentBall);
-            }
-
-            if (Input.GetMouseButtonDown(0))
-            {
-                LaunchBall(aimDirection);
-            }
+            return aimDirection;
         }
 
         private void PullFromPreview()
