@@ -62,6 +62,7 @@ namespace Brain.Managers
             GridManager.Instance.InitializeGrid();
             GridGenerator.Instance.GenerateGrid();
             BallHighlightManager.Instance.Init(GridManager.Instance, TrajectoryPredictor.Instance);
+            UIManager.Instance.Init();
 
             // Subscribe to game events
             GridScrollManager.Instance.OnDeathLineTouched += OnDeathLineTouched;

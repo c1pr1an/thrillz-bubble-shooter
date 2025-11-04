@@ -11,7 +11,7 @@ namespace Brain.UI
         // Public Methods
         public void Display()
         {
-            DOVirtual.DelayedCall(ScoreManager.SCORE_TEXT_DELAY, () =>
+            DOVirtual.DelayedCall(1f, () =>
             {
                 gameObject.SetActive(true);
                 SoundManager.Instance.PlaySfxOneShot(SoundType.UI_OutOfLives);

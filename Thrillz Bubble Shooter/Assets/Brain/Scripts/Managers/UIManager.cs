@@ -31,15 +31,14 @@ namespace Brain.Managers
         // Public Methods
         public void Init()
         {
-            _blackOverlayImage.color = new Color(0f, 0f, 0f, 1f);
-            _blackOverlayImage.DOFade(0f, 0.15f).SetEase(Ease.OutSine).OnComplete(() =>
-            {
-                _blackOverlayImage.gameObject.SetActive(false);
-            });
+            // _blackOverlayImage.color = new Color(0f, 0f, 0f, 1f);
+            // _blackOverlayImage.DOFade(0f, 0.15f).SetEase(Ease.OutSine).OnComplete(() =>
+            // {
+            //     _blackOverlayImage.gameObject.SetActive(false);
+            // });
 
-            //DeckManager.Instance.UndoStateManager.OnGameStateChanged += OnGameStateChanged;
-            //_undoButton.interactable = DeckManager.Instance.CanUndo();
             DisplayGameSeedId();
+            _uiObjectPooler.Init();
         }
 
         public void ToggleWhiteFlash(bool toggled)

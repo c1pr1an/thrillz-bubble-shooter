@@ -13,7 +13,7 @@ namespace Brain.Util
     {
         // Nested Classes
         [Serializable]
-        public class Pool
+        public class UIPool
         {
             public UIPooledObjectTag tag;
             public int initialSize;
@@ -21,7 +21,7 @@ namespace Brain.Util
         }
 
         // Public Fields
-        public List<Pool> pools;
+        public List<UIPool> pools;
         public Dictionary<UIPooledObjectTag, Queue<GameObject>> poolDictionary;
 
         // Public Methods
@@ -29,7 +29,7 @@ namespace Brain.Util
         {
             poolDictionary = new Dictionary<UIPooledObjectTag, Queue<GameObject>>();
 
-            foreach (Pool pool in pools)
+            foreach (UIPool pool in pools)
             {
                 Queue<GameObject> objectPool = new Queue<GameObject>();
                 poolDictionary.Add(pool.tag, objectPool);
@@ -74,7 +74,7 @@ namespace Brain.Util
         private void GrowPool(UIPooledObjectTag tag)
         {
             int growSize = 2;
-            Pool pool = pools.Find(p => p.tag == tag);
+            UIPool pool = pools.Find(p => p.tag == tag);
 
             for (int i = 0; i < growSize; i++)
             {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using Brain.Util;
+using Brain.Managers;
 
 namespace Brain.Gameplay
 {
@@ -155,6 +156,7 @@ namespace Brain.Gameplay
             // Simple scale-down destruction animation
             transform.DOScale(0f, 0.2f).SetEase(Ease.InBack).OnComplete(() =>
             {
+                ScoreManager.Instance.AddBubblePopScore(transform.position, 10);
                 OnDestroyed?.Invoke(this);
                 ReturnToPool();
             });

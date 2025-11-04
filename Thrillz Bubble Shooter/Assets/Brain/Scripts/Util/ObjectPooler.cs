@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Brain.Gameplay;
 using UnityEngine;
@@ -8,7 +7,6 @@ namespace Brain.Util
 {
     public enum PooledObjectTag
     {
-        AddScoreText,
         BallYellow,
         BallBlue,
         BallRed,

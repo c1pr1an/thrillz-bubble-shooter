@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Brain.Audio;
+using Brain.Gameplay;
 using Brain.UI;
 using Brain.Util;
 using DG.Tweening;
@@ -10,199 +10,103 @@ using UnityEngine;
 
 namespace Brain.Managers
 {
-    public enum ScoreType
-    {
-        Wild,
-        Blackjack21,
-        FiveCards,
-        FiveCardsAt21,
-        GreatStreak,
-        SuperStreak,
-        MegaStreak,
-        MonsterStreak,
-        CrazyStreak,
-        MassiveStreak,
-        NoBustBonus = 100,
-        PerfectGameBonus,
-        LivesBonus,
-        TimeBonus,
-        None
-    }
-
-    [System.Serializable]
-    public struct ScoreData
-    {
-        public ScoreType scoreType;
-        public int scoreValue;
-        public GameObject scorePrefab;
-        public bool isBonusScore;
-    }
-
     public class ScoreManager : UnitySingleton<ScoreManager>
     {
         // Constants
-        public const float SCORE_TEXT_DELAY = 1.4f;
+        private const int TIME_BONUS_PER_SECOND = 200;
+        private const int CLEAR_BONUS = 10000;
+        private const float SCALE_IN_DURATION = 0.3f;
+        private const float HOLD_DURATION = 0.5f;
+        private const float SCALE_OUT_DURATION = 0.2f;
 
         // Properties
         [SerializeField] public int ScoreCount { get; private set; }
-        [SerializeField] public int StreakCount { get; private set; }
         [SerializeField] public int BonusScoreCount { get; private set; }
 
-        // Serialized Fields
-        [SerializeField] private GameObject _scoreHighlightVFXPrefab;
-        [SerializeField] private List<ScoreData> _scoreDataList;
-
         // Private Fields
-        private List<ActiveScoreAnimation> _activeAnimations = new List<ActiveScoreAnimation>();
-        private List<Tween> _delayedCalls = new List<Tween>();
-        private bool _bonusScoresAdded = false;
-
-        // Nested Classes
-        private class ActiveScoreAnimation
-        {
-            public TextMeshProUGUI AddScoreText;
-            public int ScoreToAdd;
-            public int CurrentScore;
-            public bool IsCancelled;
-        }
+        private int _timeBonus = 0;
+        private int _clearBonus = 0;
+        private List<Tween> _activeAnimations = new List<Tween>();
 
         // Public Methods
-        public void AddScore(ScoreType scoreType, Vector3 canvasPos, bool increaseStreak)
+        public void AddBubblePopScore(Vector3 worldPosition, int scoreValue)
         {
-            ScoreData scoreData = GetScoreData(scoreType);
+            UIObjectPooler uIObjectPooler = UIManager.Instance.UIObjectPooler;
+            // Get text from pool
+            var addScoreText = uIObjectPooler.Get(UIPooledObjectTag.AddScoreText).GetComponent<TextMeshProUGUI>();
 
-            if (scoreData.scorePrefab != null)
-            {
-                SoundManager.Instance.PlaySfxOneShot(SoundType.Game_ScoreAppear);
-                ScoreTextFx(scoreData.scorePrefab, canvasPos, scoreData.scoreValue, ScoreCount, false, scoreData.isBonusScore);
-            }
-        }
+            // For Screen Space - Overlay canvas, convert world position to screen position
+            // then to canvas local position
+            Vector2 screenPos = Cameras.Instance.MainCam.WorldToScreenPoint(worldPosition);
 
-        public void ScoreTextFx(GameObject specialScorePrefab, Vector3 position, int scoreToAdd, int currentScore, bool isStreakScore, bool isBonusScore)
-        {
-            var gameplayUITransform = UIManager.Instance.GameplayUI.transform;
-            var addScoreText = CreateAddScoreText(scoreToAdd);
+            // Set up the text parent first
+            RectTransform canvasRect = UIManager.Instance.Canvas.transform as RectTransform;
+            addScoreText.transform.SetParent(canvasRect);
 
-            var anim = new ActiveScoreAnimation
-            {
-                AddScoreText = addScoreText,
-                ScoreToAdd = scoreToAdd,
-                CurrentScore = currentScore,
-                IsCancelled = false
-            };
+            // Convert screen position to local position in the canvas
+            // For Screen Space - Overlay, we must use null for the camera parameter
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvasRect,
+                screenPos,
+                null,  // null for Screen Space - Overlay canvas
+                out Vector2 localPoint
+            );
 
-
-            AnimateAddScoreFinalEffects(addScoreText, scoreToAdd, anim, isStreakScore, isBonusScore);
-
-        }
-
-        // Private Methods
-        private TextMeshProUGUI CreateAddScoreText(int scoreToAdd)
-        {
-            var addScoreText = ObjectPooler.Instance.Get(PooledObjectTag.AddScoreText).GetComponent<TextMeshProUGUI>();
-            addScoreText.transform.SetParent(UIManager.Instance.transform);
-            addScoreText.transform.position = Vector3.zero;
-            addScoreText.transform.rotation = Quaternion.identity;
-            addScoreText.text = "+" + scoreToAdd;
+            addScoreText.transform.localPosition = localPoint;
+            addScoreText.transform.localScale = Vector3.zero;
+            addScoreText.text = scoreValue.ToString();
             addScoreText.gameObject.SetActive(true);
-            return addScoreText;
-        }
 
-        private void AnimateAddScoreFinalEffects(TextMeshProUGUI addScoreText, int scoreToAdd, ActiveScoreAnimation anim, bool isStreakScore, bool isBonusScore)
-        {
-            addScoreText.transform.DOMove(UIManager.Instance.GameplayUI.ScoreText.transform.position, 0.35f)
-                .SetEase(Ease.InBack)
-                .SetDelay(0.8f)
-                .OnComplete(() =>
-                {
-                    _activeAnimations.Remove(anim);
+            // Create animation sequence
+            var sequence = DOTween.Sequence();
 
-                    if (!anim.IsCancelled)
-                    {
-                        var scoreTransform = UIManager.Instance.GameplayUI.ScoreText.transform;
-                        DOTween.Kill(scoreTransform);
-                        scoreTransform.localScale = Vector3.one;
-                        scoreTransform.DOPunchScale(Vector3.one * 0.2f, 0.2f, 10, 1f);
+            // Scale in with bounce
+            sequence.Append(addScoreText.transform.DOScale(Vector3.one, SCALE_IN_DURATION).SetEase(Ease.OutBack));
 
-                        ScoreCount += scoreToAdd;
-                        if (isBonusScore) BonusScoreCount += scoreToAdd;
+            // Hold
+            sequence.AppendInterval(HOLD_DURATION);
 
-                        UIManager.Instance.GameplayUI.UpdateScoreText(ScoreCount);
+            // Scale out
+            sequence.Append(addScoreText.transform.DOScale(Vector3.zero, SCALE_OUT_DURATION).SetEase(Ease.InBack));
 
-                        SoundManager.Instance.PlaySfxOneShot(SoundType.Game_ScoreAdd);
-                        HapticManager.Instance.TriggerHaptic(HapticType.Selection);
-                    }
-
-                    ObjectPooler.Instance.Release(addScoreText.gameObject, PooledObjectTag.AddScoreText);
-                });
-        }
-
-        public float AddBonusScores(List<ScoreType> scoreTypes, bool animated)
-        {
-            if (_bonusScoresAdded) return 0f;
-            _bonusScoresAdded = true;
-
-            float finishDelay = SCORE_TEXT_DELAY;
-
-            if (StreakCount >= 2)
-                finishDelay += SCORE_TEXT_DELAY;
-
-            Vector2 baseCanvasPos = RectTransformUtility.WorldToScreenPoint(Camera.main, transform.position);
-
-            int totalBonuses = scoreTypes.Count;
-            for (int i = 0; i < totalBonuses; i++)
+            // Cleanup
+            sequence.OnComplete(() =>
             {
-                Vector2 offsetPos = GetBonusScoreOffsetPosition(baseCanvasPos, i, totalBonuses);
+                _activeAnimations.Remove(sequence);
+                uIObjectPooler.Release(addScoreText.gameObject, UIPooledObjectTag.AddScoreText);
+            });
 
-                ScoreType scoreType = scoreTypes[i];
-                if (animated)
-                {
-                    DOVirtual.DelayedCall(finishDelay, () =>
-                    {
-                        AddScore(scoreType, offsetPos, false);
-                    });
-                }
-                else
-                {
-                    ScoreData scoreData = GetScoreData(scoreType);
+            _activeAnimations.Add(sequence);
 
-                    ScoreCount += scoreData.scoreValue;
-                    if (scoreData.isBonusScore)
-                    {
-                        BonusScoreCount += scoreData.scoreValue;
-                    }
-                }
+            // Update score
+            ScoreCount += scoreValue;
+            UIManager.Instance.GameplayUI.UpdateScoreText(ScoreCount);
 
-                finishDelay += SCORE_TEXT_DELAY / 3f;
-            }
-
-            return finishDelay + SCORE_TEXT_DELAY;
+            // Play sound and haptic
+            SoundManager.Instance.PlaySfxOneShot(SoundType.Game_ScoreAdd);
+            HapticManager.Instance.TriggerHaptic(HapticType.Selection);
         }
 
-        private Vector2 GetBonusScoreOffsetPosition(Vector2 baseCanvasPos, int index, int totalBonuses)
+        public void AddTimeBonus(int secondsRemaining)
         {
-            const float horizontalSpacing = 400f;
-            float totalWidth = (totalBonuses - 1) * horizontalSpacing;
-            float startX = baseCanvasPos.x - totalWidth / 2f;
+            _timeBonus = secondsRemaining * TIME_BONUS_PER_SECOND;
+            ScoreCount += _timeBonus;
+            BonusScoreCount += _timeBonus;
+            UIManager.Instance.GameplayUI.UpdateScoreText(ScoreCount);
+        }
 
-            float offsetX = startX + index * horizontalSpacing;
-            return new Vector2(offsetX, baseCanvasPos.y);
+        public void AddClearBonus()
+        {
+            _clearBonus = CLEAR_BONUS;
+            ScoreCount += _clearBonus;
+            BonusScoreCount += _clearBonus;
+            UIManager.Instance.GameplayUI.UpdateScoreText(ScoreCount);
         }
 
         public void SetScore(int score)
         {
             ScoreCount = score;
             UIManager.Instance.GameplayUI.UpdateScoreText(ScoreCount);
-        }
-
-        public void SetStreak(int streak)
-        {
-            StreakCount = streak;
-        }
-
-        public void ResetStreak()
-        {
-            SetStreak(0);
         }
 
         public void ProcessScoreUndo(int score)
@@ -213,64 +117,27 @@ namespace Brain.Managers
 
         private void StopOngoingAnimations()
         {
-            foreach (Tween t in _delayedCalls)
+            foreach (var tween in _activeAnimations)
             {
-                if (t.IsActive()) t.Kill();
-            }
-            _delayedCalls.Clear();
-
-            foreach (var anim in _activeAnimations)
-            {
-                anim.IsCancelled = true;
-
-                if (anim.AddScoreText != null)
+                if (tween.IsActive())
                 {
-                    DOTween.Kill(anim.AddScoreText.transform);
-                    anim.AddScoreText.gameObject.SetActive(false);
-                    ObjectPooler.Instance.Release(anim.AddScoreText.gameObject, PooledObjectTag.AddScoreText);
+                    tween.Kill();
                 }
             }
             _activeAnimations.Clear();
         }
 
-        private ScoreData GetScoreData(ScoreType scoreType)
-        {
-            ScoreData data = new ScoreData { scoreValue = 0, scorePrefab = null };
-            foreach (ScoreData s in _scoreDataList)
-            {
-                if (s.scoreType == scoreType)
-                {
-                    data = s;
-                    break;
-                }
-            }
-
-            if (data.scoreType == ScoreType.LivesBonus)
-            {
-                //data.scoreValue *= GameController.Instance.LivesAmount;
-            }
-            else if (data.scoreType == ScoreType.TimeBonus)
-            {
-                //data.scoreValue *= GameController.Instance.GameTimer;
-            }
-
-            return data;
-        }
-
         public IEnumerator SaveScore()
         {
             Input.multiTouchEnabled = true;
-            int timeScoreMultiplier = _scoreDataList.FirstOrDefault(s => s.scoreType == ScoreType.TimeBonus).scoreValue;
-            int timeScore = 0; // GameManager.Instance.GameTimer * timeScoreMultiplier;
             int finalScore = ScoreCount;
-            int streakNbonus = BonusScoreCount - timeScore; //Time score is added to BonusScoreCount, so we subtract it here
             int baseScore = ScoreCount - BonusScoreCount;
 
             Dictionary<string, int> objectives = new Dictionary<string, int>
             {
                 { "Base Score", baseScore },
-                { "Streak & Bonus", streakNbonus },
-                { "Time Bonus", timeScore }
+                { "Clear Bonus", _clearBonus },
+                { "Time Bonus", _timeBonus }
             };
 
             // ThrillzSaveScoreData saveScoreData = new ThrillzSaveScoreData
