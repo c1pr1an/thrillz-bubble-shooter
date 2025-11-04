@@ -567,7 +567,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _totalRows: 60
-  _startRow: 4
+  _startRow: 8
   _fillRate: 0.75
   _clusteringStrength: 0.5
   _neighborColorWeight: 0.5

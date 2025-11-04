@@ -63,23 +63,61 @@ namespace Brain.Gameplay
             // Check if we have enough matches to destroy (3+ for regular, 1+ for bonus balls)
             bool shouldDestroy = matchCount >= 3 || (stoppedBall.IsBonusBall && matchCount > 0);
 
+            // Store matched balls for later destruction
+            List<Ball> matchedBalls = shouldDestroy ? new List<Ball>(_matchList) : new List<Ball>();
+
+            // Step 1: Mark matched balls for destruction (but don't destroy them yet)
+            if (shouldDestroy)
+            {
+                foreach (Ball ball in matchedBalls)
+                {
+                    if (ball != null)
+                    {
+                        ball.Flags |= BallFlags.MarkedForDestroy;
+                    }
+                }
+            }
+
+            // Step 2: Check for orphaned balls (they will ignore balls marked for destruction)
+            OrphanDetector.Instance.CheckSeparatedBalls();
+
+            // Wait for orphan detection to complete
+            yield return new WaitWhile(() => OrphanDetector.Instance.IsChecking());
+
+            // Get orphaned balls that were detected
+            List<Ball> orphanedBalls = OrphanDetector.Instance.LastOrphanedBalls;
+
+            // Step 3: Combine all balls that will be removed
+            List<Ball> allBallsToRemove = new List<Ball>();
+            allBallsToRemove.AddRange(matchedBalls);
+            allBallsToRemove.AddRange(orphanedBalls);
+
+            // Step 4: Move the grid ONCE based on ALL balls that will be removed
+            if (allBallsToRemove.Count > 0)
+            {
+                GridScrollManager.Instance.PreCalculateAndMoveGrid(allBallsToRemove);
+
+                // Wait for grid movement to complete (0.2 seconds)
+                yield return new WaitWhile(() => GridScrollManager.Instance.IsMoving);
+            }
+
+            // Step 5: Now perform the actual destruction and falling animations
+            // Destroy matched balls
             if (shouldDestroy)
             {
                 // Pass the impact ball (stoppedBall) to create wave pattern from impact point
-                DestroyManager.Instance.DestroyBalls(_matchList, stoppedBall);
+                DestroyManager.Instance.DestroyBalls(matchedBalls, stoppedBall);
 
                 yield return new WaitWhile(() => DestroyManager.Instance.IsDestroying());
             }
 
-            // Check for orphaned balls
-            OrphanDetector.Instance.CheckSeparatedBalls();
+            // Animate orphan falling
+            if (orphanedBalls.Count > 0)
+            {
+                OrphanDetector.Instance.AnimateOrphanFalling();
+            }
 
-            // Wait only for logic detection to complete, not animations
-            yield return new WaitWhile(() => OrphanDetector.Instance.IsChecking());
-
-            // Update grid position immediately after logic detection
-            // This happens while balls are still animating their fall
-            GridScrollManager.Instance.UpdateGridPosition();
+            // Check win condition
             GameConditionsManager.Instance.CheckWinCondition();
         }
 

@@ -4903,7 +4903,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _lifetime: 1.5
-  _poolTag: 11
+  _poolTag: 10
 --- !u!1 &9137820166836104541
 GameObject:
   m_ObjectHideFlags: 0

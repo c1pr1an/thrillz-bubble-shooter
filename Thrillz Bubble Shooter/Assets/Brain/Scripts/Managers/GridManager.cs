@@ -287,7 +287,7 @@ namespace Brain.Managers
         }
 
         /// <summary>
-        /// Clears all grid marks (for match detection and orphan detection)
+        /// Clears temporary grid marks used for detection algorithms
         /// </summary>
         public void ClearAllMarks()
         {
@@ -300,7 +300,6 @@ namespace Brain.Managers
                     {
                         ball.Flags &= ~BallFlags.MarkConnected;
                         ball.Flags &= ~BallFlags.MarkedForMatch;
-                        ball.Flags &= ~BallFlags.MarkedForDestroy;
                     }
                 }
             }

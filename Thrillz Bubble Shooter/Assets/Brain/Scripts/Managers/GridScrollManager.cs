@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Brain.Gameplay;
 using Brain.Util;
 using DG.Tweening;
@@ -14,14 +15,18 @@ namespace Brain.Managers
         [SerializeField] private int _targetBufferRows = 4;
 
         [Header("Animation Settings")]
-        [SerializeField] private float _scrollSpeed = 5f; // Units per second
-        [SerializeField] private float _minScrollDuration = 0.2f; // Minimum duration for very small moves
+        [SerializeField] private float _scrollSpeed = 7f; // Units per second
+        [SerializeField] private float _minScrollDuration = 0.15f; // Minimum duration for very small moves
         [SerializeField] private Ease _scrollEase = Ease.OutCubic;
 
         // Private Fields
         private Vector3 _initialGridPosition;
         private int _lastLowestRow = -1;
         private Tween _gridTween;
+        private bool _isMoving = false;
+
+        // Properties
+        public bool IsMoving => _isMoving;
 
         // Events
         public event Action OnDeathLineTouched;
@@ -40,43 +45,56 @@ namespace Brain.Managers
             _gridTween?.Kill();
         }
 
-        // Public Methods
-        public void UpdateGridPosition()
+        public void PreCalculateAndMoveGrid(List<Ball> ballsToDestroy)
         {
+            if (ballsToDestroy == null || ballsToDestroy.Count == 0) return;
+
             GridManager gridManager = GridManager.Instance;
             if (gridManager == null) return;
 
-            int lowestRow = GetLowestOccupiedRow();
-            if (lowestRow == -1) return;
+            // Find what the lowest row will be after these balls are destroyed
+            int futureLowestRow = GetLowestOccupiedRowAfterDestruction(ballsToDestroy);
+            if (futureLowestRow == -1) return;
 
             // Check death line collision
-            if (lowestRow <= _deathLineRow)
+            if (futureLowestRow <= _deathLineRow)
             {
                 OnDeathLineTouched?.Invoke();
                 return;
             }
 
-            // Move grid up if bottom row cleared
-            if (lowestRow > _lastLowestRow && _lastLowestRow != -1)
+            // If we haven't tracked lowest row yet, just set it
+            if (_lastLowestRow == -1)
             {
-                int rowsToMove = lowestRow - _lastLowestRow;
-                MoveGridUp(rowsToMove);
+                _lastLowestRow = futureLowestRow;
+                return;
             }
 
-            _lastLowestRow = lowestRow;
+            // Move grid down if bottom row will be cleared
+            if (futureLowestRow > _lastLowestRow)
+            {
+                int rowsToMove = futureLowestRow - _lastLowestRow;
+                MoveGridDown(rowsToMove);
+                _lastLowestRow = futureLowestRow;
+            }
         }
 
-        // Private Methods
-        private int GetLowestOccupiedRow()
+        // Calculate what the lowest occupied row will be after destroying specific balls
+        private int GetLowestOccupiedRowAfterDestruction(List<Ball> ballsToDestroy)
         {
             GridManager gridManager = GridManager.Instance;
             if (gridManager == null || gridManager.Balls == null) return -1;
+
+            // Create a HashSet for quick lookup
+            HashSet<Ball> toDestroy = new HashSet<Ball>(ballsToDestroy);
 
             for (int row = 0; row < gridManager.Balls.Count; row++)
             {
                 for (int col = 0; col < gridManager.Balls[row].Count; col++)
                 {
-                    if (gridManager.Balls[row][col] != null)
+                    Ball ball = gridManager.Balls[row][col];
+                    // Check if ball exists and won't be destroyed
+                    if (ball != null && !toDestroy.Contains(ball))
                     {
                         return row;
                     }
@@ -86,7 +104,7 @@ namespace Brain.Managers
             return -1;
         }
 
-        private void MoveGridUp(int rows)
+        private void MoveGridDown(int rows)
         {
             GridManager gridManager = GridManager.Instance;
             if (gridManager == null || gridManager.GridContainer == null) return;
@@ -101,17 +119,17 @@ namespace Brain.Managers
                 newPosition.y = _initialGridPosition.y;
             }
 
-            // Calculate duration based on distance and speed
-            float actualDistance = Vector3.Distance(currentPosition, newPosition);
-            float duration = Mathf.Max(actualDistance / _scrollSpeed, _minScrollDuration);
-
             // Kill existing tween to prevent conflicts
             _gridTween?.Kill();
 
-            // Tween the grid container (phantom balls move automatically as children)
+            // Set moving flag
+            _isMoving = true;
+
+            // Tween the grid container with fixed 0.2 second duration
             _gridTween = gridManager.GridContainer
-                .DOMove(newPosition, duration)
-                .SetEase(_scrollEase);
+                .DOMove(newPosition, 0.2f)
+                .SetEase(_scrollEase)
+                .OnComplete(() => _isMoving = false);
         }
 
         public void ResetScroll()

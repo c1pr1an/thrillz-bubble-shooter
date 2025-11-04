@@ -14,30 +14,36 @@ namespace Brain.Gameplay
         private HashSet<Ball> _connectedBalls = new HashSet<Ball>();
         private bool _isChecking = false;
         private bool _isAnimating = false;
+        private List<Ball> _lastOrphanedBalls = new List<Ball>();
 
         public bool IsChecking() => _isChecking;
         public bool IsAnimating() => _isAnimating;
+        public List<Ball> LastOrphanedBalls => _lastOrphanedBalls;
 
         public void CheckSeparatedBalls()
         {
             StartCoroutine(CheckSeparatedBallsCoroutine());
         }
 
+        // Just detect orphans, don't animate them yet
         private IEnumerator CheckSeparatedBallsCoroutine()
         {
             _isChecking = true;
-            _isAnimating = true;
 
             // Find ALL orphaned balls in a single pass
             List<Ball> ballsToFall = FindOrphanedBalls();
 
+            // Store for external access
+            _lastOrphanedBalls = ballsToFall;
+
             if (ballsToFall.Count > 0)
             {
                 // Sort by row (highest rows fall first for better visual effect)
-                ballsToFall = ballsToFall.OrderByDescending(ball => -ball.GridPosition.y).ToList();
+                _lastOrphanedBalls = _lastOrphanedBalls.OrderByDescending(ball => -ball.GridPosition.y).ToList();
 
                 // Remove from grid immediately (logic update)
-                foreach (Ball ball in ballsToFall)
+                // Grid movement will be handled externally in MatchDetector
+                foreach (Ball ball in _lastOrphanedBalls)
                 {
                     if (ball != null)
                     {
@@ -49,9 +55,25 @@ namespace Brain.Gameplay
             // Logic detection is complete, set flag to false
             _isChecking = false;
 
+            yield return null; // Just to make it a coroutine
+        }
+
+        // Separate method to animate the falling of orphan balls
+        public void AnimateOrphanFalling()
+        {
+            if (_lastOrphanedBalls.Count > 0)
+            {
+                StartCoroutine(AnimateOrphanFallingCoroutine());
+            }
+        }
+
+        private IEnumerator AnimateOrphanFallingCoroutine()
+        {
+            _isAnimating = true;
+
             // Count falling balls for bonus power (excluding rainbow balls)
             int fallingCount = 0;
-            foreach (Ball ball in ballsToFall)
+            foreach (Ball ball in _lastOrphanedBalls)
             {
                 if (ball != null && !ball.IsRainbow())
                 {
@@ -66,7 +88,7 @@ namespace Brain.Gameplay
             }
 
             // Handle the animations
-            foreach (Ball ball in ballsToFall)
+            foreach (Ball ball in _lastOrphanedBalls)
             {
                 if (ball != null)
                 {
@@ -74,6 +96,9 @@ namespace Brain.Gameplay
                     yield return new WaitForSeconds(_delayBetweenFalls);
                 }
             }
+
+            // Clear the list after animating
+            _lastOrphanedBalls.Clear();
 
             _isAnimating = false;
         }
@@ -88,7 +113,9 @@ namespace Brain.Gameplay
 
             foreach (Ball rootBall in Ball.s_rootBalls)
             {
-                if (rootBall != null && rootBall.HasFlag(BallFlags.Pinned) && !rootBall.HasFlag(BallFlags.Destroying))
+                if (rootBall != null && rootBall.HasFlag(BallFlags.Pinned) &&
+                    !rootBall.HasFlag(BallFlags.Destroying) &&
+                    !rootBall.HasFlag(BallFlags.MarkedForDestroy))
                 {
                     FindConnectedBalls(rootBall);
                 }
@@ -123,6 +150,7 @@ namespace Brain.Gameplay
             if (_connectedBalls.Contains(ball)) return;
             if (!ball.HasFlag(BallFlags.Pinned)) return;
             if (ball.HasFlag(BallFlags.Destroying)) return;
+            if (ball.HasFlag(BallFlags.MarkedForDestroy)) return; // Skip balls marked for destruction
             if (ball.HasFlag(BallFlags.MarkConnected)) return;
 
             ball.Flags |= BallFlags.MarkConnected;
@@ -130,7 +158,7 @@ namespace Brain.Gameplay
 
             foreach (Ball neighbor in ball.Neighbors)
             {
-                if (neighbor != null)
+                if (neighbor != null && !neighbor.HasFlag(BallFlags.MarkedForDestroy))
                 {
                     FindConnectedBalls(neighbor);
                 }
