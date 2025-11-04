@@ -150,13 +150,13 @@ namespace Brain.Gameplay
             // Mark as destroying
             Flags |= BallFlags.Destroying;
 
-            // Spawn VFX matching ball color
-            SpawnDestructionVFX();
+            if (IsBonusBall == false)
+                SpawnDestructionVFX();
 
             // Simple scale-down destruction animation
             transform.DOScale(0f, 0.2f).SetEase(Ease.InBack).OnComplete(() =>
             {
-                ScoreManager.Instance.AddBubblePopScore(transform.position, 10);
+                if (IsBonusBall == false) ScoreManager.Instance.AddBubblePopScore(transform.position, 10);
                 OnDestroyed?.Invoke(this);
                 ReturnToPool();
             });
@@ -164,14 +164,14 @@ namespace Brain.Gameplay
 
         private void SpawnDestructionVFX()
         {
-            PooledObjectTag vfxTag = ObjectPooler.GetVFXPoolTag(_ballColor);
-            GameObject vfx = ObjectPooler.Instance.Get(vfxTag);
+            GameObject vfx = ObjectPooler.Instance.Get(PooledObjectTag.BallExplosion_VFX);
 
             if (vfx == null) return;
 
             vfx.transform.SetParent(null);
             vfx.transform.localScale = Vector3.one;
             vfx.transform.position = transform.position;
+            vfx.GetComponent<BallExplosionVFX>().SetColor(_displayColor);
             vfx.SetActive(true);
         }
 

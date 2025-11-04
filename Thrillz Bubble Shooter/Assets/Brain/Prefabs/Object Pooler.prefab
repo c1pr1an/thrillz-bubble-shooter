@@ -64,26 +64,6 @@ MonoBehaviour:
     initialSize: 20
     prefab: {fileID: 629088075965207633, guid: 7fffa79251b2046439e8b0fc0e7e4e3e, type: 3}
   - tag: 6
-    initialSize: 5
-    prefab: {fileID: 2640799543301741715, guid: 79f5c137c0d541a4d94bacc1e8dc1e30,
-      type: 3}
-  - tag: 7
-    initialSize: 5
-    prefab: {fileID: 2640799543301741715, guid: c0bf464924a70e9468f97c934eef86c8,
-      type: 3}
-  - tag: 8
-    initialSize: 5
-    prefab: {fileID: 2640799543301741715, guid: 58e89b49b9d28445f93588e497d966af,
-      type: 3}
-  - tag: 9
-    initialSize: 5
-    prefab: {fileID: 2640799543301741715, guid: 66165ad84a9940a4ca4e3b0ff9420481,
-      type: 3}
-  - tag: 10
-    initialSize: 5
-    prefab: {fileID: 2640799543301741715, guid: 97b33e99d45dfff4ab2c3638a0c204ed,
-      type: 3}
-  - tag: 11
-    initialSize: 5
-    prefab: {fileID: 2640799543301741715, guid: 13f6e2c2c8f606f439d382db727b9e7c,
+    initialSize: 10
+    prefab: {fileID: 7535537962938329774, guid: 036714de2ea79441988da18134489272,
       type: 3}
