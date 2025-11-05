@@ -66,6 +66,30 @@ namespace Brain.Gameplay
             // Store matched balls for later destruction
             List<Ball> matchedBalls = shouldDestroy ? new List<Ball>(_matchList) : new List<Ball>();
 
+            // Get score values - bonus balls use previous streak level
+            int ballScoreValue;
+            int orphanScoreValue;
+
+            if (stoppedBall.IsBonusBall && ScoreManager.Instance.CurrentStreak > 1)
+            {
+                // Bonus balls use previous streak level (current - 1)
+                int previousStreak = ScoreManager.Instance.CurrentStreak - 1;
+                ballScoreValue = previousStreak * 10;  // BASE_SCORE_PER_BALL = 10
+                orphanScoreValue = 100 + (previousStreak * 10);  // BASE_ORPHAN_BONUS = 100
+            }
+            else
+            {
+                // Regular balls or first streak use current values
+                ballScoreValue = ScoreManager.Instance.GetCurrentBallScore();
+                orphanScoreValue = ScoreManager.Instance.GetCurrentOrphanScore();
+            }
+
+            // For regular balls that fail, reset streak immediately
+            if (!stoppedBall.IsBonusBall && !shouldDestroy)
+            {
+                ScoreManager.Instance.ResetStreak();
+            }
+
             // Step 1: Mark matched balls for destruction (but don't destroy them yet)
             if (shouldDestroy)
             {
@@ -95,8 +119,8 @@ namespace Brain.Gameplay
             // Step 4: First destroy matched balls
             if (shouldDestroy)
             {
-                // Pass the impact ball (stoppedBall) to create wave pattern from impact point
-                DestroyManager.Instance.DestroyBalls(matchedBalls, stoppedBall);
+                // Pass the impact ball (stoppedBall) and score value to create wave pattern from impact point
+                DestroyManager.Instance.DestroyBalls(matchedBalls, stoppedBall, ballScoreValue);
 
                 yield return new WaitWhile(() => DestroyManager.Instance.IsDestroying());
             }
@@ -104,7 +128,7 @@ namespace Brain.Gameplay
             // Step 5: Start orphan falling animations (don't wait for them to complete)
             if (orphanedBalls.Count > 0)
             {
-                OrphanDetector.Instance.AnimateOrphanFalling();
+                OrphanDetector.Instance.AnimateOrphanFalling(orphanScoreValue);
             }
 
             yield return new WaitForSeconds(0.1f);
@@ -113,6 +137,12 @@ namespace Brain.Gameplay
             if (allBallsToRemove.Count > 0)
             {
                 GridScrollManager.Instance.PreCalculateAndMoveGrid(allBallsToRemove);
+            }
+
+            // Step 7: Increase streak AFTER everything is done (only for successful regular balls)
+            if (!stoppedBall.IsBonusBall && shouldDestroy)
+            {
+                ScoreManager.Instance.IncreaseStreak();
             }
 
             // Check win condition

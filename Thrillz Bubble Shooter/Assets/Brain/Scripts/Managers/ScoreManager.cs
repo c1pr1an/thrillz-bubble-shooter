@@ -18,10 +18,14 @@ namespace Brain.Managers
         private const float SCALE_IN_DURATION = 0.3f;
         private const float HOLD_DURATION = 0.3f;
         private const float SCALE_OUT_DURATION = 0.1f;
+        private const int MAX_STREAK = 7;
+        private const int BASE_SCORE_PER_BALL = 10;
+        private const int BASE_ORPHAN_BONUS = 100;
 
         // Properties
         [SerializeField] public int ScoreCount { get; private set; }
         [SerializeField] public int BonusScoreCount { get; private set; }
+        [SerializeField] public int CurrentStreak { get; private set; } = 1; // Starts at 1 (10 points per ball)
 
         // Private Fields
         private int _timeBonus = 0;
@@ -97,6 +101,49 @@ namespace Brain.Managers
         {
             SetScore(score);
             StopOngoingAnimations();
+        }
+
+        /// <summary>
+        /// Get the current score value per ball based on streak
+        /// </summary>
+        public int GetCurrentBallScore()
+        {
+            return CurrentStreak * BASE_SCORE_PER_BALL;
+        }
+
+        /// <summary>
+        /// Get the current score value for orphan balls based on streak
+        /// </summary>
+        public int GetCurrentOrphanScore()
+        {
+            return BASE_ORPHAN_BONUS + (CurrentStreak * BASE_SCORE_PER_BALL);
+        }
+
+        /// <summary>
+        /// Increase streak when balls are destroyed (up to max)
+        /// </summary>
+        public void IncreaseStreak()
+        {
+            if (CurrentStreak < MAX_STREAK)
+            {
+                CurrentStreak++;
+            }
+        }
+
+        /// <summary>
+        /// Reset streak back to 1 when no balls are destroyed
+        /// </summary>
+        public void ResetStreak()
+        {
+            CurrentStreak = 1;
+        }
+
+        /// <summary>
+        /// Keep streak the same (used for bonus balls)
+        /// </summary>
+        public void MaintainStreak()
+        {
+            // No change to CurrentStreak
         }
 
         private void StopOngoingAnimations()

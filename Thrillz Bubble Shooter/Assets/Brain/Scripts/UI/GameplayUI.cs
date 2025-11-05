@@ -11,11 +11,6 @@ namespace Brain.UI
 {
     public class GameplayUI : MonoBehaviour
     {
-        // Public Fields
-        public List<Image> LivesImages;
-        public Sprite EmptyLifeSprite;
-        public Sprite FullLifeSprite;
-
         // Serialized Fields
         [SerializeField] private GameObject _oneMinuteLeftPanel;
         [SerializeField] private TextMeshProUGUI _timerText;
@@ -73,22 +68,6 @@ namespace Brain.UI
                 _oneMinuteLeftShown = true;
             }
         }
-
-        public void UpdateLivesUI(int lives)
-        {
-            for (int i = 0; i < LivesImages.Count; i++)
-            {
-                if (i < lives)
-                {
-                    LivesImages[i].sprite = FullLifeSprite;
-                }
-                else
-                {
-                    LivesImages[i].sprite = EmptyLifeSprite;
-                }
-            }
-        }
-
 
     }
 }

@@ -14,16 +14,16 @@ namespace Brain.Managers
         private bool _isDestroying = false;
 
         // Public Methods
-        public void DestroyBalls(List<Ball> balls, Ball impactBall = null)
+        public void DestroyBalls(List<Ball> balls, Ball impactBall = null, int scorePerBall = -1)
         {
             if (balls == null || balls.Count == 0) return;
 
             // Start destruction coroutine
-            StartCoroutine(DestroyBallsSequence(balls, impactBall));
+            StartCoroutine(DestroyBallsSequence(balls, impactBall, scorePerBall));
         }
 
         // Private Methods - Coroutines for destroying balls one by one with delays
-        private IEnumerator DestroyBallsSequence(List<Ball> balls, Ball impactBall = null)
+        private IEnumerator DestroyBallsSequence(List<Ball> balls, Ball impactBall = null, int scorePerBall = -1)
         {
             _isDestroying = true;
 
@@ -60,8 +60,11 @@ namespace Brain.Managers
                 });
             }
 
-            // Track ball index for progressive scoring
-            int ballIndex = 0;
+            // Use passed score value or get from current streak if not provided
+            if (scorePerBall == -1)
+            {
+                scorePerBall = ScoreManager.Instance.GetCurrentBallScore();
+            }
 
             // Destroy each ball
             foreach (Ball ball in balls)
@@ -74,14 +77,10 @@ namespace Brain.Managers
                         destroyedCount++;
                     }
 
-                    // Calculate progressive score
-                    int scoreValue = CalculateProgressiveScore(ballIndex);
-                    ballIndex++;
-
                     ball.Flags |= BallFlags.MarkedForDestroy;
                     ball.Flags |= BallFlags.Destroying;
                     GridManager.Instance.RemoveBall(ball);
-                    ball.DestroyBall(scoreValue);
+                    ball.DestroyBall(scorePerBall);
                     yield return new WaitForSeconds(_delayBetweenDestructions);
                 }
             }
@@ -95,27 +94,7 @@ namespace Brain.Managers
             _isDestroying = false;
         }
 
-        /// <summary>
-        /// Calculate progressive score based on ball position in destruction sequence
-        /// First 3 balls: 10 points each
-        /// Then increases by +10 per ball up to max 100
-        /// </summary>
-        private int CalculateProgressiveScore(int ballIndex)
-        {
-            if (ballIndex < 3)
-            {
-                // First 3 balls get 10 points each
-                return 10;
-            }
-            else
-            {
-                // Starting from 4th ball: 20, 30, 40... up to 100
-                int progressiveScore = (ballIndex - 2) * 10 + 10;
-                return Mathf.Min(progressiveScore, 100); // Cap at 100
-            }
-        }
-
-        public void DestroyBallInstantly(Ball ball, int scoreValue = 10)
+        public void DestroyBallInstantly(Ball ball, int scoreValue = -1)
         {
             if (ball == null) return;
 
@@ -125,6 +104,12 @@ namespace Brain.Managers
 
             // Remove from grid
             GridManager.Instance.RemoveBall(ball);
+
+            // Use current streak score if not specified
+            if (scoreValue == -1)
+            {
+                scoreValue = ScoreManager.Instance.GetCurrentBallScore();
+            }
 
             // Destroy immediately
             ball.DestroyBall(scoreValue);

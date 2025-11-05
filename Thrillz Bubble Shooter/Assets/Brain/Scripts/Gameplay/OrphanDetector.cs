@@ -49,15 +49,15 @@ namespace Brain.Gameplay
         }
 
         // Separate method to animate the falling of orphan balls
-        public void AnimateOrphanFalling()
+        public void AnimateOrphanFalling(int orphanScoreValue = -1)
         {
             if (_lastOrphanedBalls.Count > 0)
             {
-                StartCoroutine(AnimateOrphanFallingCoroutine());
+                StartCoroutine(AnimateOrphanFallingCoroutine(orphanScoreValue));
             }
         }
 
-        private IEnumerator AnimateOrphanFallingCoroutine()
+        private IEnumerator AnimateOrphanFallingCoroutine(int orphanScoreValue = -1)
         {
             _isAnimating = true;
 
@@ -86,15 +86,21 @@ namespace Brain.Gameplay
                 BonusPowerManager.Instance.AddPower(fallingCount);
             }
 
+            // Use passed score value or get from current streak if not provided
+            if (orphanScoreValue == -1)
+            {
+                orphanScoreValue = ScoreManager.Instance.GetCurrentOrphanScore();
+            }
+
             // Handle the animations and add score for orphan balls
             foreach (Ball ball in _lastOrphanedBalls)
             {
                 if (ball != null)
                 {
-                    // Add flat 100 points for each orphan ball
+                    // Add streak-based points for each orphan ball
                     if (!ball.IsBonusBall)
                     {
-                        ScoreManager.Instance.AddBubblePopScore(ball.transform.position, 100);
+                        ScoreManager.Instance.AddBubblePopScore(ball.transform.position, orphanScoreValue);
                     }
 
                     ball.Fall();
