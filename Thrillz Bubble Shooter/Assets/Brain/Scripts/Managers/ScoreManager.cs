@@ -31,28 +31,12 @@ namespace Brain.Managers
         // Public Methods
         public void AddBubblePopScore(Vector3 worldPosition, int scoreValue)
         {
-            UIObjectPooler uIObjectPooler = UIManager.Instance.UIObjectPooler;
             // Get text from pool
-            var addScoreText = uIObjectPooler.Get(UIPooledObjectTag.AddScoreText).GetComponent<TextMeshProUGUI>();
+            var addScoreText = ObjectPooler.Instance.Get(PooledObjectTag.BallScore_Text).GetComponent<TextMeshPro>();
 
-            // For Screen Space - Overlay canvas, convert world position to screen position
-            // then to canvas local position
-            Vector2 screenPos = Cameras.Instance.MainCam.WorldToScreenPoint(worldPosition);
+            addScoreText.transform.SetParent(GridManager.Instance.GridContainer);
 
-            // Set up the text parent first
-            RectTransform canvasRect = UIManager.Instance.Canvas.transform as RectTransform;
-            addScoreText.transform.SetParent(canvasRect);
-
-            // Convert screen position to local position in the canvas
-            // For Screen Space - Overlay, we must use null for the camera parameter
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvasRect,
-                screenPos,
-                null,  // null for Screen Space - Overlay canvas
-                out Vector2 localPoint
-            );
-
-            addScoreText.transform.localPosition = localPoint;
+            addScoreText.transform.position = worldPosition;
             addScoreText.transform.localScale = Vector3.zero;
             addScoreText.text = scoreValue.ToString();
             addScoreText.gameObject.SetActive(true);
@@ -73,7 +57,7 @@ namespace Brain.Managers
             sequence.OnComplete(() =>
             {
                 _activeAnimations.Remove(sequence);
-                uIObjectPooler.Release(addScoreText.gameObject, UIPooledObjectTag.AddScoreText);
+                ObjectPooler.Instance.Release(addScoreText.gameObject, PooledObjectTag.BallScore_Text);
             });
 
             _activeAnimations.Add(sequence);

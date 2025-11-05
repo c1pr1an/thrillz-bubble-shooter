@@ -40,16 +40,6 @@ namespace Brain.Gameplay
             {
                 // Sort by row (highest rows fall first for better visual effect)
                 _lastOrphanedBalls = _lastOrphanedBalls.OrderByDescending(ball => -ball.GridPosition.y).ToList();
-
-                // Remove from grid immediately (logic update)
-                // Grid movement will be handled externally in MatchDetector
-                foreach (Ball ball in _lastOrphanedBalls)
-                {
-                    if (ball != null)
-                    {
-                        GridManager.Instance.RemoveBall(ball);
-                    }
-                }
             }
 
             // Logic detection is complete, set flag to false
@@ -70,6 +60,15 @@ namespace Brain.Gameplay
         private IEnumerator AnimateOrphanFallingCoroutine()
         {
             _isAnimating = true;
+
+            // First remove all orphan balls from the grid
+            foreach (Ball ball in _lastOrphanedBalls)
+            {
+                if (ball != null)
+                {
+                    GridManager.Instance.RemoveBall(ball);
+                }
+            }
 
             // Count falling balls for bonus power (excluding rainbow balls)
             int fallingCount = 0;

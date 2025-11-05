@@ -92,17 +92,7 @@ namespace Brain.Gameplay
             allBallsToRemove.AddRange(matchedBalls);
             allBallsToRemove.AddRange(orphanedBalls);
 
-            // Step 4: Move the grid ONCE based on ALL balls that will be removed
-            if (allBallsToRemove.Count > 0)
-            {
-                GridScrollManager.Instance.PreCalculateAndMoveGrid(allBallsToRemove);
-
-                // Wait for grid movement to complete (0.2 seconds)
-                yield return new WaitWhile(() => GridScrollManager.Instance.IsMoving);
-            }
-
-            // Step 5: Now perform the actual destruction and falling animations
-            // Destroy matched balls
+            // Step 4: First destroy matched balls
             if (shouldDestroy)
             {
                 // Pass the impact ball (stoppedBall) to create wave pattern from impact point
@@ -111,10 +101,18 @@ namespace Brain.Gameplay
                 yield return new WaitWhile(() => DestroyManager.Instance.IsDestroying());
             }
 
-            // Animate orphan falling
+            // Step 5: Start orphan falling animations (don't wait for them to complete)
             if (orphanedBalls.Count > 0)
             {
                 OrphanDetector.Instance.AnimateOrphanFalling();
+            }
+
+            yield return new WaitForSeconds(0.1f);
+
+            // Step 6: NOW move the grid after destruction started
+            if (allBallsToRemove.Count > 0)
+            {
+                GridScrollManager.Instance.PreCalculateAndMoveGrid(allBallsToRemove);
             }
 
             // Check win condition

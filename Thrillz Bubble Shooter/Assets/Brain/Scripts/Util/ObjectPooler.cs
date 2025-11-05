@@ -14,6 +14,7 @@ namespace Brain.Util
         BallPurple,
         BallPink,
         BallExplosion_VFX,
+        BallScore_Text,
     }
 
     public class ObjectPooler : UnitySingleton<ObjectPooler>

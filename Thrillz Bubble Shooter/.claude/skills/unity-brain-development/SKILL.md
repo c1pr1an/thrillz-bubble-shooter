@@ -369,6 +369,7 @@ public void FireWeapon(int ammoUsed)
 - Obvious functionality
 - Getter/setter properties
 - Simple methods
+- Changes made. Only comment the final version of code, do not comment what you removed for example, as that comment will be irrelevant for the future. Comments should always be final and production ready.
 
 ---
 

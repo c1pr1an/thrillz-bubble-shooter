@@ -125,9 +125,13 @@ namespace Brain.Managers
             // Set moving flag
             _isMoving = true;
 
-            // Tween the grid container with fixed 0.2 second duration
+            // Calculate duration based on rows: 0.2s for 1 row, 0.5s for 5+ rows
+            // Linear interpolation between 0.2 and 0.5 based on rows (1 to 5)
+            float duration = Mathf.Lerp(0.2f, 0.5f, Mathf.Clamp01((rows - 1) / 4f));
+
+            // Tween the grid container with dynamic duration
             _gridTween = gridManager.GridContainer
-                .DOMove(newPosition, 0.2f)
+                .DOMove(newPosition, duration)
                 .SetEase(_scrollEase)
                 .OnComplete(() => _isMoving = false);
         }

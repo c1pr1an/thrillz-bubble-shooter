@@ -137,7 +137,7 @@ namespace Brain.Gameplay
             gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 
             Rigidbody2D rb = gameObject.AddComponent<Rigidbody2D>();
-            rb.gravityScale = 2f;
+            rb.gravityScale = 5f;
             rb.velocity = Vector2.down * 4f;
             rb.angularVelocity = UnityEngine.Random.Range(-150f, 150f);
             _circleCollider.enabled = false;
@@ -168,7 +168,7 @@ namespace Brain.Gameplay
 
             if (vfx == null) return;
 
-            vfx.transform.SetParent(null);
+            vfx.transform.SetParent(GridManager.Instance.GridContainer);
             vfx.transform.localScale = Vector3.one;
             vfx.transform.position = transform.position;
             vfx.GetComponent<BallExplosionVFX>().SetColor(_displayColor);
