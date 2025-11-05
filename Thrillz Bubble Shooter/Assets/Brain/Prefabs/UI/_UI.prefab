@@ -248,7 +248,6 @@ RectTransform:
   - {fileID: 4817722460928997805}
   - {fileID: 7711331377250492395}
   - {fileID: 2371781471296993195}
-  - {fileID: 5791529458390324485}
   m_Father: {fileID: 2371781471567028774}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -443,7 +442,7 @@ MonoBehaviour:
   _blackOverlayImage: {fileID: 5466391524067352886}
   _whiteOverlayImage: {fileID: 2371781471296993194}
   _gameSeedIdTxt: {fileID: 1860485736876383725}
-  _uiObjectPooler: {fileID: 7335814759262716162}
+  _uiObjectPooler: {fileID: 0}
   Canvas: {fileID: 2371781471284243359}
   GameplayUI: {fileID: 5884681549491102517}
   OutOfTimePanel: {fileID: 3895548270913401801}
@@ -517,59 +516,6 @@ MonoBehaviour:
   m_InputActionsPerSecond: 10
   m_RepeatDelay: 0.5
   m_ForceModuleActive: 0
---- !u!1 &3194826408493899010
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5791529458390324485}
-  - component: {fileID: 7335814759262716162}
-  m_Layer: 5
-  m_Name: UI Object Pooler
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &5791529458390324485
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3194826408493899010}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2371781471284243426}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &7335814759262716162
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3194826408493899010}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb9e624a779ba44469c2900e5fac6b01, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pools:
-  - tag: 0
-    initialSize: 20
-    prefab: {fileID: 4845232777371705266, guid: 4156b8dd263ae6740988760736ec8278,
-      type: 3}
 --- !u!1 &6317401310308997640
 GameObject:
   m_ObjectHideFlags: 0

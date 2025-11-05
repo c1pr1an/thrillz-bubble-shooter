@@ -38,7 +38,7 @@ namespace Brain.Managers
             // });
 
             DisplayGameSeedId();
-            _uiObjectPooler.Init();
+            //_uiObjectPooler.Init();
         }
 
         public void ToggleWhiteFlash(bool toggled)

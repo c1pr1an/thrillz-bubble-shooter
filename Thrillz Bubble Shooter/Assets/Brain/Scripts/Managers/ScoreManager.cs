@@ -26,6 +26,7 @@ namespace Brain.Managers
         [SerializeField] public int ScoreCount { get; private set; }
         [SerializeField] public int BonusScoreCount { get; private set; }
         [SerializeField] public int CurrentStreak { get; private set; } = 1; // Starts at 1 (10 points per ball)
+        [SerializeField] public TextMeshPro currentStreakText;
 
         // Private Fields
         private int _timeBonus = 0;
@@ -40,7 +41,7 @@ namespace Brain.Managers
 
             addScoreText.transform.SetParent(GridManager.Instance.GridContainer);
 
-            addScoreText.transform.position = worldPosition;
+            addScoreText.transform.position = worldPosition - 0.05f * Vector3.up;
             addScoreText.transform.localScale = Vector3.zero;
             addScoreText.text = scoreValue.ToString();
             addScoreText.gameObject.SetActive(true);
@@ -127,6 +128,7 @@ namespace Brain.Managers
             if (CurrentStreak < MAX_STREAK)
             {
                 CurrentStreak++;
+                currentStreakText.text = "<size=80%>x</size>" + CurrentStreak.ToString();
             }
         }
 
@@ -136,6 +138,7 @@ namespace Brain.Managers
         public void ResetStreak()
         {
             CurrentStreak = 1;
+            currentStreakText.text = string.Empty;
         }
 
         /// <summary>
