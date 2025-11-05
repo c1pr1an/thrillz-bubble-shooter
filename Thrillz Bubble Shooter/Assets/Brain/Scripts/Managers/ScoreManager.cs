@@ -16,8 +16,8 @@ namespace Brain.Managers
         private const int TIME_BONUS_PER_SECOND = 200;
         private const int CLEAR_BONUS = 10000;
         private const float SCALE_IN_DURATION = 0.3f;
-        private const float HOLD_DURATION = 0.5f;
-        private const float SCALE_OUT_DURATION = 0.2f;
+        private const float HOLD_DURATION = 0.3f;
+        private const float SCALE_OUT_DURATION = 0.1f;
 
         // Properties
         [SerializeField] public int ScoreCount { get; private set; }

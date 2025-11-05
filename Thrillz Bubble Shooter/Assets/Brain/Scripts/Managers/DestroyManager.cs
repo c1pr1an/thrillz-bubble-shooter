@@ -60,6 +60,9 @@ namespace Brain.Managers
                 });
             }
 
+            // Track ball index for progressive scoring
+            int ballIndex = 0;
+
             // Destroy each ball
             foreach (Ball ball in balls)
             {
@@ -71,10 +74,14 @@ namespace Brain.Managers
                         destroyedCount++;
                     }
 
+                    // Calculate progressive score
+                    int scoreValue = CalculateProgressiveScore(ballIndex);
+                    ballIndex++;
+
                     ball.Flags |= BallFlags.MarkedForDestroy;
                     ball.Flags |= BallFlags.Destroying;
                     GridManager.Instance.RemoveBall(ball);
-                    ball.DestroyBall();
+                    ball.DestroyBall(scoreValue);
                     yield return new WaitForSeconds(_delayBetweenDestructions);
                 }
             }
@@ -88,7 +95,27 @@ namespace Brain.Managers
             _isDestroying = false;
         }
 
-        public void DestroyBallInstantly(Ball ball)
+        /// <summary>
+        /// Calculate progressive score based on ball position in destruction sequence
+        /// First 3 balls: 10 points each
+        /// Then increases by +10 per ball up to max 100
+        /// </summary>
+        private int CalculateProgressiveScore(int ballIndex)
+        {
+            if (ballIndex < 3)
+            {
+                // First 3 balls get 10 points each
+                return 10;
+            }
+            else
+            {
+                // Starting from 4th ball: 20, 30, 40... up to 100
+                int progressiveScore = (ballIndex - 2) * 10 + 10;
+                return Mathf.Min(progressiveScore, 100); // Cap at 100
+            }
+        }
+
+        public void DestroyBallInstantly(Ball ball, int scoreValue = 10)
         {
             if (ball == null) return;
 
@@ -100,7 +127,7 @@ namespace Brain.Managers
             GridManager.Instance.RemoveBall(ball);
 
             // Destroy immediately
-            ball.DestroyBall();
+            ball.DestroyBall(scoreValue);
         }
 
         public bool IsDestroying()

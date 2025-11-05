@@ -86,11 +86,17 @@ namespace Brain.Gameplay
                 BonusPowerManager.Instance.AddPower(fallingCount);
             }
 
-            // Handle the animations
+            // Handle the animations and add score for orphan balls
             foreach (Ball ball in _lastOrphanedBalls)
             {
                 if (ball != null)
                 {
+                    // Add flat 100 points for each orphan ball
+                    if (!ball.IsBonusBall)
+                    {
+                        ScoreManager.Instance.AddBubblePopScore(ball.transform.position, 100);
+                    }
+
                     ball.Fall();
                     yield return new WaitForSeconds(_delayBetweenFalls);
                 }

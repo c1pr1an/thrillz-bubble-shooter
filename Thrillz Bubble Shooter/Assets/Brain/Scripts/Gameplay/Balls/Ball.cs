@@ -145,7 +145,7 @@ namespace Brain.Gameplay
             Invoke("ReturnToPool", 2f);
         }
 
-        public void DestroyBall()
+        public void DestroyBall(int scoreValue = 10)
         {
             // Mark as destroying
             Flags |= BallFlags.Destroying;
@@ -157,7 +157,7 @@ namespace Brain.Gameplay
             transform.DOScale(0f, 0.2f).SetEase(Ease.InBack).OnComplete(() =>
             {
                 if (IsBonusBall == false)
-                    ScoreManager.Instance.AddBubblePopScore(transform.position, 10);
+                    ScoreManager.Instance.AddBubblePopScore(transform.position, scoreValue);
                 ReturnToPool();
             });
         }
