@@ -14820,6 +14820,7 @@ GameObject:
   - component: {fileID: 8674710787046534072}
   - component: {fileID: 4852464099390032135}
   - component: {fileID: 5993088946753058539}
+  - component: {fileID: 176540039777085234}
   m_Layer: 0
   m_Name: Ball Explosion VFX
   m_TagString: Untagged
@@ -19779,6 +19780,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c63c6c6b8c9ee4df6b3c7566052ecc3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &176540039777085234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7535537962938329774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0875fa79a08f1de4bab602652d4e181f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _lifetime: 1.5
+  _poolTag: 6
 --- !u!1 &9181193034360154005
 GameObject:
   m_ObjectHideFlags: 0

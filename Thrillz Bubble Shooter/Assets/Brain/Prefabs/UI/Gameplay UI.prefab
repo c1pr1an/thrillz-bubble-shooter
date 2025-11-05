@@ -145,11 +145,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b6050f363164114698b93725dac7067, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useUnscaledTime: 1
-  duration: 0.2
-  ease: 27
-  scaleOnDown: 0.9
-  targetTransform: {fileID: 0}
+  _useUnscaledTime: 0
+  _duration: 0.2
+  _ease: 27
+  _scaleOnDown: 0.9
+  _targetTransform: {fileID: 0}
 --- !u!1 &859227324541922630
 GameObject:
   m_ObjectHideFlags: 0
@@ -208,7 +208,7 @@ MonoBehaviour:
   FullLifeSprite: {fileID: 0}
   _oneMinuteLeftPanel: {fileID: 0}
   _timerText: {fileID: 0}
-  _scoreText: {fileID: 0}
+  _scoreText: {fileID: 7799642303964675593}
 --- !u!1 &2200204382239893473
 GameObject:
   m_ObjectHideFlags: 0
@@ -655,7 +655,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7100418966030589210
 RectTransform:
   m_ObjectHideFlags: 0

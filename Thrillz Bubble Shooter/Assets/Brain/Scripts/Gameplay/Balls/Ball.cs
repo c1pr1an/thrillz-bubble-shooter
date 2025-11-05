@@ -156,8 +156,8 @@ namespace Brain.Gameplay
             // Simple scale-down destruction animation
             transform.DOScale(0f, 0.2f).SetEase(Ease.InBack).OnComplete(() =>
             {
-                if (IsBonusBall == false) ScoreManager.Instance.AddBubblePopScore(transform.position, 10);
-                OnDestroyed?.Invoke(this);
+                if (IsBonusBall == false)
+                    ScoreManager.Instance.AddBubblePopScore(transform.position, 10);
                 ReturnToPool();
             });
         }
