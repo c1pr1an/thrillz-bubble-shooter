@@ -79,7 +79,9 @@ namespace Brain.Managers
             UIManager.Instance.GameplayUI.UpdateScoreText(ScoreCount);
 
             // Play sound and haptic
-            SoundManager.Instance.PlaySfxOneShot(SoundType.Game_ScoreAdd);
+            SoundType[] popSounds = { SoundType.Game_MatchPop1, SoundType.Game_MatchPop2, SoundType.Game_MatchPop3 };
+            SoundType randomPopSound = popSounds[Random.Range(0, popSounds.Length)];
+            SoundManager.Instance.PlaySfxOneShot(SoundType.Game_MatchPop1);
             HapticManager.Instance.TriggerHaptic(HapticType.Selection);
         }
 

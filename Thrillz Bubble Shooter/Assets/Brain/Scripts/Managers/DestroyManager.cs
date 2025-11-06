@@ -8,7 +8,7 @@ namespace Brain.Managers
 {
     public class DestroyManager : UnitySingleton<DestroyManager>
     {
-        private float _delayBetweenDestructions = 0.02f;
+        private float _delayBetweenDestructions = 0.03f;
 
         // Private Fields
         private bool _isDestroying = false;
