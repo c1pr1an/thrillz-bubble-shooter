@@ -63,32 +63,23 @@ namespace Brain.Gameplay
             // Check if we have enough matches to destroy (3+ for regular, 1+ for bonus balls)
             bool shouldDestroy = matchCount >= 3 || (stoppedBall.IsBonusBall && matchCount > 0);
 
+            if (!stoppedBall.IsBonusBall)
+            {
+                if (shouldDestroy)
+                {
+                    ScoreManager.Instance.IncreaseStreak();
+                }
+                else
+                {
+                    ScoreManager.Instance.ResetStreak();
+                }
+            }
+
             // Store matched balls for later destruction
             List<Ball> matchedBalls = shouldDestroy ? new List<Ball>(_matchList) : new List<Ball>();
 
-            // Get score values - bonus balls use previous streak level
-            int ballScoreValue;
-            int orphanScoreValue;
-
-            if (stoppedBall.IsBonusBall && ScoreManager.Instance.CurrentStreak > 1)
-            {
-                // Bonus balls use previous streak level (current - 1)
-                int previousStreak = ScoreManager.Instance.CurrentStreak - 1;
-                ballScoreValue = previousStreak * 10;  // BASE_SCORE_PER_BALL = 10
-                orphanScoreValue = 100 + (previousStreak * 10);  // BASE_ORPHAN_BONUS = 100
-            }
-            else
-            {
-                // Regular balls or first streak use current values
-                ballScoreValue = ScoreManager.Instance.GetCurrentBallScore();
-                orphanScoreValue = ScoreManager.Instance.GetCurrentOrphanScore();
-            }
-
-            // For regular balls that fail, reset streak immediately
-            if (!stoppedBall.IsBonusBall && !shouldDestroy)
-            {
-                ScoreManager.Instance.ResetStreak();
-            }
+            int ballScoreValue = ScoreManager.Instance.GetCurrentBallScore();
+            int orphanScoreValue = ScoreManager.Instance.GetCurrentOrphanScore();
 
             // Step 1: Mark matched balls for destruction (but don't destroy them yet)
             if (shouldDestroy)
@@ -137,12 +128,6 @@ namespace Brain.Gameplay
             if (allBallsToRemove.Count > 0)
             {
                 GridScrollManager.Instance.PreCalculateAndMoveGrid(allBallsToRemove);
-            }
-
-            // Step 7: Increase streak AFTER everything is done (only for successful regular balls)
-            if (!stoppedBall.IsBonusBall && shouldDestroy)
-            {
-                ScoreManager.Instance.IncreaseStreak();
             }
 
             // Check win condition

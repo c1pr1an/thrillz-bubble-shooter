@@ -61,6 +61,7 @@ namespace Brain.Managers
             ObjectPooler.Instance.Init();
             GridManager.Instance.InitializeGrid();
             GridGenerator.Instance.GenerateGrid();
+            ScoreManager.Instance.Init();
             BallHighlightManager.Instance.Init(GridManager.Instance, TrajectoryPredictor.Instance);
             UIManager.Instance.Init();
 

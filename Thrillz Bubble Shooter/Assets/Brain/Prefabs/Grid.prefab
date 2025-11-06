@@ -300,6 +300,7 @@ GameObject:
   - component: {fileID: 7682664169435399723}
   - component: {fileID: 6694773756643403475}
   - component: {fileID: 1670654598428708808}
+  - component: {fileID: 496840423768096981}
   m_Layer: 0
   m_Name: Gameplay Managers
   m_TagString: Untagged
@@ -430,6 +431,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b0f9d191d811492681044d54f1de226, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &496840423768096981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2955337845684583753}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d932109f1f1216a4dadb76c1687c5ae5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentStreakText: {fileID: 3820757265472402110}
 --- !u!1 &2956523709681274247
 GameObject:
   m_ObjectHideFlags: 0
@@ -1050,7 +1064,7 @@ GameObject:
   - component: {fileID: 3057493712969265359}
   - component: {fileID: 3820757265472402110}
   m_Layer: 0
-  m_Name: Combo Text
+  m_Name: Streak Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1073,7 +1087,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -0.042}
-  m_SizeDelta: {x: 4.97, y: 2}
+  m_SizeDelta: {x: 1.5, y: 1.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &3057493712969265359
 MeshRenderer:

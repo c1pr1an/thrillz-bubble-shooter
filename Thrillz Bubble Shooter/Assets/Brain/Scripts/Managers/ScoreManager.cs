@@ -18,20 +18,27 @@ namespace Brain.Managers
         private const float SCALE_IN_DURATION = 0.3f;
         private const float HOLD_DURATION = 0.3f;
         private const float SCALE_OUT_DURATION = 0.1f;
-        private const int MAX_STREAK = 7;
         private const int BASE_SCORE_PER_BALL = 10;
         private const int BASE_ORPHAN_BONUS = 100;
 
         // Properties
         [SerializeField] public int ScoreCount { get; private set; }
         [SerializeField] public int BonusScoreCount { get; private set; }
-        [SerializeField] public int CurrentStreak { get; private set; } = 1; // Starts at 1 (10 points per ball)
+        [SerializeField] public int CurrentStreak { get; private set; }
         [SerializeField] public TextMeshPro currentStreakText;
 
         // Private Fields
         private int _timeBonus = 0;
         private int _clearBonus = 0;
         private List<Tween> _activeAnimations = new List<Tween>();
+
+        public void Init()
+        {
+            ScoreCount = 0;
+            BonusScoreCount = 0;
+            CurrentStreak = 0;
+            currentStreakText.text = string.Empty;
+        }
 
         // Public Methods
         public void AddBubblePopScore(Vector3 worldPosition, int scoreValue)
@@ -125,11 +132,8 @@ namespace Brain.Managers
         /// </summary>
         public void IncreaseStreak()
         {
-            if (CurrentStreak < MAX_STREAK)
-            {
-                CurrentStreak++;
-                currentStreakText.text = "<size=80%>x</size>" + CurrentStreak.ToString();
-            }
+            CurrentStreak++;
+            UpdateStreakUI();
         }
 
         /// <summary>
@@ -137,16 +141,46 @@ namespace Brain.Managers
         /// </summary>
         public void ResetStreak()
         {
-            CurrentStreak = 1;
-            currentStreakText.text = string.Empty;
+            CurrentStreak = 0;
+            HideStreakUI();
         }
 
-        /// <summary>
-        /// Keep streak the same (used for bonus balls)
-        /// </summary>
-        public void MaintainStreak()
+        private void UpdateStreakUI()
         {
-            // No change to CurrentStreak
+            if (CurrentStreak <= 1)
+            {
+                HideStreakUI();
+                return;
+            }
+
+            string newText = "<size=80%>x</size>" + CurrentStreak.ToString();
+            bool wasEmpty = string.IsNullOrEmpty(currentStreakText.text);
+
+            currentStreakText.text = newText;
+
+            if (wasEmpty)
+            {
+                // Scale-in animation when appearing
+                currentStreakText.transform.localScale = Vector3.zero;
+                currentStreakText.transform.DOScale(1f, 0.3f).SetEase(Ease.OutBack);
+            }
+            else
+            {
+                // Punch animation when updating
+                currentStreakText.transform.DOPunchScale(Vector3.one * 0.3f, 0.3f, 5, 0.5f);
+            }
+        }
+
+        private void HideStreakUI()
+        {
+            if (string.IsNullOrEmpty(currentStreakText.text))
+                return;
+
+            // Scale-down animation when disappearing
+            currentStreakText.transform.DOScale(0f, 0.2f).SetEase(Ease.InBack).OnComplete(() =>
+            {
+                currentStreakText.text = string.Empty;
+            });
         }
 
         private void StopOngoingAnimations()
