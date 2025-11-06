@@ -4,6 +4,7 @@ using UnityEngine;
 using DG.Tweening;
 using Brain.Util;
 using Brain.Managers;
+using Brain.Audio;
 
 namespace Brain.Gameplay
 {
@@ -150,28 +151,60 @@ namespace Brain.Gameplay
             // Mark as destroying
             Flags |= BallFlags.Destroying;
 
-            if (IsBonusBall == false)
-                SpawnDestructionVFX();
+            if (IsBonusBall == false) SpawnBallDestructionVFX();
 
             // Simple scale-down destruction animation
             transform.DOScale(0f, 0.2f).SetEase(Ease.InBack).OnComplete(() =>
             {
                 if (IsBonusBall == false)
                     ScoreManager.Instance.AddBubblePopScore(transform.position, scoreValue);
+                else SpawnBonusDestructionVFX();
+
                 ReturnToPool();
             });
         }
 
-        private void SpawnDestructionVFX()
+        private void SpawnBallDestructionVFX()
         {
             GameObject vfx = ObjectPooler.Instance.Get(PooledObjectTag.BallExplosion_VFX);
-
             if (vfx == null) return;
 
             vfx.transform.SetParent(GridManager.Instance.GridContainer);
             vfx.transform.localScale = Vector3.one;
             vfx.transform.position = transform.position;
             vfx.GetComponent<BallExplosionVFX>().SetColor(_displayColor);
+            vfx.SetActive(true);
+        }
+
+        private void SpawnBonusDestructionVFX()
+        {
+            GameObject vfx = null;
+            if (IsBomb())
+            {
+                SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BoosterBomb);
+                vfx = ObjectPooler.Instance.Get(PooledObjectTag.Bomb_VFX);
+            }
+            else if (IsRocket())
+            {
+                SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BoosterRocket);
+                vfx = ObjectPooler.Instance.Get(PooledObjectTag.Rocket_VFX);
+            }
+            else if (IsLightning())
+            {
+                SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BoosterLightning);
+                vfx = ObjectPooler.Instance.Get(PooledObjectTag.Lightning_VFX);
+            }
+            else if (IsRainbow())
+            {
+                SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BoosterRainbow);
+                vfx = ObjectPooler.Instance.Get(PooledObjectTag.Rainbow_VFX);
+            }
+
+            if (vfx == null) return;
+
+            vfx.transform.SetParent(GridManager.Instance.GridContainer);
+            vfx.transform.localScale = Vector3.one;
+            vfx.transform.position = transform.position;
             vfx.SetActive(true);
         }
 

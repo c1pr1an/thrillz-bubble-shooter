@@ -24,5 +24,9 @@ namespace Brain.Audio
         Game_MatchPop1,
         Game_MatchPop2,
         Game_MatchPop3,
+        Game_BoosterBomb,
+        Game_BoosterRocket,
+        Game_BoosterLightning,
+        Game_BoosterRainbow
     }
 }

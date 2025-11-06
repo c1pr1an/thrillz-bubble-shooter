@@ -15,6 +15,10 @@ namespace Brain.Util
         BallPink,
         BallExplosion_VFX,
         BallScore_Text,
+        Bomb_VFX,
+        Rocket_VFX,
+        Lightning_VFX,
+        Rainbow_VFX
     }
 
     public class ObjectPooler : UnitySingleton<ObjectPooler>
