@@ -414,7 +414,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45584971c133046378f3cb5de238eaad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _powerPerBall: 0.05
+  _powerPerBall: 0.1
   _maxPower: 1
   _currentPower: 0
   _isBonusReady: 0
