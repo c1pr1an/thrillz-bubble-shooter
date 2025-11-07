@@ -17,6 +17,8 @@ namespace Brain.Gameplay
         [SerializeField] private bool _enableThrustEffect = true;
         [SerializeField] private float _rotationSpeed = 90f;
         [SerializeField] private float _thrustPulseSpeed = 3f;
+        [SerializeField] private float _rotationSmoothness = 10f; // Smoothness for rotation transitions
+        [SerializeField] private bool _instantBounceRotation = true; // Instant rotation on bounce
 
         [Header("Rocket Settings")]
         [SerializeField] private float _runwayLength;
@@ -27,24 +29,62 @@ namespace Brain.Gameplay
         private float _thrustTimer = 0f;
         private Vector2 _lastVelocity; // Store the last velocity for impact direction
 
+        // Launcher rotation tracking
+        private bool _isInLauncher = false;
+        private bool _isAiming = false;
+        private Quaternion _targetRotation = Quaternion.identity;
+        private bool _isFlying = false;
+        private static readonly Quaternion _defaultRotation = Quaternion.Euler(0, 0, -45f);
+
         private void Awake()
         {
             _ball = GetComponent<Ball>();
             _transform = transform;
             _spriteRenderer = GetComponent<SpriteRenderer>();
+
+            // Set initial default rotation
+            _transform.rotation = _defaultRotation;
+            _targetRotation = _defaultRotation;
         }
 
         private void Update()
         {
-            // Optional thrust visual effect
-            if (_enableThrustEffect && _spriteRenderer != null)
+            // Handle rotation based on state
+            if (_isInLauncher)
             {
-                // Rotation effect (like a spinning rocket)
-                if (_ball != null && !_ball.HasFlag(BallFlags.Pinned))
+                // In launcher: follow aim direction or stay at default
+                if (_isAiming)
+                {
+                    // Smoothly rotate to target rotation
+                    _transform.rotation = Quaternion.Slerp(_transform.rotation, _targetRotation,
+                        _rotationSmoothness * Time.deltaTime);
+                }
+                else
+                {
+                    // Return to default rotation when not aiming
+                    _transform.rotation = Quaternion.Slerp(_transform.rotation, _defaultRotation,
+                        _rotationSmoothness * Time.deltaTime);
+                }
+            }
+            else if (_isFlying)
+            {
+                // During flight: rotation is handled by BallLaunch component
+                // Just apply smooth rotation to target
+                _transform.rotation = Quaternion.Slerp(_transform.rotation, _targetRotation,
+                    _rotationSmoothness * Time.deltaTime);
+            }
+            else if (_ball != null && _ball.HasFlag(BallFlags.Pinned))
+            {
+                // When pinned in grid: do the spinning effect
+                if (_enableThrustEffect)
                 {
                     _transform.Rotate(0, 0, _rotationSpeed * Time.deltaTime);
                 }
+            }
 
+            // Optional thrust visual effect
+            if (_enableThrustEffect && _spriteRenderer != null)
+            {
                 // Thrust pulse effect
                 _thrustTimer += _thrustPulseSpeed * Time.deltaTime;
                 float thrust = 1f + Mathf.Sin(_thrustTimer) * 0.1f;
@@ -78,6 +118,63 @@ namespace Brain.Gameplay
         public Vector2 GetLastVelocity()
         {
             return _lastVelocity;
+        }
+
+        /// <summary>
+        /// Set whether the rocket is in the launcher container
+        /// </summary>
+        public void SetInLauncher(bool inLauncher)
+        {
+            _isInLauncher = inLauncher;
+            if (!inLauncher)
+            {
+                _isAiming = false;
+            }
+        }
+
+        /// <summary>
+        /// Update the rocket's rotation to point in a specific direction (for aiming)
+        /// </summary>
+        public void SetAimDirection(Vector2 direction, bool isAiming)
+        {
+            _isAiming = isAiming;
+
+            if (isAiming && direction != Vector2.zero)
+            {
+                // Calculate rotation angle from direction
+                // -90 degrees offset because sprites usually face upward by default
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
+                _targetRotation = Quaternion.Euler(0, 0, angle);
+            }
+        }
+
+        /// <summary>
+        /// Set the rocket to flying state and update rotation for flight direction
+        /// </summary>
+        public void SetFlying(bool flying)
+        {
+            _isFlying = flying;
+            _isInLauncher = false;
+            _isAiming = false;
+        }
+
+        /// <summary>
+        /// Update rotation during flight to match movement direction
+        /// </summary>
+        public void UpdateFlightRotation(Vector2 direction, bool isBounce = false)
+        {
+            if (_isFlying && direction != Vector2.zero)
+            {
+                // Calculate rotation angle from direction
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
+                _targetRotation = Quaternion.Euler(0, 0, angle);
+
+                // Apply instant rotation on bounce if enabled
+                if (isBounce && _instantBounceRotation)
+                {
+                    _transform.rotation = _targetRotation;
+                }
+            }
         }
 
         #region IBonusBallDetector Implementation
@@ -252,10 +349,16 @@ namespace Brain.Gameplay
             }
             if (_transform != null)
             {
-                _transform.rotation = Quaternion.identity;
+                _transform.rotation = _defaultRotation;
             }
             _thrustTimer = 0f;
             _lastVelocity = Vector2.zero;
+
+            // Reset launcher states
+            _isInLauncher = false;
+            _isAiming = false;
+            _isFlying = false;
+            _targetRotation = _defaultRotation;
         }
     }
 }

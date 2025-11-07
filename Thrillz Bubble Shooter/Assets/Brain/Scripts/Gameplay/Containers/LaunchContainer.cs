@@ -22,6 +22,7 @@ namespace Brain.Gameplay.Containers
         private Camera _mainCamera;
         private bool _canLaunch = true;
         private bool _waitingForBall = false;
+        private RocketBall _currentRocketComponent; // Cached rocket component reference
 
         protected override void Awake()
         {
@@ -94,6 +95,9 @@ namespace Brain.Gameplay.Containers
             if (!_canLaunch || CurrentBall == null) return;
 
             UpdateTrajectory(position);
+
+            // Update rocket ball rotation if applicable
+            UpdateRocketBallAiming(position, true);
         }
 
         private void OnAimingUpdated(Vector2 position)
@@ -102,6 +106,9 @@ namespace Brain.Gameplay.Containers
             if (!_canLaunch || CurrentBall == null) return;
 
             UpdateTrajectory(position);
+
+            // Update rocket ball rotation if applicable
+            UpdateRocketBallAiming(position, true);
         }
 
         private void OnAimingReleased(Vector2 position)
@@ -119,6 +126,25 @@ namespace Brain.Gameplay.Containers
             if (_trajectoryPredictor != null)
             {
                 _trajectoryPredictor.HideTrajectory();
+            }
+
+            // Reset rocket ball rotation if applicable
+            UpdateRocketBallAiming(Vector2.zero, false);
+        }
+
+        private void UpdateRocketBallAiming(Vector2 inputPosition, bool isAiming)
+        {
+            // Only update if we have a cached rocket component
+            if (_currentRocketComponent == null) return;
+
+            if (isAiming)
+            {
+                Vector2 aimDirection = CalculateAimDirection(inputPosition);
+                _currentRocketComponent.SetAimDirection(aimDirection, true);
+            }
+            else
+            {
+                _currentRocketComponent.SetAimDirection(Vector2.zero, false);
             }
         }
 
@@ -167,7 +193,21 @@ namespace Brain.Gameplay.Containers
             {
                 ball.SetColliderEnabled(false);
                 ball.Flags = BallFlags.None;
+
+                // Cache rocket component if this is a rocket ball
+                _currentRocketComponent = ball.GetComponent<RocketBall>();
+                if (_currentRocketComponent != null)
+                {
+                    _currentRocketComponent.SetInLauncher(true);
+                }
             }
+        }
+
+        public override void ReleaseBall()
+        {
+            // Clear cached rocket component when releasing ball
+            _currentRocketComponent = null;
+            base.ReleaseBall();
         }
 
         private void LaunchBall(Vector2 direction)
@@ -210,10 +250,26 @@ namespace Brain.Gameplay.Containers
             }
 
             Ball launchedBall = CurrentBall;
-            ReleaseBall();
+
+            // Save rocket component reference BEFORE releasing the ball
+            RocketBall rocketComponent = _currentRocketComponent;
+
+            ReleaseBall(); // This will set _currentRocketComponent to null
 
             launchedBall.transform.SetParent(null);
             launchedBall.AnimateScaleDown(0.15f);
+
+            // Notify rocket ball that it's being launched (use saved reference)
+            if (rocketComponent != null)
+            {
+                rocketComponent.SetFlying(true);
+                // Set initial flight direction
+                if (trajectoryPath != null && trajectoryPath.Count >= 2)
+                {
+                    Vector2 initialDirection = (trajectoryPath[1] - trajectoryPath[0]).normalized;
+                    rocketComponent.UpdateFlightRotation(initialDirection, false); // false = not a bounce
+                }
+            }
 
             BallLaunch launcher = launchedBall.gameObject.AddComponent<BallLaunch>();
             launcher.OnBallStopped += (ball) => StartCoroutine(OnBallStopped(ball));

@@ -15,6 +15,7 @@ namespace Brain.Gameplay
         private Ball _ball;
         private CircleCollider2D _circleCollider;
         private bool _isMoving = false;
+        private RocketBall _rocketBall; // Reference to rocket component if present
 
         // Trajectory path data
         private List<Vector3> _trajectoryPath;
@@ -31,6 +32,7 @@ namespace Brain.Gameplay
         {
             _ball = GetComponent<Ball>();
             _circleCollider = GetComponent<CircleCollider2D>();
+            _rocketBall = GetComponent<RocketBall>(); // Get rocket component if present
         }
 
         public void LaunchAlongPath(List<Vector3> path)
@@ -66,6 +68,15 @@ namespace Brain.Gameplay
 
             // Position at start of segment
             transform.position = _segmentStart;
+
+            // Update rocket rotation to match new segment direction
+            if (_rocketBall != null)
+            {
+                Vector2 segmentDirection = (_segmentEnd - _segmentStart).normalized;
+                // Pass true for isBounce when not the first segment (segment 0)
+                bool isBounce = segmentIndex > 0;
+                _rocketBall.UpdateFlightRotation(segmentDirection, isBounce);
+            }
         }
 
         private void Update()
@@ -104,20 +115,17 @@ namespace Brain.Gameplay
         {
             _isMoving = false;
 
-            // Store the final trajectory direction for rocket balls
-            if (_ball.IsRocket() && _trajectoryPath != null && _trajectoryPath.Count >= 2)
+            // Handle rocket ball stopping
+            if (_rocketBall != null && _trajectoryPath != null && _trajectoryPath.Count >= 2)
             {
                 // Get the direction of the last segment (impact direction)
                 Vector3 lastSegmentStart = _trajectoryPath[Mathf.Max(0, _trajectoryPath.Count - 2)];
                 Vector3 lastSegmentEnd = _trajectoryPath[_trajectoryPath.Count - 1];
                 Vector2 impactDirection = (lastSegmentEnd - lastSegmentStart).normalized;
 
-                // Store the direction in the rocket component
-                RocketBall rocketComponent = _ball.GetComponent<RocketBall>();
-                if (rocketComponent != null)
-                {
-                    rocketComponent.SetLastVelocity(impactDirection);
-                }
+                // Store the direction and stop flying state
+                _rocketBall.SetLastVelocity(impactDirection);
+                _rocketBall.SetFlying(false);
             }
 
             // Re-enable collider now that ball is at final position

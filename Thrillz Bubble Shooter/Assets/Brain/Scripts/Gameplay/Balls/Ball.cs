@@ -199,8 +199,8 @@ namespace Brain.Gameplay
             }
             else if (IsRocket())
             {
-                SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BoosterRocket);
-                vfx = ObjectPooler.Instance.Get(PooledObjectTag.Rocket_VFX);
+                //SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BoosterRocket);
+                vfx = ObjectPooler.Instance.Get(PooledObjectTag.Rainbow_VFX);
             }
             else if (IsLightning())
             {

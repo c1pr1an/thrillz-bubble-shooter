@@ -63,6 +63,31 @@ PrefabInstance:
       propertyPath: _isBonusBall
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1769342424006392153, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.92387956
+      objectReference: {fileID: 0}
+    - target: {fileID: 1769342424006392153, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1769342424006392153, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1769342424006392153, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.38268343
+      objectReference: {fileID: 0}
+    - target: {fileID: 1769342424006392153, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 45
+      objectReference: {fileID: 0}
     - target: {fileID: 2345047516124010955, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
       propertyPath: m_IsActive
@@ -74,6 +99,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 48b46941e19f14a89a622ed48d0d63fe,
         type: 3}
+    - target: {fileID: 4084443258998388959, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 4176247645813639465, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
       propertyPath: m_IsActive
@@ -158,7 +188,7 @@ PrefabInstance:
     - target: {fileID: 8489022529890124695, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
       propertyPath: m_SortingOrder
-      value: 11
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 8489022529890124695, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
@@ -200,5 +230,7 @@ MonoBehaviour:
   _enableThrustEffect: 1
   _rotationSpeed: 90
   _thrustPulseSpeed: 3
+  _rotationSmoothness: 25
+  _instantBounceRotation: 1
   _runwayLength: 4.25
   _runwayWidth: 0.75
