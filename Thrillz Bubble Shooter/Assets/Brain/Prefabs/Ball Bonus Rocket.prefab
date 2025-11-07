@@ -66,7 +66,7 @@ PrefabInstance:
     - target: {fileID: 1769342424006392153, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.92387956
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1769342424006392153, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
@@ -81,12 +81,12 @@ PrefabInstance:
     - target: {fileID: 1769342424006392153, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.38268343
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1769342424006392153, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 45
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2345047516124010955, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
@@ -124,6 +124,31 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 0.55
       objectReference: {fileID: 0}
+    - target: {fileID: 4689719254661643444, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.9271839
+      objectReference: {fileID: 0}
+    - target: {fileID: 4689719254661643444, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4689719254661643444, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4689719254661643444, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.37460655
+      objectReference: {fileID: 0}
+    - target: {fileID: 4689719254661643444, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 44
+      objectReference: {fileID: 0}
     - target: {fileID: 5442770375372771985, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -138,6 +163,31 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalScale.z
       value: 0.55
+      objectReference: {fileID: 0}
+    - target: {fileID: 5442770375372771985, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.9271839
+      objectReference: {fileID: 0}
+    - target: {fileID: 5442770375372771985, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5442770375372771985, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5442770375372771985, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.37460655
+      objectReference: {fileID: 0}
+    - target: {fileID: 5442770375372771985, guid: 5cea0a48d82864e94a8250967614a941,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 44
       objectReference: {fileID: 0}
     - target: {fileID: 7035903270634996869, guid: 5cea0a48d82864e94a8250967614a941,
         type: 3}
@@ -209,6 +259,12 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 5116367354025385301}
   m_SourcePrefab: {fileID: 100100000, guid: 5cea0a48d82864e94a8250967614a941, type: 3}
+--- !u!4 &2363590117779999525 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1769342424006392153, guid: 5cea0a48d82864e94a8250967614a941,
+    type: 3}
+  m_PrefabInstance: {fileID: 4053485126712783484}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &4923921571906240741 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8941219400125624985, guid: 5cea0a48d82864e94a8250967614a941,
@@ -227,7 +283,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01b91f492e40147aabb1ab2cd865e1ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enableThrustEffect: 1
+  _modelTransform: {fileID: 2363590117779999525}
+  _enableThrustEffect: 0
   _rotationSpeed: 90
   _thrustPulseSpeed: 3
   _rotationSmoothness: 25

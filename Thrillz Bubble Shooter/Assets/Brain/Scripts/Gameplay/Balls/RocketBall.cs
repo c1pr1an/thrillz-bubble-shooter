@@ -14,6 +14,7 @@ namespace Brain.Gameplay
         private Ball _ball;
 
         [Header("Visual Settings")]
+        [SerializeField] private Transform _modelTransform;
         [SerializeField] private bool _enableThrustEffect = true;
         [SerializeField] private float _rotationSpeed = 90f;
         [SerializeField] private float _thrustPulseSpeed = 3f;
@@ -24,7 +25,6 @@ namespace Brain.Gameplay
         [SerializeField] private float _runwayLength;
         [SerializeField] private float _runwayWidth;
 
-        private Transform _transform;
         private SpriteRenderer _spriteRenderer;
         private float _thrustTimer = 0f;
         private Vector2 _lastVelocity; // Store the last velocity for impact direction
@@ -39,11 +39,10 @@ namespace Brain.Gameplay
         private void Awake()
         {
             _ball = GetComponent<Ball>();
-            _transform = transform;
             _spriteRenderer = GetComponent<SpriteRenderer>();
 
             // Set initial default rotation
-            _transform.rotation = _defaultRotation;
+            _modelTransform.rotation = _defaultRotation;
             _targetRotation = _defaultRotation;
         }
 
@@ -56,13 +55,13 @@ namespace Brain.Gameplay
                 if (_isAiming)
                 {
                     // Smoothly rotate to target rotation
-                    _transform.rotation = Quaternion.Slerp(_transform.rotation, _targetRotation,
+                    _modelTransform.rotation = Quaternion.Slerp(_modelTransform.rotation, _targetRotation,
                         _rotationSmoothness * Time.deltaTime);
                 }
                 else
                 {
                     // Return to default rotation when not aiming
-                    _transform.rotation = Quaternion.Slerp(_transform.rotation, _defaultRotation,
+                    _modelTransform.rotation = Quaternion.Slerp(_modelTransform.rotation, _defaultRotation,
                         _rotationSmoothness * Time.deltaTime);
                 }
             }
@@ -70,7 +69,7 @@ namespace Brain.Gameplay
             {
                 // During flight: rotation is handled by BallLaunch component
                 // Just apply smooth rotation to target
-                _transform.rotation = Quaternion.Slerp(_transform.rotation, _targetRotation,
+                _modelTransform.rotation = Quaternion.Slerp(_modelTransform.rotation, _targetRotation,
                     _rotationSmoothness * Time.deltaTime);
             }
             else if (_ball != null && _ball.HasFlag(BallFlags.Pinned))
@@ -78,7 +77,7 @@ namespace Brain.Gameplay
                 // When pinned in grid: do the spinning effect
                 if (_enableThrustEffect)
                 {
-                    _transform.Rotate(0, 0, _rotationSpeed * Time.deltaTime);
+                    _modelTransform.Rotate(0, 0, _rotationSpeed * Time.deltaTime);
                 }
             }
 
@@ -172,7 +171,7 @@ namespace Brain.Gameplay
                 // Apply instant rotation on bounce if enabled
                 if (isBounce && _instantBounceRotation)
                 {
-                    _transform.rotation = _targetRotation;
+                    _modelTransform.rotation = _targetRotation;
                 }
             }
         }
@@ -346,10 +345,6 @@ namespace Brain.Gameplay
             if (_spriteRenderer != null)
             {
                 _spriteRenderer.color = Color.white;
-            }
-            if (_transform != null)
-            {
-                _transform.rotation = _defaultRotation;
             }
             _thrustTimer = 0f;
             _lastVelocity = Vector2.zero;
