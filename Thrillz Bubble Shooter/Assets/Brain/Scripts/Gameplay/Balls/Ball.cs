@@ -191,6 +191,7 @@ namespace Brain.Gameplay
             }
             else if (IsLightning())
             {
+                SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BoosterBomb);
                 SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BoosterLightning);
                 vfx = ObjectPooler.Instance.Get(PooledObjectTag.Lightning_VFX);
             }
