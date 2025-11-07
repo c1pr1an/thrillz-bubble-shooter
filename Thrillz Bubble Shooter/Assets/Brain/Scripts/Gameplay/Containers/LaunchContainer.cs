@@ -206,7 +206,11 @@ namespace Brain.Gameplay.Containers
         public override void ReleaseBall()
         {
             // Clear cached rocket component when releasing ball
-            _currentRocketComponent = null;
+            if (_currentRocketComponent != null)
+            {
+                _currentRocketComponent.SetInLauncher(false);
+                _currentRocketComponent = null;
+            }
             base.ReleaseBall();
         }
 

@@ -16,9 +16,7 @@ namespace Brain.Gameplay
         [Header("Visual Settings")]
         [SerializeField] private Transform _modelTransform;
         [SerializeField] private Transform _rocketParticles;
-        [SerializeField] private bool _enableThrustEffect = true;
-        [SerializeField] private float _rotationSpeed = 90f;
-        [SerializeField] private float _thrustPulseSpeed = 3f;
+        [SerializeField] private Transform _rocketParticlesIdle;
         [SerializeField] private float _rotationSmoothness = 10f; // Smoothness for rotation transitions
         [SerializeField] private bool _instantBounceRotation = true; // Instant rotation on bounce
 
@@ -26,7 +24,6 @@ namespace Brain.Gameplay
         [SerializeField] private float _runwayLength;
         [SerializeField] private float _runwayWidth;
 
-        private SpriteRenderer _spriteRenderer;
         private float _thrustTimer = 0f;
         private Vector2 _lastVelocity; // Store the last velocity for impact direction
 
@@ -40,7 +37,6 @@ namespace Brain.Gameplay
         private void Awake()
         {
             _ball = GetComponent<Ball>();
-            _spriteRenderer = GetComponent<SpriteRenderer>();
 
             // Set initial default rotation
             _modelTransform.rotation = _defaultRotation;
@@ -72,27 +68,6 @@ namespace Brain.Gameplay
                 // Just apply smooth rotation to target
                 _modelTransform.rotation = Quaternion.Slerp(_modelTransform.rotation, _targetRotation,
                     _rotationSmoothness * Time.deltaTime);
-            }
-            else if (_ball != null && _ball.HasFlag(BallFlags.Pinned))
-            {
-                // When pinned in grid: do the spinning effect
-                if (_enableThrustEffect)
-                {
-                    _modelTransform.Rotate(0, 0, _rotationSpeed * Time.deltaTime);
-                }
-            }
-
-            // Optional thrust visual effect
-            if (_enableThrustEffect && _spriteRenderer != null)
-            {
-                // Thrust pulse effect
-                _thrustTimer += _thrustPulseSpeed * Time.deltaTime;
-                float thrust = 1f + Mathf.Sin(_thrustTimer) * 0.1f;
-
-                // Apply red-orange rocket color with thrust effect
-                Color rocketColor = Color.Lerp(Color.red, new Color(1f, 0.5f, 0f), thrust - 0.9f);
-                rocketColor *= thrust;
-                _spriteRenderer.color = rocketColor;
             }
         }
 
@@ -126,6 +101,7 @@ namespace Brain.Gameplay
         public void SetInLauncher(bool inLauncher)
         {
             _isInLauncher = inLauncher;
+            _rocketParticlesIdle.gameObject.SetActive(inLauncher);
             if (!inLauncher)
             {
                 _isAiming = false;
@@ -343,11 +319,6 @@ namespace Brain.Gameplay
 
         private void OnDisable()
         {
-            // Reset visual state when disabled
-            if (_spriteRenderer != null)
-            {
-                _spriteRenderer.color = Color.white;
-            }
             _thrustTimer = 0f;
             _lastVelocity = Vector2.zero;
 
