@@ -146,33 +146,46 @@ namespace Brain.Gameplay
             Invoke("ReturnToPool", 2f);
         }
 
-        public void DestroyBall(int scoreValue = 10)
+        public void DestroyBall(int scoreValue = 10, bool useRainbowVFX = false)
         {
             // Mark as destroying
             Flags |= BallFlags.Destroying;
-
-            if (IsBonusBall == false) SpawnBallDestructionVFX();
 
             // Simple scale-down destruction animation
             transform.DOScale(0f, 0.2f).SetEase(Ease.InBack).OnComplete(() =>
             {
                 if (IsBonusBall == false)
+                {
                     ScoreManager.Instance.AddBubblePopScore(transform.position, scoreValue);
+                    SpawnBallDestructionVFX(useRainbowVFX);
+                }
                 else SpawnBonusDestructionVFX();
 
                 ReturnToPool();
             });
         }
 
-        private void SpawnBallDestructionVFX()
+        private void SpawnBallDestructionVFX(bool useRainbowVFX = false)
         {
-            GameObject vfx = ObjectPooler.Instance.Get(PooledObjectTag.BallExplosion_VFX);
+            GameObject vfx;
+
+            if (useRainbowVFX)
+            {
+                vfx = ObjectPooler.Instance.Get(PooledObjectTag.Rainbow_VFX);
+            }
+            else
+            {
+                vfx = ObjectPooler.Instance.Get(PooledObjectTag.BallExplosion_VFX);
+                vfx.GetComponent<BallExplosionVFX>().SetColor(_displayColor);
+            }
+
+
             if (vfx == null) return;
 
             vfx.transform.SetParent(GridManager.Instance.GridContainer);
             vfx.transform.localScale = Vector3.one;
             vfx.transform.position = transform.position;
-            vfx.GetComponent<BallExplosionVFX>().SetColor(_displayColor);
+
             vfx.SetActive(true);
         }
 
@@ -197,7 +210,7 @@ namespace Brain.Gameplay
             }
             else if (IsRainbow())
             {
-                SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BoosterRainbow);
+                //SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BoosterRainbow);
                 vfx = ObjectPooler.Instance.Get(PooledObjectTag.Rainbow_VFX);
             }
 

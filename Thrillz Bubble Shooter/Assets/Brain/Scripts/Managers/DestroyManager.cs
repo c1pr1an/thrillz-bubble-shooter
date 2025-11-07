@@ -30,6 +30,9 @@ namespace Brain.Managers
             // Track destroyed balls for power system
             int destroyedCount = 0;
 
+            // Check if the impact ball is a rainbow ball
+            bool useRainbowVFX = impactBall != null && impactBall.IsRainbow();
+
             // Sort balls by distance from impact point (wave pattern)
             if (impactBall != null && balls.Contains(impactBall))
             {
@@ -80,7 +83,7 @@ namespace Brain.Managers
                     ball.Flags |= BallFlags.MarkedForDestroy;
                     ball.Flags |= BallFlags.Destroying;
                     GridManager.Instance.RemoveBall(ball);
-                    ball.DestroyBall(scorePerBall);
+                    ball.DestroyBall(scorePerBall, useRainbowVFX);
                     yield return new WaitForSeconds(_delayBetweenDestructions);
                 }
             }
@@ -94,7 +97,7 @@ namespace Brain.Managers
             _isDestroying = false;
         }
 
-        public void DestroyBallInstantly(Ball ball, int scoreValue = -1)
+        public void DestroyBallInstantly(Ball ball, int scoreValue = -1, bool useRainbowVFX = false)
         {
             if (ball == null) return;
 
@@ -112,7 +115,7 @@ namespace Brain.Managers
             }
 
             // Destroy immediately
-            ball.DestroyBall(scoreValue);
+            ball.DestroyBall(scoreValue, useRainbowVFX);
         }
 
         public bool IsDestroying()
