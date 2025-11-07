@@ -15,6 +15,7 @@ namespace Brain.Gameplay
 
         [Header("Visual Settings")]
         [SerializeField] private Transform _modelTransform;
+        [SerializeField] private Transform _rocketParticles;
         [SerializeField] private bool _enableThrustEffect = true;
         [SerializeField] private float _rotationSpeed = 90f;
         [SerializeField] private float _thrustPulseSpeed = 3f;
@@ -152,6 +153,7 @@ namespace Brain.Gameplay
         /// </summary>
         public void SetFlying(bool flying)
         {
+            _rocketParticles.gameObject.SetActive(flying);
             _isFlying = flying;
             _isInLauncher = false;
             _isAiming = false;

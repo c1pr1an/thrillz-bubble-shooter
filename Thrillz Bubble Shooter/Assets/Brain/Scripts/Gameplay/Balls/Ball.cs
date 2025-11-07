@@ -146,7 +146,7 @@ namespace Brain.Gameplay
             Invoke("ReturnToPool", 2f);
         }
 
-        public void DestroyBall(int scoreValue = 10, bool useRainbowVFX = false)
+        public void DestroyBall(int scoreValue, Ball impactBall)
         {
             // Mark as destroying
             Flags |= BallFlags.Destroying;
@@ -157,7 +157,7 @@ namespace Brain.Gameplay
                 if (IsBonusBall == false)
                 {
                     ScoreManager.Instance.AddBubblePopScore(transform.position, scoreValue);
-                    SpawnBallDestructionVFX(useRainbowVFX);
+                    SpawnBallDestructionVFX(impactBall);
                 }
                 else SpawnBonusDestructionVFX();
 
@@ -165,13 +165,20 @@ namespace Brain.Gameplay
             });
         }
 
-        private void SpawnBallDestructionVFX(bool useRainbowVFX = false)
+        private void SpawnBallDestructionVFX(Ball impactBall)
         {
-            GameObject vfx;
+            GameObject vfx = null;
 
-            if (useRainbowVFX)
+            if (impactBall.IsBonusBall)
             {
-                vfx = ObjectPooler.Instance.Get(PooledObjectTag.Rainbow_VFX);
+                if (impactBall.IsRainbow())
+                {
+                    vfx = ObjectPooler.Instance.Get(PooledObjectTag.Rainbow_VFX);
+                }
+                else if (impactBall.IsBomb() || impactBall.IsRocket())
+                {
+                    vfx = ObjectPooler.Instance.Get(PooledObjectTag.BonusExplode_VFX);
+                }
             }
             else
             {
@@ -199,8 +206,8 @@ namespace Brain.Gameplay
             }
             else if (IsRocket())
             {
-                //SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BoosterRocket);
-                vfx = ObjectPooler.Instance.Get(PooledObjectTag.Rainbow_VFX);
+                SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BoosterBomb);
+                vfx = ObjectPooler.Instance.Get(PooledObjectTag.Rocket_VFX);
             }
             else if (IsLightning())
             {
