@@ -26,6 +26,8 @@ namespace Brain.Gameplay.Containers
 
         [Header("Charge UI")]
         [SerializeField] private Image _chargeProgressFill;
+        [SerializeField] private ParticleSystem _readyParticles;
+        [SerializeField] private ParticleSystem _readyIdleParticles;
 
         private LaunchContainer _launchContainer;
         private CircleCollider2D _collider;
@@ -130,12 +132,16 @@ namespace Brain.Gameplay.Containers
 
         private void OnBonusReady()
         {
+            _readyParticles.gameObject.SetActive(true);
+            _readyParticles.Play();
+            _readyIdleParticles.gameObject.SetActive(true);
             SetBallVisualState(BonusBallState.ReadyToUse);
             _shouldTransitionToAvailable = true;
         }
 
         private void OnBonusUsed()
         {
+            _readyIdleParticles.gameObject.SetActive(false);
             SetBallVisualState(BonusBallState.Charging);
             _shouldTransitionToAvailable = false;
         }
