@@ -62,7 +62,7 @@ namespace Brain.Managers
             GridManager.Instance.InitializeGrid();
             GridGenerator.Instance.GenerateGrid();
             ScoreManager.Instance.Init();
-            BallHighlightManager.Instance.Init(GridManager.Instance, TrajectoryPredictor.Instance);
+            BallHighlightManager.Instance.Init(GridManager.Instance, TrajectoryPredictor.Instance, GridManager.Instance.BonusBallContainer);
             UIManager.Instance.Init();
 
             // Subscribe to game events

@@ -15,21 +15,57 @@ namespace Brain.Gameplay
 
         private HashSet<Ball> _highlightedBalls = new HashSet<Ball>();
         private LaunchContainer _launchContainer;
+        private BonusBallContainer _bonusBallContainer;
         private TrajectoryPredictor _trajectoryPredictor;
         private GridManager _gridManager;
         private Vector2Int _lastPredictedGridPos = new Vector2Int(-1, -1);
         private Ball _currentBall;
+        private bool _isAiming = false;
 
-        public void Init(GridManager gridManager, TrajectoryPredictor trajectoryPredictor)
+        public void Init(GridManager gridManager, TrajectoryPredictor trajectoryPredictor, BonusBallContainer bonusBallContainer = null)
         {
             _gridManager = gridManager;
             _launchContainer = gridManager.BallLaunchContainer;
             _trajectoryPredictor = trajectoryPredictor;
+            _bonusBallContainer = bonusBallContainer;
+        }
+
+        private void OnEnable()
+        {
+            // Subscribe to InputManager aiming events
+            InputManager.OnAimingStarted += OnAimingStarted;
+            InputManager.OnAimingUpdated += OnAimingUpdated;
+            InputManager.OnAimingReleased += OnAimingReleased;
+            InputManager.OnAimingCancelled += OnAimingCancelled;
+        }
+
+        private void OnAimingStarted(Vector2 position)
+        {
+            _isAiming = true;
+        }
+
+        private void OnAimingUpdated(Vector2 position)
+        {
+            _isAiming = true;
+        }
+
+        private void OnAimingReleased(Vector2 position)
+        {
+            _isAiming = false;
+            ClearAllHighlights();
+            _lastPredictedGridPos = new Vector2Int(-1, -1);
+        }
+
+        private void OnAimingCancelled()
+        {
+            _isAiming = false;
+            ClearAllHighlights();
+            _lastPredictedGridPos = new Vector2Int(-1, -1);
         }
 
         private void Update()
         {
-            if (!_enableHighlighting)
+            if (!_enableHighlighting || !_isAiming)
                 return;
 
             // Check if we have a ball in launch container
@@ -49,6 +85,17 @@ namespace Brain.Gameplay
             {
                 _currentBall = _launchContainer.CurrentBall;
                 _lastPredictedGridPos = new Vector2Int(-1, -1);
+            }
+
+            // Only highlight for bonus balls
+            if (_currentBall == null || !_currentBall.IsBonusBall)
+            {
+                if (_highlightedBalls.Count > 0)
+                {
+                    ClearAllHighlights();
+                    _lastPredictedGridPos = new Vector2Int(-1, -1);
+                }
+                return;
             }
 
             // Check if trajectory prediction has a valid target
@@ -234,7 +281,7 @@ namespace Brain.Gameplay
 
             foreach (var ball in toClear)
             {
-                if (ball != null)
+                if (ball != null && !IsBallInContainer(ball))
                     ball.SetHighlight(false);
             }
 
@@ -249,21 +296,47 @@ namespace Brain.Gameplay
         }
 
         /// <summary>
-        /// Clear all ball highlights
+        /// Clear all ball highlights (except bonus balls in containers)
         /// </summary>
         private void ClearAllHighlights()
         {
             foreach (var ball in _highlightedBalls)
             {
-                if (ball != null)
+                if (ball != null && !IsBallInContainer(ball))
                     ball.SetHighlight(false);
             }
 
             _highlightedBalls.Clear();
         }
 
+        /// <summary>
+        /// Check if a ball is in a container (bonus container or launch container)
+        /// These balls should keep their highlights independently
+        /// </summary>
+        private bool IsBallInContainer(Ball ball)
+        {
+            if (ball == null)
+                return false;
+
+            // Check if it's in the bonus container
+            if (_bonusBallContainer != null && _bonusBallContainer.CurrentBall == ball)
+                return true;
+
+            // Check if it's in the launch container (don't clear highlight of ball we're aiming with)
+            if (_launchContainer != null && _launchContainer.CurrentBall == ball)
+                return true;
+
+            return false;
+        }
+
         private void OnDisable()
         {
+            // Unsubscribe from InputManager events
+            InputManager.OnAimingStarted -= OnAimingStarted;
+            InputManager.OnAimingUpdated -= OnAimingUpdated;
+            InputManager.OnAimingReleased -= OnAimingReleased;
+            InputManager.OnAimingCancelled -= OnAimingCancelled;
+
             ClearAllHighlights();
         }
 
