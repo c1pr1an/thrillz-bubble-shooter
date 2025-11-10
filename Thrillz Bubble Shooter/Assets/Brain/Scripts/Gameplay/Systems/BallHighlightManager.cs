@@ -250,8 +250,8 @@ namespace Brain.Gameplay
                 return previewList;
             }
 
-            // Use IBonusBallDetector interface for all other bonus balls
-            IBonusBall detector = _currentBall.GetComponent<IBonusBall>();
+            // Use BonusBallBase for all other bonus balls
+            BonusBallBase detector = _currentBall.GetComponent<BonusBallBase>();
             if (detector != null)
             {
                 // Convert grid position to world position for the detector

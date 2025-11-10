@@ -10,14 +10,13 @@ namespace Brain.Gameplay
     /// Rocket balls destroy balls in a runway pattern in the shooting direction.
     /// </summary>
     [RequireComponent(typeof(Ball))]
-    public class RocketBall : MonoBehaviour, IBonusBall
+    public class RocketBall : BonusBallBase
     {
         private Ball _ball;
 
         [Header("Visual Settings")]
         [SerializeField] private Transform _modelTransform;
         [SerializeField] private Transform _rocketParticles;
-        [SerializeField] private Transform _rocketParticlesIdle;
         [SerializeField] private float _rotationSmoothness = 10f; // Smoothness for rotation transitions
         [SerializeField] private bool _instantBounceRotation = true; // Instant rotation on bounce
 
@@ -102,7 +101,10 @@ namespace Brain.Gameplay
         public void SetInLauncher(bool inLauncher)
         {
             _isInLauncher = inLauncher;
-            _rocketParticlesIdle.gameObject.SetActive(inLauncher);
+            if (idleParticles != null)
+            {
+                idleParticles.gameObject.SetActive(inLauncher);
+            }
             if (!inLauncher)
             {
                 _isAiming = false;
@@ -155,12 +157,12 @@ namespace Brain.Gameplay
             }
         }
 
-        #region IBonusBallDetector Implementation
+        #region BonusBall Implementation
 
         /// <summary>
         /// Get all balls that would be affected by the rocket's runway pattern
         /// </summary>
-        public List<Ball> GetAffectedBalls(Vector2 impactPosition, Vector2 impactDirection = default)
+        public override List<Ball> GetAffectedBalls(Vector2 impactPosition, Vector2 impactDirection = default)
         {
             List<Ball> affectedBalls = new List<Ball>();
 
@@ -245,7 +247,7 @@ namespace Brain.Gameplay
         /// <summary>
         /// Draw debug visualization for the rocket runway
         /// </summary>
-        public void DrawDebugVisualization(Vector2 impactPosition, Vector2 impactDirection = default)
+        public override void DrawDebugVisualization(Vector2 impactPosition, Vector2 impactDirection = default)
         {
             // Use stored velocity if no direction provided
             if (impactDirection == default)

@@ -9721,7 +9721,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfadcf0f69f8b4033b3afccb4ac18acb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _lightningParticlesIdle: {fileID: 8901370142875808268}
+  idleParticles: {fileID: 6453067905538199054}
   _enableElectricEffect: 1
   _sparkInterval: 0.5
   _glowIntensity: 1.5

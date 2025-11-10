@@ -9996,5 +9996,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc43c867c727546ada3cb2a334702f3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _bombParticlesIdle: {fileID: 8496817753665838640}
+  idleParticles: {fileID: 4820626309491737316}
   _explosionRadius: 2

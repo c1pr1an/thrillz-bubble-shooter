@@ -10,12 +10,11 @@ namespace Brain.Gameplay
     /// Rainbow balls match with ANY color they touch.
     /// </summary>
     [RequireComponent(typeof(Ball))]
-    public class RainbowBall : MonoBehaviour, IBonusBall
+    public class RainbowBall : BonusBallBase
     {
         private Ball _ball;
 
         [Header("Visual Settings")]
-        [SerializeField] private Transform _rainbowParticlesIdle;
         [SerializeField] private bool _enableRainbowEffect = true;
         [SerializeField] private float _colorCycleSpeed = 2f;
 
@@ -49,23 +48,12 @@ namespace Brain.Gameplay
             return enabled && _ball != null;
         }
 
-        /// <summary>
-        /// Set whether the rainbow ball is in the launcher container
-        /// </summary>
-        public void SetInLauncher(bool inLauncher)
-        {
-            if (_rainbowParticlesIdle != null)
-            {
-                _rainbowParticlesIdle.gameObject.SetActive(inLauncher);
-            }
-        }
-
-        #region IBonusBallDetector Implementation
+        #region BonusBall Implementation
 
         /// <summary>
         /// Get all balls that would be matched by the rainbow ball (color groups of 3+)
         /// </summary>
-        public List<Ball> GetAffectedBalls(Vector2 impactPosition, Vector2 impactDirection = default)
+        public override List<Ball> GetAffectedBalls(Vector2 impactPosition, Vector2 impactDirection = default)
         {
             List<Ball> affectedBalls = new List<Ball>();
             HashSet<Ball> processedBalls = new HashSet<Ball>();
@@ -191,7 +179,7 @@ namespace Brain.Gameplay
         /// <summary>
         /// Draw debug visualization for rainbow ball matches
         /// </summary>
-        public void DrawDebugVisualization(Vector2 impactPosition, Vector2 impactDirection = default)
+        public override void DrawDebugVisualization(Vector2 impactPosition, Vector2 impactDirection = default)
         {
             if (_ball == null)
                 return;

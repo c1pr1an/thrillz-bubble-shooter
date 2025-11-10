@@ -27,8 +27,8 @@ namespace Brain.Gameplay
 
             if (isBonusBall)
             {
-                // Get the bonus ball detector interface
-                IBonusBall bonusBall = stoppedBall.GetComponent<IBonusBall>();
+                // Get the bonus ball base class
+                BonusBallBase bonusBall = stoppedBall.GetComponent<BonusBallBase>();
 
                 if (bonusBall != null)
                 {

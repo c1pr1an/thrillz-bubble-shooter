@@ -24710,6 +24710,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 010cb9e08f9224333a6877c81f251e8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _rainbowParticlesIdle: {fileID: 6368180789983577022}
+  idleParticles: {fileID: 2092717948139590075}
   _enableRainbowEffect: 1
   _colorCycleSpeed: 2

@@ -10,12 +10,11 @@ namespace Brain.Gameplay
     /// Lightning balls destroy all balls horizontally (4 left and 4 right of impact).
     /// </summary>
     [RequireComponent(typeof(Ball))]
-    public class LightningBall : MonoBehaviour, IBonusBall
+    public class LightningBall : BonusBallBase
     {
         private Ball _ball;
 
         [Header("Visual Settings")]
-        [SerializeField] private Transform _lightningParticlesIdle;
         [SerializeField] private bool _enableElectricEffect = true;
         [SerializeField] private float _sparkInterval = 0.5f;
         [SerializeField] private float _glowIntensity = 1.5f;
@@ -73,23 +72,12 @@ namespace Brain.Gameplay
             return _horizontalRange;
         }
 
-        /// <summary>
-        /// Set whether the lightning ball is in the launcher container
-        /// </summary>
-        public void SetInLauncher(bool inLauncher)
-        {
-            if (_lightningParticlesIdle != null)
-            {
-                _lightningParticlesIdle.gameObject.SetActive(inLauncher);
-            }
-        }
-
-        #region IBonusBallDetector Implementation
+        #region BonusBall Implementation
 
         /// <summary>
         /// Get all balls that would be affected by the lightning strike (horizontal line)
         /// </summary>
-        public List<Ball> GetAffectedBalls(Vector2 impactPosition, Vector2 impactDirection = default)
+        public override List<Ball> GetAffectedBalls(Vector2 impactPosition, Vector2 impactDirection = default)
         {
             List<Ball> affectedBalls = new List<Ball>();
 
@@ -153,7 +141,7 @@ namespace Brain.Gameplay
         /// <summary>
         /// Draw debug visualization for the lightning strike area
         /// </summary>
-        public void DrawDebugVisualization(Vector2 impactPosition, Vector2 impactDirection = default)
+        public override void DrawDebugVisualization(Vector2 impactPosition, Vector2 impactDirection = default)
         {
             // Get grid manager
             GridManager gridManager = GridManager.Instance;

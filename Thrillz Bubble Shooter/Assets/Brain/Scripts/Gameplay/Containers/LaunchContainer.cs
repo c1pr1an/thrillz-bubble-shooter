@@ -23,7 +23,7 @@ namespace Brain.Gameplay.Containers
         private Camera _mainCamera;
         private bool _canLaunch = true;
         private bool _waitingForBall = false;
-        private IBonusBall _currentBonusBallComponent; // Cached bonus ball component (includes rocket)
+        private BonusBallBase _currentBonusBallComponent;
 
         protected override void Awake()
         {
@@ -197,10 +197,13 @@ namespace Brain.Gameplay.Containers
                 ball.Flags = BallFlags.None;
 
                 // Cache bonus ball component if this is any bonus ball (includes rocket)
-                _currentBonusBallComponent = ball.GetComponent<IBonusBall>();
-                if (_currentBonusBallComponent != null)
+                _currentBonusBallComponent = ball.GetComponent<BonusBallBase>();
+
+                // Only rocket balls have SetInLauncher method
+                RocketBall rocketBall = _currentBonusBallComponent as RocketBall;
+                if (rocketBall != null)
                 {
-                    _currentBonusBallComponent.SetInLauncher(true);
+                    rocketBall.SetInLauncher(true);
                 }
             }
         }
@@ -210,7 +213,12 @@ namespace Brain.Gameplay.Containers
             // Clear cached bonus ball component when releasing ball
             if (_currentBonusBallComponent != null)
             {
-                _currentBonusBallComponent.SetInLauncher(false);
+                // Only rocket balls have SetInLauncher method
+                RocketBall rocketBall = _currentBonusBallComponent as RocketBall;
+                if (rocketBall != null)
+                {
+                    rocketBall.SetInLauncher(false);
+                }
                 _currentBonusBallComponent = null;
             }
 

@@ -10,12 +10,9 @@ namespace Brain.Gameplay
     /// Bomb balls destroy all balls within 2 grid positions on impact.
     /// </summary>
     [RequireComponent(typeof(Ball))]
-    public class BombBall : MonoBehaviour, IBonusBall
+    public class BombBall : BonusBallBase
     {
         private Ball _ball;
-
-        [Header("Visual Settings")]
-        [SerializeField] private Transform _bombParticlesIdle;
 
         [Header("Bomb Settings")]
         [SerializeField] private int _explosionRadius = 2; // Grid positions
@@ -35,23 +32,12 @@ namespace Brain.Gameplay
             return _explosionRadius;
         }
 
-        /// <summary>
-        /// Set whether the bomb is in the launcher container
-        /// </summary>
-        public void SetInLauncher(bool inLauncher)
-        {
-            if (_bombParticlesIdle != null)
-            {
-                _bombParticlesIdle.gameObject.SetActive(inLauncher);
-            }
-        }
-
-        #region IBonusBallDetector Implementation
+        #region BonusBall Implementation
 
         /// <summary>
         /// Get all balls that would be affected by the bomb explosion
         /// </summary>
-        public List<Ball> GetAffectedBalls(Vector2 impactPosition, Vector2 impactDirection = default)
+        public override List<Ball> GetAffectedBalls(Vector2 impactPosition, Vector2 impactDirection = default)
         {
             List<Ball> affectedBalls = new List<Ball>();
 
@@ -101,7 +87,7 @@ namespace Brain.Gameplay
         /// <summary>
         /// Draw debug visualization for the explosion radius
         /// </summary>
-        public void DrawDebugVisualization(Vector2 impactPosition, Vector2 impactDirection = default)
+        public override void DrawDebugVisualization(Vector2 impactPosition, Vector2 impactDirection = default)
         {
             // Get grid manager
             GridManager gridManager = GridManager.Instance;

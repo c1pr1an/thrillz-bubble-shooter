@@ -229,11 +229,31 @@ namespace Brain.Gameplay.Containers
                     SetBallAlpha(1.0f);
                     SetColliderEnabled(true);
                     CurrentBall.SetHighlight(true);
+
+                    // Activate idle particles for bonus balls
+                    if (CurrentBall != null)
+                    {
+                        BonusBallBase bonusBall = CurrentBall.GetComponent<BonusBallBase>();
+                        if (bonusBall != null)
+                        {
+                            bonusBall.ActivateIdleParticles();
+                        }
+                    }
                     break;
 
                 case BonusBallState.Active:
                     SetBallAlpha(1.0f);
                     CurrentBall.SetHighlight(true);
+
+                    // Activate idle particles for bonus balls
+                    if (CurrentBall != null)
+                    {
+                        BonusBallBase activeBonusBall = CurrentBall.GetComponent<BonusBallBase>();
+                        if (activeBonusBall != null)
+                        {
+                            activeBonusBall.ActivateIdleParticles();
+                        }
+                    }
                     break;
             }
         }
