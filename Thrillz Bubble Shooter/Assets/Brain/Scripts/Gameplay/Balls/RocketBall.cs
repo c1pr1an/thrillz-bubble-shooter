@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Brain.Managers;
+using DG.Tweening;
 
 namespace Brain.Gameplay
 {
@@ -311,6 +312,21 @@ namespace Brain.Gameplay
         }
 
         #endregion
+
+        /// <summary>
+        /// Animate the rocket moving forward after impact
+        /// </summary>
+        public void AnimateForwardMovement()
+        {
+            Vector2 direction = _lastVelocity.normalized;
+            float ballHeight = GridManager.Instance.BallHeight;
+            float forwardDistance = ballHeight * _runwayLength;
+            Vector3 targetPosition = transform.position + (Vector3)(direction * forwardDistance);
+
+            transform.DOMove(targetPosition, 0.25f)
+                .SetEase(Ease.Linear)
+                .OnComplete(() => SetFlying(false));
+        }
 
         private void OnEnable()
         {

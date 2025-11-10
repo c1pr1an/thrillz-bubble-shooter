@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8957991066643532414}
   - component: {fileID: 2181053032391542278}
   - component: {fileID: 3041006123225515831}
+  - component: {fileID: 1452577665506666108}
   m_Layer: 0
   m_Name: Lightning VFX
   m_TagString: Untagged
@@ -4956,6 +4957,20 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &1452577665506666108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 639037494378921127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0875fa79a08f1de4bab602652d4e181f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _lifetime: 1.5
+  _poolTag: 10
 --- !u!1001 &8714664931740158
 PrefabInstance:
   m_ObjectHideFlags: 0

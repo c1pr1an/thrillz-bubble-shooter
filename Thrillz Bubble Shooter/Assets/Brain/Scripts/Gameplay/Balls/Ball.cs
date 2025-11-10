@@ -151,17 +151,23 @@ namespace Brain.Gameplay
             // Mark as destroying
             Flags |= BallFlags.Destroying;
 
-            // Simple scale-down destruction animation
-            transform.DOScale(0f, 0.2f).SetEase(Ease.InBack).OnComplete(() =>
-            {
-                if (IsBonusBall == false)
-                {
-                    ScoreManager.Instance.AddBubblePopScore(transform.position, scoreValue);
-                    SpawnBallDestructionVFX(impactBall);
-                }
-                else SpawnBonusDestructionVFX();
+            // Add delay for rocket balls to allow forward movement animation
+            float destructionDelay = IsRocket() ? 0.1f : 0f;
 
-                ReturnToPool();
+            // Simple scale-down destruction animation with optional delay
+            DOVirtual.DelayedCall(destructionDelay, () =>
+            {
+                transform.DOScale(0f, 0.2f).SetEase(Ease.InBack).OnComplete(() =>
+                {
+                    if (IsBonusBall == false)
+                    {
+                        ScoreManager.Instance.AddBubblePopScore(transform.position, scoreValue);
+                        SpawnBallDestructionVFX(impactBall);
+                    }
+                    else SpawnBonusDestructionVFX();
+
+                    ReturnToPool();
+                });
             });
         }
 

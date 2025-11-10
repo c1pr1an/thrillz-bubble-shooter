@@ -123,9 +123,8 @@ namespace Brain.Gameplay
                 Vector3 lastSegmentEnd = _trajectoryPath[_trajectoryPath.Count - 1];
                 Vector2 impactDirection = (lastSegmentEnd - lastSegmentStart).normalized;
 
-                // Store the direction and stop flying state
+                // Store the direction for forward movement
                 _rocketBall.SetLastVelocity(impactDirection);
-                _rocketBall.SetFlying(false);
             }
 
             // Re-enable collider now that ball is at final position
@@ -136,6 +135,12 @@ namespace Brain.Gameplay
 
             // Trigger stopped event
             OnBallStopped?.Invoke(_ball);
+
+            // Animate rocket forward movement after detection
+            if (_rocketBall != null)
+            {
+                _rocketBall.AnimateForwardMovement();
+            }
 
             // Destroy this launch component (no longer needed)
             Destroy(this);
