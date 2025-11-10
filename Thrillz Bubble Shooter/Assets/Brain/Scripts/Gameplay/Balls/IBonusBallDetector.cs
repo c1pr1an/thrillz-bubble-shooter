@@ -7,7 +7,7 @@ namespace Brain.Gameplay
     /// Interface for bonus balls that have special detection patterns
     /// for determining which balls they affect when they land.
     /// </summary>
-    public interface IBonusBallDetector
+    public interface IBonusBall
     {
         /// <summary>
         /// Get all balls that would be affected by this bonus ball's special effect.
@@ -24,5 +24,12 @@ namespace Brain.Gameplay
         /// <param name="impactPosition">The position where the ball would impact</param>
         /// <param name="impactDirection">The direction of impact (if applicable)</param>
         void DrawDebugVisualization(Vector2 impactPosition, Vector2 impactDirection = default);
+
+        /// <summary>
+        /// Set whether the bonus ball is in the launcher container.
+        /// Used to activate/deactivate idle particles and other launcher-specific behavior.
+        /// </summary>
+        /// <param name="inLauncher">True if the ball is in the launcher, false otherwise</param>
+        void SetInLauncher(bool inLauncher);
     }
 }

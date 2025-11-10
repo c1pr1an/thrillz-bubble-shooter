@@ -28,15 +28,15 @@ namespace Brain.Gameplay
             if (isBonusBall)
             {
                 // Get the bonus ball detector interface
-                IBonusBallDetector detector = stoppedBall.GetComponent<IBonusBallDetector>();
+                IBonusBall bonusBall = stoppedBall.GetComponent<IBonusBall>();
 
-                if (detector != null)
+                if (bonusBall != null)
                 {
                     // Special handling for rocket ball which needs direction
                     Vector2 impactDirection = Vector2.zero;
                     if (stoppedBall.IsRocket())
                     {
-                        var rocket = detector as RocketBall;
+                        var rocket = bonusBall as RocketBall;
                         if (rocket != null)
                         {
                             impactDirection = rocket.GetLastVelocity();
@@ -44,7 +44,7 @@ namespace Brain.Gameplay
                     }
 
                     // Use the detector to get affected balls
-                    detectedBalls = detector.GetAffectedBalls(stoppedBall.transform.position, impactDirection);
+                    detectedBalls = bonusBall.GetAffectedBalls(stoppedBall.transform.position, impactDirection);
                 }
             }
 

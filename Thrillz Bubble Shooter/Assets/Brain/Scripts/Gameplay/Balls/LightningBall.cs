@@ -10,11 +10,12 @@ namespace Brain.Gameplay
     /// Lightning balls destroy all balls horizontally (4 left and 4 right of impact).
     /// </summary>
     [RequireComponent(typeof(Ball))]
-    public class LightningBall : MonoBehaviour, IBonusBallDetector
+    public class LightningBall : MonoBehaviour, IBonusBall
     {
         private Ball _ball;
 
         [Header("Visual Settings")]
+        [SerializeField] private Transform _lightningParticlesIdle;
         [SerializeField] private bool _enableElectricEffect = true;
         [SerializeField] private float _sparkInterval = 0.5f;
         [SerializeField] private float _glowIntensity = 1.5f;
@@ -70,6 +71,17 @@ namespace Brain.Gameplay
         public int GetHorizontalRange()
         {
             return _horizontalRange;
+        }
+
+        /// <summary>
+        /// Set whether the lightning ball is in the launcher container
+        /// </summary>
+        public void SetInLauncher(bool inLauncher)
+        {
+            if (_lightningParticlesIdle != null)
+            {
+                _lightningParticlesIdle.gameObject.SetActive(inLauncher);
+            }
         }
 
         #region IBonusBallDetector Implementation
@@ -165,7 +177,7 @@ namespace Brain.Gameplay
 
             // Draw horizontal line
             Gizmos.color = new Color(1f, 1f, 0f, 0.5f); // Yellow
-            Gizmos.DrawLine(new Vector3(leftWorldPos.x - ballWidth/2, y, 0), new Vector3(rightWorldPos.x + ballWidth/2, y, 0));
+            Gizmos.DrawLine(new Vector3(leftWorldPos.x - ballWidth / 2, y, 0), new Vector3(rightWorldPos.x + ballWidth / 2, y, 0));
 
             // Draw thicker line for emphasis
             float thickness = 0.1f;
@@ -173,8 +185,8 @@ namespace Brain.Gameplay
             {
                 float offset = i * thickness * 0.2f;
                 Gizmos.DrawLine(
-                    new Vector3(leftWorldPos.x - ballWidth/2, y + offset, 0),
-                    new Vector3(rightWorldPos.x + ballWidth/2, y + offset, 0)
+                    new Vector3(leftWorldPos.x - ballWidth / 2, y + offset, 0),
+                    new Vector3(rightWorldPos.x + ballWidth / 2, y + offset, 0)
                 );
             }
 

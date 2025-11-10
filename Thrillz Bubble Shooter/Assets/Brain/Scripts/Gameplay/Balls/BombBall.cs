@@ -10,9 +10,12 @@ namespace Brain.Gameplay
     /// Bomb balls destroy all balls within 2 grid positions on impact.
     /// </summary>
     [RequireComponent(typeof(Ball))]
-    public class BombBall : MonoBehaviour, IBonusBallDetector
+    public class BombBall : MonoBehaviour, IBonusBall
     {
         private Ball _ball;
+
+        [Header("Visual Settings")]
+        [SerializeField] private Transform _bombParticlesIdle;
 
         [Header("Bomb Settings")]
         [SerializeField] private int _explosionRadius = 2; // Grid positions
@@ -30,6 +33,17 @@ namespace Brain.Gameplay
         public int GetExplosionRadius()
         {
             return _explosionRadius;
+        }
+
+        /// <summary>
+        /// Set whether the bomb is in the launcher container
+        /// </summary>
+        public void SetInLauncher(bool inLauncher)
+        {
+            if (_bombParticlesIdle != null)
+            {
+                _bombParticlesIdle.gameObject.SetActive(inLauncher);
+            }
         }
 
         #region IBonusBallDetector Implementation

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Brain.Gameplay;
 using Brain.Managers;
 using Brain.Util;
 using UnityEngine;
@@ -22,7 +23,7 @@ namespace Brain.Gameplay.Containers
         private Camera _mainCamera;
         private bool _canLaunch = true;
         private bool _waitingForBall = false;
-        private RocketBall _currentRocketComponent; // Cached rocket component reference
+        private IBonusBall _currentBonusBallComponent; // Cached bonus ball component (includes rocket)
 
         protected override void Awake()
         {
@@ -134,17 +135,18 @@ namespace Brain.Gameplay.Containers
 
         private void UpdateRocketBallAiming(Vector2 inputPosition, bool isAiming)
         {
-            // Only update if we have a cached rocket component
-            if (_currentRocketComponent == null) return;
+            // Only update if we have a cached bonus ball component that's a rocket
+            RocketBall rocketComponent = _currentBonusBallComponent as RocketBall;
+            if (rocketComponent == null) return;
 
             if (isAiming)
             {
                 Vector2 aimDirection = CalculateAimDirection(inputPosition);
-                _currentRocketComponent.SetAimDirection(aimDirection, true);
+                rocketComponent.SetAimDirection(aimDirection, true);
             }
             else
             {
-                _currentRocketComponent.SetAimDirection(Vector2.zero, false);
+                rocketComponent.SetAimDirection(Vector2.zero, false);
             }
         }
 
@@ -194,23 +196,24 @@ namespace Brain.Gameplay.Containers
                 ball.SetColliderEnabled(false);
                 ball.Flags = BallFlags.None;
 
-                // Cache rocket component if this is a rocket ball
-                _currentRocketComponent = ball.GetComponent<RocketBall>();
-                if (_currentRocketComponent != null)
+                // Cache bonus ball component if this is any bonus ball (includes rocket)
+                _currentBonusBallComponent = ball.GetComponent<IBonusBall>();
+                if (_currentBonusBallComponent != null)
                 {
-                    _currentRocketComponent.SetInLauncher(true);
+                    _currentBonusBallComponent.SetInLauncher(true);
                 }
             }
         }
 
         public override void ReleaseBall()
         {
-            // Clear cached rocket component when releasing ball
-            if (_currentRocketComponent != null)
+            // Clear cached bonus ball component when releasing ball
+            if (_currentBonusBallComponent != null)
             {
-                _currentRocketComponent.SetInLauncher(false);
-                _currentRocketComponent = null;
+                _currentBonusBallComponent.SetInLauncher(false);
+                _currentBonusBallComponent = null;
             }
+
             base.ReleaseBall();
         }
 
@@ -256,9 +259,9 @@ namespace Brain.Gameplay.Containers
             Ball launchedBall = CurrentBall;
 
             // Save rocket component reference BEFORE releasing the ball
-            RocketBall rocketComponent = _currentRocketComponent;
+            RocketBall rocketComponent = _currentBonusBallComponent as RocketBall;
 
-            ReleaseBall(); // This will set _currentRocketComponent to null
+            ReleaseBall(); // This will set _currentBonusBallComponent to null
 
             launchedBall.transform.SetParent(null);
             launchedBall.AnimateScaleDown(0.15f);

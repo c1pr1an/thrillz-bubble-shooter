@@ -10,7 +10,7 @@ namespace Brain.Gameplay
     /// Rocket balls destroy balls in a runway pattern in the shooting direction.
     /// </summary>
     [RequireComponent(typeof(Ball))]
-    public class RocketBall : MonoBehaviour, IBonusBallDetector
+    public class RocketBall : MonoBehaviour, IBonusBall
     {
         private Ball _ball;
 
