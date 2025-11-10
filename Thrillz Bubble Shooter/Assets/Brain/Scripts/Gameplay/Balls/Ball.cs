@@ -185,6 +185,10 @@ namespace Brain.Gameplay
                 {
                     vfx = ObjectPooler.Instance.Get(PooledObjectTag.BonusExplode_VFX);
                 }
+                else if (impactBall.IsLightning())
+                {
+                    vfx = ObjectPooler.Instance.Get(PooledObjectTag.BallLightning_VFX);
+                }
             }
             else
             {

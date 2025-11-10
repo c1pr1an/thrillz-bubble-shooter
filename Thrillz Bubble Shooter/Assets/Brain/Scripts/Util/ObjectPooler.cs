@@ -20,6 +20,7 @@ namespace Brain.Util
         Lightning_VFX,
         Rainbow_VFX,
         BonusExplode_VFX,
+        BallLightning_VFX
     }
 
     public class ObjectPooler : UnitySingleton<ObjectPooler>

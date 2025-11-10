@@ -21,11 +21,8 @@ namespace Brain.Audio
         //Gameplay
         Game_ScoreAdd = 500,
         Game_ScoreAppear,
-        Game_MatchPop1,
-        Game_MatchPop2,
-        Game_MatchPop3,
+        Game_MatchPop,
         Game_BoosterBomb,
-        Game_BoosterRocket,
         Game_BoosterLightning,
         Game_BoosterRainbow
     }

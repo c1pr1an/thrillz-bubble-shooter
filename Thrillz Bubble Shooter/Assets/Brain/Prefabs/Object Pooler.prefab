@@ -88,3 +88,6 @@ MonoBehaviour:
     initialSize: 1
     prefab: {fileID: 2821825351819100691, guid: d3604ef030cb7b6488cb1f37d96e7c7f,
       type: 3}
+  - tag: 13
+    initialSize: 8
+    prefab: {fileID: 9988342164218759, guid: ba3e2d2d2a3364cac88295354e519fd7, type: 3}

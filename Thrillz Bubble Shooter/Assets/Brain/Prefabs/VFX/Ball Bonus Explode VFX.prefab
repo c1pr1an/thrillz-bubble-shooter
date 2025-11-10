@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 283160196129406198}
   - component: {fileID: 1508984760536010278}
   m_Layer: 0
-  m_Name: Bonus Explode VFX
+  m_Name: Ball Bonus Explode VFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
