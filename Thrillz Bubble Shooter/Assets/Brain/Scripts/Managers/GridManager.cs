@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Brain.Audio;
 using Brain.Gameplay;
 using Brain.Gameplay.Containers;
 using Brain.Util;
@@ -187,6 +188,7 @@ namespace Brain.Managers
             // Trigger wave effect after ball is placed
             WaveEffectManager.Instance.TriggerWaveEffect(ball);
             PhantomBallManager.Instance.OnBallAddedToGrid(ball);
+            SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BallGridImpact);
         }
 
         public void RemoveBall(Ball ball)
