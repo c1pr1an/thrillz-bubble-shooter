@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using Brain.Managers;
 using Brain.Gameplay;
+using Brain.Audio;
 
 namespace Brain.Gameplay.Containers
 {
@@ -134,6 +135,7 @@ namespace Brain.Gameplay.Containers
         {
             _readyParticles.gameObject.SetActive(true);
             _readyParticles.Play();
+            SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BonusBallReady);
             _readyIdleParticles.gameObject.SetActive(true);
             SetBallVisualState(BonusBallState.ReadyToUse);
             _shouldTransitionToAvailable = true;
