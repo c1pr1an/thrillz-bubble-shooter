@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Brain.Audio;
 using Brain.Managers;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ namespace Brain.Gameplay
     {
         // Private Fields
         [Header("Launch Settings")]
-        [SerializeField] private float _speed = 25f;
+        [SerializeField] private float _speed = 33f;
 
         private Ball _ball;
         private CircleCollider2D _circleCollider;
@@ -50,6 +51,7 @@ namespace Brain.Gameplay
 
             // Disable collider during launch - ball ignores all collisions
             _circleCollider.enabled = false;
+            SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BallShoot);
         }
 
         private void InitializeSegment(int segmentIndex)
