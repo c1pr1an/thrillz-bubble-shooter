@@ -24,6 +24,10 @@ namespace Brain.Audio
         Game_MatchPop,
         Game_BoosterBomb,
         Game_BoosterLightning,
-        Game_BoosterRainbow
+        Game_BoosterRainbow,
+        Game_BallShoot,
+        Game_BallGridImpact,
+        Game_BonusBallReady,
+
     }
 }

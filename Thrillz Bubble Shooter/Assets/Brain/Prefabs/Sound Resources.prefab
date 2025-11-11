@@ -73,6 +73,8 @@ MonoBehaviour:
     Clip: {fileID: 8300000, guid: 98a0c014f69df4c9999dde85d233a5f8, type: 3}
   - SoundType: 504
     Clip: {fileID: 8300000, guid: b0b545343b8604f9c86fec616265f2ab, type: 3}
+  - SoundType: 509
+    Clip: {fileID: 8300000, guid: c0a416b09df624bbcbda589f5d1a58da, type: 3}
 --- !u!1 &2306009790787709523
 GameObject:
   m_ObjectHideFlags: 0
