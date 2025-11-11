@@ -103,6 +103,7 @@ namespace Brain.Gameplay
                 {
                     // Move to next segment
                     InitializeSegment(_currentSegmentIndex);
+                    SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BallSideBounce);
                 }
             }
             else

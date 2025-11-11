@@ -27,6 +27,7 @@ namespace Brain.Audio
         Game_BoosterRainbow,
         Game_BallShoot,
         Game_BallGridImpact,
+        Game_BallSideBounce,
         Game_BonusBallReady,
 
     }

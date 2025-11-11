@@ -76,9 +76,11 @@ MonoBehaviour:
   - SoundType: 506
     Clip: {fileID: 8300000, guid: c0a416b09df624bbcbda589f5d1a58da, type: 3}
   - SoundType: 508
-    Clip: {fileID: 8300000, guid: e444d8eaa84dc564d9608eb06a9f2ae9, type: 3}
+    Clip: {fileID: 8300000, guid: b99ec4e44d1254d239a531be0710e3e9, type: 3}
   - SoundType: 507
     Clip: {fileID: 8300000, guid: a900ad56bec007548815d30951fce563, type: 3}
+  - SoundType: 509
+    Clip: {fileID: 8300000, guid: e444d8eaa84dc564d9608eb06a9f2ae9, type: 3}
 --- !u!1 &2306009790787709523
 GameObject:
   m_ObjectHideFlags: 0
