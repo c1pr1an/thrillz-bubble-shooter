@@ -1,6 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 using Brain.Managers;
+using Brain.Audio;
 
 namespace Brain.Gameplay.Containers
 {
@@ -137,6 +138,7 @@ namespace Brain.Gameplay.Containers
         {
             AnimateSwapFeedback();
             HapticManager.Instance.TriggerHaptic(HapticType.Selection);
+            SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BallSwap);
             SwapBalls(_launchContainer);
             _currentSpawnDelay = _spawnDelay;
         }

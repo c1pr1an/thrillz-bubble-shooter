@@ -227,7 +227,7 @@ namespace Brain.Gameplay
             }
             else if (IsRainbow())
             {
-                //SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BoosterRainbow);
+                SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BoosterRainbow);
                 vfx = ObjectPooler.Instance.Get(PooledObjectTag.Rainbow_VFX);
             }
 

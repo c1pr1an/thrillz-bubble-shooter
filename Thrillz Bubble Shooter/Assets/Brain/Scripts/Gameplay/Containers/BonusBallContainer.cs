@@ -106,6 +106,7 @@ namespace Brain.Gameplay.Containers
 
             AnimateSwapFeedback();
             HapticManager.Instance.TriggerHaptic(HapticType.Selection);
+            SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BallSwap);
 
             SwapBalls(_launchContainer);
             BonusPowerManager.Instance.UsedBonus();
@@ -236,7 +237,7 @@ namespace Brain.Gameplay.Containers
                 case BonusBallState.ReadyToAutoSwap:
                     SetBallAlpha(1.0f);
                     SetColliderEnabled(true);
-                    CurrentBall.SetHighlight(true);
+                    CurrentBall?.SetHighlight(true);
 
                     // Activate idle particles for bonus balls
                     if (CurrentBall != null)
