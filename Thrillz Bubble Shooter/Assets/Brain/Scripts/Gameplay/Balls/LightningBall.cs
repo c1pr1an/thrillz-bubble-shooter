@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Brain.Managers;
 using Brain.Util;
+using Brain.Audio;
 
 namespace Brain.Gameplay
 {
@@ -54,6 +55,12 @@ namespace Brain.Gameplay
                 electricColor *= glow;
                 _spriteRenderer.color = electricColor;
             }
+        }
+
+        public override void ActivateIdleParticles()
+        {
+            base.ActivateIdleParticles();
+            //SoundManager.Instance.PlaySfxLoop(SoundType.Game_BoosterLightning);
         }
 
         /// <summary>

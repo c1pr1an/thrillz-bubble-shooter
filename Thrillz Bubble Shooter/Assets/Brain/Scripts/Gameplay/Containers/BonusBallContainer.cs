@@ -237,11 +237,11 @@ namespace Brain.Gameplay.Containers
                 case BonusBallState.ReadyToAutoSwap:
                     SetBallAlpha(1.0f);
                     SetColliderEnabled(true);
-                    CurrentBall?.SetHighlight(true);
 
                     // Activate idle particles for bonus balls
                     if (CurrentBall != null)
                     {
+                        CurrentBall.SetHighlight(true);
                         BonusBallBase bonusBall = CurrentBall.GetComponent<BonusBallBase>();
                         if (bonusBall != null)
                         {

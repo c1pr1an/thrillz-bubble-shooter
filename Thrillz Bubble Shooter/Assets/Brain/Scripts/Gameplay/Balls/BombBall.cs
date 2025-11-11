@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Brain.Managers;
 using Brain.Util;
+using Brain.Audio;
 
 namespace Brain.Gameplay
 {
@@ -20,6 +21,12 @@ namespace Brain.Gameplay
         private void Awake()
         {
             _ball = GetComponent<Ball>();
+        }
+
+        public override void ActivateIdleParticles()
+        {
+            base.ActivateIdleParticles();
+            SoundManager.Instance.PlaySfxLoop(SoundType.Game_BoosterWick_Loop);
         }
 
         public bool IsBomb()

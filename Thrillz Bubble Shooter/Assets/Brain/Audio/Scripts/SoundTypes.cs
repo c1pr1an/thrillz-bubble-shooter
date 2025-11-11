@@ -29,6 +29,9 @@ namespace Brain.Audio
         Game_BallGridImpact,
         Game_BallSideBounce,
         Game_BonusBallReady,
-        Game_BallSwap
+        Game_BallSwap,
+        Game_BoosterWick_Loop,
+        Game_Electricity_Loop,
+        Game_Magic_Loop,
     }
 }

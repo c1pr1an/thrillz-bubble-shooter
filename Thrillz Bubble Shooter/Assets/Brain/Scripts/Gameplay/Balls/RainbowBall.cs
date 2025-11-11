@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Brain.Managers;
 using Brain.Util;
+using Brain.Audio;
 
 namespace Brain.Gameplay
 {
@@ -38,6 +39,12 @@ namespace Brain.Gameplay
                 Color rainbowColor = Color.HSVToRGB(_hue, 0.7f, 1f);
                 _spriteRenderer.color = rainbowColor;
             }
+        }
+
+        public override void ActivateIdleParticles()
+        {
+            base.ActivateIdleParticles();
+            SoundManager.Instance.PlaySfxLoop(SoundType.Game_Magic_Loop);
         }
 
         /// <summary>

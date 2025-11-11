@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Brain.Managers;
 using DG.Tweening;
+using Brain.Audio;
 
 namespace Brain.Gameplay
 {
@@ -41,6 +42,12 @@ namespace Brain.Gameplay
             // Set initial default rotation
             _modelTransform.rotation = _defaultRotation;
             _targetRotation = _defaultRotation;
+        }
+
+        public override void ActivateIdleParticles()
+        {
+            base.ActivateIdleParticles();
+            SoundManager.Instance.PlaySfxLoop(SoundType.Game_BoosterWick_Loop);
         }
 
         private void Update()

@@ -14877,7 +14877,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01b91f492e40147aabb1ab2cd865e1ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  idleParticles: {fileID: 8759113437349318322}
+  idleParticles: {fileID: 1077952522620811956}
   _modelTransform: {fileID: 2363590117779999525}
   _rocketParticles: {fileID: 2586030782053414912}
   _rotationSmoothness: 25

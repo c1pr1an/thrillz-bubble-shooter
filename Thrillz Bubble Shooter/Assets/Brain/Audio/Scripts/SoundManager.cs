@@ -18,19 +18,8 @@ namespace Brain.Audio
             }
         }
 
-        private bool _musicOn;
-        public bool MusicOn
-        {
-            get { return _musicOn; }
-            set
-            {
-                _musicOn = value;
-                ToggleMusic(_musicOn);
-            }
-        }
-
         [SerializeField] private AudioSource[] _sfxOneShotSources;
-        [SerializeField] private AudioSource _sfxLoopMusicSource;
+        [SerializeField] private AudioSource _sfxLoopSource;
 
         public void PlaySfxOneShot(SoundType soundType)
         {
@@ -76,25 +65,21 @@ namespace Brain.Audio
             return _sfxOneShotSources[1];
         }
 
-        public void PlaySfxLoopMusic(SoundType soundType)
+        public void PlaySfxLoop(SoundType soundType)
         {
             AudioClip clip = SoundResources.Instance.GetClip(soundType);
 
-            if (clip == null || _sfxLoopMusicSource.clip == clip)
+            if (clip == null || _sfxLoopSource.clip == clip)
                 return;
 
-            _sfxLoopMusicSource.clip = clip;
-
-            if (MusicOn)
-                _sfxLoopMusicSource.Play();
+            _sfxLoopSource.volume = 0.25f;
+            _sfxLoopSource.clip = clip;
+            _sfxLoopSource.Play();
         }
 
-        public void ToggleMusic(bool toggled)
+        public void StopSfxLoop()
         {
-            if (toggled)
-                _sfxLoopMusicSource.Play();
-            else if (_sfxLoopMusicSource.isPlaying)
-                _sfxLoopMusicSource.Stop();
+            _sfxLoopSource.Stop();
         }
     }
 }

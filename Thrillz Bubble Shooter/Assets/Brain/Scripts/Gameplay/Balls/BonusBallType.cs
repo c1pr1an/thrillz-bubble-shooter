@@ -6,6 +6,5 @@ namespace Brain.Gameplay
         Bomb,       // Explodes nearby balls
         Rocket,     // Clears path in shoot direction
         Lightning,  // Clears horizontal row
-        Multiplier  // 2x score multiplier
     }
 }

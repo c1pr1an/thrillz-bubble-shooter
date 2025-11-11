@@ -70,11 +70,8 @@ namespace Brain.Gameplay
 
         public BonusBallType GetRandomBonusType()
         {
-            return BonusBallType.Rainbow;
-
-            // Future implementation:
-            var types = new[] { BonusBallType.Rainbow, BonusBallType.Bomb, BonusBallType.Lightning, BonusBallType.Rocket };
-            return types[UnityEngine.Random.Range(0, types.Length)];
+            var allTypes = (BonusBallType[])Enum.GetValues(typeof(BonusBallType));
+            return allTypes[UnityEngine.Random.Range(0, allTypes.Length)];
         }
 
         /// <summary>
