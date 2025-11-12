@@ -63,16 +63,12 @@ namespace Brain.Gameplay
             // Check if we have enough matches to destroy (3+ for regular, 1+ for bonus balls)
             bool shouldDestroy = matchCount >= 3 || (stoppedBall.IsBonusBall && matchCount > 0);
 
-            if (!stoppedBall.IsBonusBall)
+            // Handle streak and sound effects based on ball type
+            if (stoppedBall.IsBonusBall == false)
             {
                 if (shouldDestroy)
-                {
                     ScoreManager.Instance.IncreaseStreak();
-                }
-                else
-                {
-                    ScoreManager.Instance.ResetStreak();
-                }
+                else ScoreManager.Instance.ResetStreak();
             }
 
             // Store matched balls for later destruction
@@ -114,6 +110,8 @@ namespace Brain.Gameplay
                 DestroyManager.Instance.DestroyBalls(matchedBalls, stoppedBall, ballScoreValue);
 
                 yield return new WaitWhile(() => DestroyManager.Instance.IsDestroying());
+
+                ScoreManager.Instance.PlayStreakSound();
             }
 
             // Step 5: Start orphan falling animations (don't wait for them to complete)

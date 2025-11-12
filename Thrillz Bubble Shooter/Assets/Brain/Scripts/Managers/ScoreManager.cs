@@ -136,6 +136,16 @@ namespace Brain.Managers
             UpdateStreakUI();
         }
 
+        public void PlayStreakSound()
+        {
+            if (CurrentStreak >= 2)
+            {
+                float pitch = 1f + ((CurrentStreak - 2) * 0.1f);
+                pitch = Mathf.Clamp(pitch, 1f, 1.5f);
+                SoundManager.Instance.PlaySfxOneShot(SoundType.Game_Streak, pitch);
+            }
+        }
+
         /// <summary>
         /// Reset streak back to 1 when no balls are destroyed
         /// </summary>

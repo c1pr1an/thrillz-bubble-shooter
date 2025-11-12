@@ -72,7 +72,6 @@ namespace Brain.Audio
             if (clip == null)
                 return;
 
-            _sfxLoopSource.volume = 0.25f;
             _sfxLoopSource.clip = clip;
             _sfxLoopSource.Play();
         }

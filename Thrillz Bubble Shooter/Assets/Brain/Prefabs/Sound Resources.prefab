@@ -95,6 +95,8 @@ MonoBehaviour:
     Clip: {fileID: 8300000, guid: 90b72ec2352abad4fb9d788773945b3d, type: 3}
   - SoundType: 515
     Clip: {fileID: 8300000, guid: 2dd87edc1fb2461498c15a3f3e5e2b51, type: 3}
+  - SoundType: 516
+    Clip: {fileID: 8300000, guid: 85fc2612e52ed664e9b3f0a87efcd546, type: 3}
 --- !u!1 &2306009790787709523
 GameObject:
   m_ObjectHideFlags: 0
