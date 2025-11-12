@@ -332,7 +332,7 @@ namespace Brain.Gameplay
             float forwardDistance = ballHeight * _runwayLength;
             Vector3 targetPosition = transform.position + (Vector3)(direction * forwardDistance);
 
-            transform.DOMove(targetPosition, 0.25f)
+            transform.DOMove(targetPosition, 0.2f)
                 .SetEase(Ease.Linear)
                 .OnComplete(() => SetFlying(false));
         }
