@@ -53,6 +53,8 @@ namespace Brain.Gameplay
             _circleCollider.enabled = false;
             if (_ball.IsRocket())
                 SoundManager.Instance.PlaySfxOneShot(SoundType.Game_Rocket_Launch);
+            else if (_ball.IsLightning())
+                SoundManager.Instance.PlaySfxOneShot(SoundType.Game_Electricity_Launch);
             else SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BallShoot);
         }
 

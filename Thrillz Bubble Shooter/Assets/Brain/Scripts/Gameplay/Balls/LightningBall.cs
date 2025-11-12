@@ -60,7 +60,7 @@ namespace Brain.Gameplay
         public override void ActivateIdleParticles()
         {
             base.ActivateIdleParticles();
-            //SoundManager.Instance.PlaySfxLoop(SoundType.Game_BoosterLightning);
+            SoundManager.Instance.PlaySfxLoop(SoundType.Game_Electricity_Loop);
         }
 
         /// <summary>

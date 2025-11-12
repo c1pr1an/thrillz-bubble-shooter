@@ -34,5 +34,6 @@ namespace Brain.Audio
         Game_Electricity_Loop,
         Game_Magic_Loop,
         Game_Rocket_Launch,
+        Game_Electricity_Launch,
     }
 }
