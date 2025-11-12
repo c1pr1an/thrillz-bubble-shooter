@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 //using Thrillz.Tools.Haptic;
+using MoreMountains.NiceVibrations;
 
 namespace Brain.Managers
 {
@@ -21,18 +22,21 @@ namespace Brain.Managers
             // if (!_0_CoreProject.Scripts.SettingsToggleParameters.HapticOn)
             //     return;
 
-            // switch (hapticType)
-            // {
-            //     case HapticTypes.Selection:
-            //         ThrillzHaptic.Selection().Play();
-            //         break;
-            //     case HapticTypes.Failure:
-            //         ThrillzHaptic.Failure().Play();
-            //         break;
-            //     case HapticTypes.LightImpact:
-            //         ThrillzHaptic.LightImpact().Play();
-            //         break;
-            // }
+            switch (hapticType)
+            {
+                case HapticType.Selection:
+                    MMVibrationManager.Haptic(HapticTypes.Selection);
+                    //ThrillzHaptic.Selection().Play();
+                    break;
+                case HapticType.Failure:
+                    MMVibrationManager.Haptic(HapticTypes.Failure);
+                    //ThrillzHaptic.Failure().Play();
+                    break;
+                case HapticType.LightImpact:
+                    MMVibrationManager.Haptic(HapticTypes.LightImpact);
+                    //ThrillzHaptic.LightImpact().Play();
+                    break;
+            }
         }
     }
 }
