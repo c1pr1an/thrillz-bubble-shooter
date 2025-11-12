@@ -16,17 +16,12 @@ namespace Brain.Gameplay
         [Header("Current State")]
         [SerializeField] private float _currentPower = 0f;
         [SerializeField] private bool _isBonusReady = false;
-        [SerializeField] private bool _isBonusActive = false;
 
         // Events
         public static event Action<float> OnPowerChanged;
         public static event Action OnBonusReady;
         public static event Action OnBonusUsed;
 
-        /// <summary>
-        /// Current power level (0-1)
-        /// </summary>
-        public float CurrentPower => _currentPower;
 
         /// <summary>
         /// Is bonus ball ready to use
@@ -34,16 +29,11 @@ namespace Brain.Gameplay
         public bool IsBonusReady => _isBonusReady;
 
         /// <summary>
-        /// Is bonus ball currently active
-        /// </summary>
-        public bool IsBonusActive => _isBonusActive;
-
-        /// <summary>
         /// Add power from destroyed balls
         /// </summary>
         public void AddPower(int ballsDestroyed)
         {
-            if (_isBonusReady || _isBonusActive)
+            if (_isBonusReady)
                 return;
 
             _currentPower = Mathf.Min(_currentPower + (ballsDestroyed * _powerPerBall), _maxPower);
@@ -61,7 +51,6 @@ namespace Brain.Gameplay
         {
             _currentPower = 0f;
             _isBonusReady = false;
-            _isBonusActive = false;
 
             OnPowerChanged?.Invoke(0f);
             OnBonusUsed?.Invoke();
@@ -70,6 +59,7 @@ namespace Brain.Gameplay
 
         public BonusBallType GetRandomBonusType()
         {
+            //return BonusBallType.Rocket;
             var allTypes = (BonusBallType[])Enum.GetValues(typeof(BonusBallType));
             return allTypes[UnityEngine.Random.Range(0, allTypes.Length)];
         }
@@ -81,7 +71,6 @@ namespace Brain.Gameplay
         {
             _currentPower = 0f;
             _isBonusReady = false;
-            _isBonusActive = false;
             OnPowerChanged?.Invoke(0f);
         }
 

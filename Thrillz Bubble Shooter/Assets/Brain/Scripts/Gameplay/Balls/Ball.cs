@@ -230,6 +230,7 @@ namespace Brain.Gameplay
                 SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BoosterRainbow);
                 vfx = ObjectPooler.Instance.Get(PooledObjectTag.Rainbow_VFX);
             }
+
             SoundManager.Instance.StopSfxLoop();
 
             if (vfx == null) return;

@@ -69,7 +69,7 @@ namespace Brain.Audio
         {
             AudioClip clip = SoundResources.Instance.GetClip(soundType);
 
-            if (clip == null || _sfxLoopSource.clip == clip)
+            if (clip == null)
                 return;
 
             _sfxLoopSource.volume = 0.25f;
