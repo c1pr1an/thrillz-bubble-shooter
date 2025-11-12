@@ -51,7 +51,9 @@ namespace Brain.Gameplay
 
             // Disable collider during launch - ball ignores all collisions
             _circleCollider.enabled = false;
-            SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BallShoot);
+            if (_ball.IsRocket())
+                SoundManager.Instance.PlaySfxOneShot(SoundType.Game_Rocket_Launch);
+            else SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BallShoot);
         }
 
         private void InitializeSegment(int segmentIndex)
