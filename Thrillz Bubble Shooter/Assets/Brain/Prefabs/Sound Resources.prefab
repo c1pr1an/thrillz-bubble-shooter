@@ -90,7 +90,7 @@ MonoBehaviour:
   - SoundType: 512
     Clip: {fileID: 8300000, guid: b10ba249d4792cc4f87d913d98953d19, type: 3}
   - SoundType: 513
-    Clip: {fileID: 8300000, guid: f4793318f94aa488082f68245f16aaa0, type: 3}
+    Clip: {fileID: 8300000, guid: 0e397e57dc8b9814a81a826c45cf081c, type: 3}
   - SoundType: 514
     Clip: {fileID: 8300000, guid: 90b72ec2352abad4fb9d788773945b3d, type: 3}
   - SoundType: 515
