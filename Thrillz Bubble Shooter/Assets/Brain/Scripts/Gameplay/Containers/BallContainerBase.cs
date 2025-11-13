@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using DG.Tweening;
 using Brain.Util;
+using Brain.Managers;
 
 namespace Brain.Gameplay.Containers
 {
@@ -33,10 +34,21 @@ namespace Brain.Gameplay.Containers
 
         protected virtual void OnEnable()
         {
+            // Subscribe to color exhausted event
+            if (ColorTrackerManager.Instance != null)
+            {
+                ColorTrackerManager.Instance.OnColorExhausted += OnColorExhausted;
+            }
         }
 
         protected virtual void OnDisable()
         {
+            // Unsubscribe from color exhausted event
+            if (ColorTrackerManager.Instance != null)
+            {
+                ColorTrackerManager.Instance.OnColorExhausted -= OnColorExhausted;
+            }
+
             if (_switchCoroutine != null)
             {
                 StopCoroutine(_switchCoroutine);
@@ -80,9 +92,22 @@ namespace Brain.Gameplay.Containers
 
         protected virtual Ball SpawnRandomBall()
         {
-            int colorCount = System.Enum.GetValues(typeof(BallColor)).Length;
-            BallColor randomColor = (BallColor)UnityEngine.Random.Range(0, colorCount);
-            return SpawnBall(randomColor);
+            if (GridGenerator.Instance.IsInitialized == false)
+            {
+                int colorCount = System.Enum.GetValues(typeof(BallColor)).Length;
+                BallColor randomColor = (BallColor)UnityEngine.Random.Range(0, colorCount);
+                return SpawnBall(randomColor);
+            }
+            else
+            {
+                // Use ColorTracker to get a valid color
+                if (ColorTrackerManager.Instance != null && ColorTrackerManager.Instance.TryGenerateColor(out BallColor color))
+                {
+                    return SpawnBall(color);
+                }
+            }
+            // Fallback if ColorTracker not available or grid is empty
+            return null;
         }
 
         public virtual void SaveBall()
@@ -300,6 +325,27 @@ namespace Brain.Gameplay.Containers
             {
                 ball.transform.SetParent(_ballHolder);
                 ball.transform.localPosition = Vector3.zero;
+            }
+        }
+
+        /// <summary>
+        /// Called when a color is exhausted from the grid - instantly replaces ball if needed
+        /// </summary>
+        protected virtual void OnColorExhausted(BallColor exhaustedColor)
+        {
+            // Only replace if we have a ball of the exhausted color and it's not a bonus ball
+            if (CurrentBall != null &&
+                !CurrentBall.IsBonusBall &&
+                CurrentBall.Color == exhaustedColor)
+            {
+                // Instant replacement - no animation
+                Destroy(CurrentBall.gameObject);
+                CurrentBall = SpawnRandomBall();
+
+                if (CurrentBall != null)
+                {
+                    CurrentBall.SetColliderEnabled(false);
+                }
             }
         }
 

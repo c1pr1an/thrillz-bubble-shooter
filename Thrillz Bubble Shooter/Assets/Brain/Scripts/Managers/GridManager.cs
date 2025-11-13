@@ -106,6 +106,12 @@ namespace Brain.Managers
             // Add to grid
             _balls[row][col] = ball;
 
+            // Track color in ColorTracker (only for normal balls, not bonus)
+            if (!ball.IsBonusBall)
+            {
+                ColorTrackerManager.Instance.AddColor(color);
+            }
+
             return ball;
         }
 
@@ -182,6 +188,12 @@ namespace Brain.Managers
             // Add to grid matrix
             _balls[gridPos.y][gridPos.x] = ball;
 
+            // Track color in ColorTracker (only for normal balls, not bonus/rocket)
+            if (!ball.IsBonusBall && !ball.IsRocket())
+            {
+                ColorTrackerManager.Instance.AddColor(ball.Color);
+            }
+
             UpdateNeighbors(ball);
             UpdateAdjacentNeighbors(ball);
 
@@ -203,6 +215,12 @@ namespace Brain.Managers
                 if (_balls[pos.y][pos.x] == ball)
                 {
                     _balls[pos.y][pos.x] = null;
+
+                    // Remove color from ColorTracker (only for normal balls, not bonus)
+                    if (!ball.IsBonusBall)
+                    {
+                        ColorTrackerManager.Instance.RemoveColor(ball.Color);
+                    }
                 }
             }
 

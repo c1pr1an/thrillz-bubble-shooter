@@ -22,6 +22,8 @@ namespace Brain.Gameplay
         private const int COLOR_COUNT = 6;
         private const int MIN_CLUSTER_SIZE = 3;
 
+        public bool IsInitialized { get; private set; } = false;
+
         public void GenerateGrid()
         {
             GridManager gridManager = GridManager.Instance;
@@ -51,6 +53,7 @@ namespace Brain.Gameplay
             bool isSolvable = ValidateLevelSolvability(gridManager);
 
             Debug.Log($"GridGenerator: Final grid has {CountBalls()} balls - Solvable: {isSolvable}");
+            IsInitialized = true;
         }
 
         private void MarkCeilingBalls()

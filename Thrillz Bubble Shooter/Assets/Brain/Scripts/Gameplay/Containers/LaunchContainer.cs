@@ -333,5 +333,28 @@ namespace Brain.Gameplay.Containers
                 _trajectoryPredictor.HideTrajectory();
             }
         }
+
+        /// <summary>
+        /// Override to only replace ball when not currently aiming
+        /// </summary>
+        protected override void OnColorExhausted(BallColor exhaustedColor)
+        {
+            // Only replace if we have a ball of the exhausted color, it's not a bonus ball, and we're NOT aiming
+            if (CurrentBall != null &&
+                !CurrentBall.IsBonusBall &&
+                CurrentBall.Color == exhaustedColor &&
+                _canLaunch) // _canLaunch is false when aiming/launching
+            {
+                // Instant replacement - no animation
+                Destroy(CurrentBall.gameObject);
+                CurrentBall = SpawnRandomBall();
+
+                if (CurrentBall != null)
+                {
+                    CurrentBall.SetColliderEnabled(false);
+                    OnBallReceived(CurrentBall);
+                }
+            }
+        }
     }
 }
