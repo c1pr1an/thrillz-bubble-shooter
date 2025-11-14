@@ -199,7 +199,7 @@ namespace Brain.Gameplay.Containers
                 if (!ball.IsBonusBall &&
                     !ColorTrackerManager.Instance.IsColorAvailable(ball.Color))
                 {
-                    Destroy(ball.gameObject);
+                    ball.ReturnToPool();
                     CurrentBall = SpawnRandomBall();
                     CurrentBall.AnimateScaleTo(1.2f, 0f);
                 }
@@ -224,7 +224,7 @@ namespace Brain.Gameplay.Containers
                 !CurrentBall.IsBonusBall &&
                 CurrentBall.Color == exhaustedColor)
             {
-                Destroy(CurrentBall.gameObject);
+                CurrentBall.ReturnToPool();
                 CurrentBall = SpawnRandomBall();
                 CurrentBall.AnimateScaleTo(1.2f, 0f);
                 OnBallReceived(CurrentBall);
