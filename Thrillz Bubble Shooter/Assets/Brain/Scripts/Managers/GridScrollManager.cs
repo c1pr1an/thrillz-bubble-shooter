@@ -13,6 +13,7 @@ namespace Brain.Managers
         [Header("Scroll Settings")]
         [SerializeField] private int _deathLineRow = 0;
         [SerializeField] private int _targetBufferRows = 4;
+        [SerializeField] private float _topBoundaryY = 9.5f;
 
         [Header("Animation Settings")]
         [SerializeField] private float _scrollSpeed = 7f; // Units per second
@@ -104,6 +105,28 @@ namespace Brain.Managers
             return -1;
         }
 
+        // Find the highest occupied row (largest row index = highest Y position on screen)
+        private int GetHighestOccupiedRow()
+        {
+            GridManager gridManager = GridManager.Instance;
+            if (gridManager == null || gridManager.Balls == null) return -1;
+
+            // Iterate from top down (highest row numbers first)
+            for (int row = gridManager.Balls.Count - 1; row >= 0; row--)
+            {
+                for (int col = 0; col < gridManager.Balls[row].Count; col++)
+                {
+                    Ball ball = gridManager.Balls[row][col];
+                    if (ball != null)
+                    {
+                        return row;
+                    }
+                }
+            }
+
+            return -1;
+        }
+
         private void MoveGridDown(int rows)
         {
             GridManager gridManager = GridManager.Instance;
@@ -117,6 +140,23 @@ namespace Brain.Managers
             if (newPosition.y > _initialGridPosition.y)
             {
                 newPosition.y = _initialGridPosition.y;
+            }
+
+            // Check if topmost balls would go below the top boundary
+            int highestOccupiedRow = GetHighestOccupiedRow();
+            if (highestOccupiedRow != -1)
+            {
+                // Calculate where the topmost ball would be after movement
+                Vector2Int topBallGridPos = new(0, highestOccupiedRow);
+                Vector3 topBallCurrentWorldPos = GridUtils.PosToWorld(topBallGridPos, gridManager.BallWidth, gridManager.BallHeight, gridManager.GridContainer);
+                float topBallNewY = topBallCurrentWorldPos.y + (newPosition.y - currentPosition.y);
+
+                // If topmost ball would go below boundary, clamp the movement
+                if (topBallNewY < _topBoundaryY)
+                {
+                    float maxAllowedMovement = topBallCurrentWorldPos.y - _topBoundaryY;
+                    newPosition.y = currentPosition.y - maxAllowedMovement;
+                }
             }
 
             // Kill existing tween to prevent conflicts
