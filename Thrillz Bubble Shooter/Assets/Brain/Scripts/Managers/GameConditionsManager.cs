@@ -19,9 +19,6 @@ namespace Brain.Managers
         public float TimeRemaining => _timeRemaining;
         public bool IsGameActive => _gameActive;
 
-        // Events
-        public event Action OnGameWon;
-        public event Action OnGameLost;
         public event Action<float> OnTimerUpdated;
 
         // Public Methods
@@ -55,41 +52,14 @@ namespace Brain.Managers
             }
         }
 
-        public void CheckWinCondition()
-        {
-            if (!_gameActive) return;
-
-            GridManager gridManager = GridManager.Instance;
-            if (gridManager == null || gridManager.Balls == null) return;
-
-            bool anyBallsLeft = false;
-
-            foreach (var row in gridManager.Balls)
-            {
-                foreach (var ball in row)
-                {
-                    if (ball != null)
-                    {
-                        anyBallsLeft = true;
-                        break;
-                    }
-                }
-                if (anyBallsLeft) break;
-            }
-
-            if (!anyBallsLeft)
-            {
-                TriggerWin();
-            }
-        }
-
         public void TriggerWin()
         {
             if (!_gameActive) return;
 
             _gameActive = false;
             StopAllCoroutines();
-            OnGameWon?.Invoke();
+
+            UIManager.Instance.GameFinishedPanel.Display(1f);
         }
 
         public void TriggerLose()
@@ -98,7 +68,8 @@ namespace Brain.Managers
 
             _gameActive = false;
             StopAllCoroutines();
-            OnGameLost?.Invoke();
+
+            UIManager.Instance.OutOfTimePanel.Display();
         }
 
         public void ResetGame()

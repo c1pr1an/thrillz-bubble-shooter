@@ -127,9 +127,6 @@ namespace Brain.Gameplay
             {
                 GridScrollManager.Instance.PreCalculateAndMoveGrid(allBallsToRemove);
             }
-
-            // Check win condition
-            GameConditionsManager.Instance.CheckWinCondition();
         }
 
         public int CheckMatch(Ball ball)

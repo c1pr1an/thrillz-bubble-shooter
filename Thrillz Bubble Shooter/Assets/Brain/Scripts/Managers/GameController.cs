@@ -65,33 +65,12 @@ namespace Brain.Managers
             BallHighlightManager.Instance.Init(GridManager.Instance, TrajectoryPredictor.Instance, GridManager.Instance.BonusBallContainer);
             UIManager.Instance.Init();
 
-            // Subscribe to game events
-            GridScrollManager.Instance.OnDeathLineTouched += OnDeathLineTouched;
-            GameConditionsManager.Instance.OnGameWon += OnGameWon;
-            GameConditionsManager.Instance.OnGameLost += OnGameLost;
-
             _stateMachine.ChangeState(GamePhase.Playing);
         }
 
         private void OnPlayingEnter()
         {
             GameConditionsManager.Instance.StartGame();
-            Debug.Log("Game started!");
-        }
-
-        private void OnDeathLineTouched()
-        {
-            GameConditionsManager.Instance.TriggerLose();
-        }
-
-        private void OnGameWon()
-        {
-            Debug.Log("You Win!");
-        }
-
-        private void OnGameLost()
-        {
-            Debug.Log("Game Over!");
         }
 
         public void RestartGame()

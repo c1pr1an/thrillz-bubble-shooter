@@ -9,9 +9,7 @@ namespace Brain.Managers
 {
     public class ColorTrackerManager : UnitySingleton<ColorTrackerManager>
     {
-        // Events
         public UnityAction<BallColor> OnColorExhausted;
-        public UnityAction OnAllColorsExhausted;
 
         // Configuration (hardcoded)
         private const int RECENT_COLOR_MEMORY = 2;
@@ -59,7 +57,7 @@ namespace Brain.Managers
                 // Check if all colors are exhausted
                 if (_colorCounts.Count == 0)
                 {
-                    OnAllColorsExhausted?.Invoke();
+                    GameConditionsManager.Instance.TriggerWin();
                 }
             }
         }

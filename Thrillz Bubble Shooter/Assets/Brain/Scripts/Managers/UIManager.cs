@@ -21,7 +21,6 @@ namespace Brain.Managers
         public Canvas Canvas;
         public GameplayUI GameplayUI;
         public OutOfTimePanel OutOfTimePanel;
-        public OutOfLivesPanel OutOfLivesPanel;
         public GameFinishedPanel GameFinishedPanel;
         //public GlobalPauseMode GlobalPauseMode;
 

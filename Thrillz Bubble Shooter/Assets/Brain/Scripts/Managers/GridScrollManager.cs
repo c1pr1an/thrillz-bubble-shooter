@@ -29,9 +29,6 @@ namespace Brain.Managers
         // Properties
         public bool IsMoving => _isMoving;
 
-        // Events
-        public event Action OnDeathLineTouched;
-
         // Unity Lifecycle
         private void Start()
         {
@@ -60,7 +57,7 @@ namespace Brain.Managers
             // Check death line collision
             if (futureLowestRow <= _deathLineRow)
             {
-                OnDeathLineTouched?.Invoke();
+                GameConditionsManager.Instance.TriggerLose();
                 return;
             }
 
