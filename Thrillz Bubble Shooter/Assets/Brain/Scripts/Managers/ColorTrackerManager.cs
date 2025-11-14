@@ -120,6 +120,8 @@ namespace Brain.Managers
         /// </summary>
         public bool IsColorAvailable(BallColor color)
         {
+            if (GridGenerator.Instance.IsInitialized == false) return true;
+
             return _colorCounts.ContainsKey(color) && _colorCounts[color] > 0;
         }
 

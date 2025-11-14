@@ -23,16 +23,12 @@ namespace Brain.Gameplay.Containers
         protected override void OnEnable()
         {
             base.OnEnable();
-
-            // Subscribe to InputManager click event
             InputManager.OnPreviewContainerClicked += OnContainerClicked;
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
-
-            // Unsubscribe from InputManager click event
             InputManager.OnPreviewContainerClicked -= OnContainerClicked;
         }
 
@@ -47,12 +43,24 @@ namespace Brain.Gameplay.Containers
         public void SpawnBall()
         {
             CurrentBall = SpawnRandomBall();
-            CurrentBall.transform.localScale = Vector3.one;
 
-            // Disable ball's collider so it doesn't block container clicks
             if (CurrentBall != null)
             {
+                CurrentBall.transform.localScale = Vector3.one;
                 CurrentBall.SetColliderEnabled(false);
+
+                if (!CurrentBall.IsBonusBall &&
+                    !ColorTrackerManager.Instance.IsColorAvailable(CurrentBall.Color))
+                {
+                    Destroy(CurrentBall.gameObject);
+                    CurrentBall = SpawnRandomBall();
+
+                    if (CurrentBall != null)
+                    {
+                        CurrentBall.transform.localScale = Vector3.one;
+                        CurrentBall.SetColliderEnabled(false);
+                    }
+                }
             }
         }
 
@@ -85,8 +93,20 @@ namespace Brain.Gameplay.Containers
             }
             else if (_nextBallColor.HasValue)
             {
-                CurrentBall = SpawnBall(_nextBallColor.Value);
-                _nextBallColor = null;
+                if (ColorTrackerManager.Instance != null && !ColorTrackerManager.Instance.IsColorAvailable(_nextBallColor.Value))
+                {
+                    _nextBallColor = null;
+                }
+
+                if (_nextBallColor.HasValue)
+                {
+                    CurrentBall = SpawnBall(_nextBallColor.Value);
+                    _nextBallColor = null;
+                }
+                else
+                {
+                    CurrentBall = SpawnRandomBall();
+                }
 
                 if (CurrentBall != null)
                 {
@@ -115,7 +135,6 @@ namespace Brain.Gameplay.Containers
 
         private void OnContainerClicked(BallPreviewContainer container)
         {
-            // Only process if this is the clicked container
             if (container != this) return;
 
             if (CanSwapWithLauncher())
@@ -139,6 +158,7 @@ namespace Brain.Gameplay.Containers
             AnimateSwapFeedback();
             HapticManager.Instance.TriggerHaptic(HapticType.Selection);
             SoundManager.Instance.PlaySfxOneShot(SoundType.Game_BallSwap);
+
             SwapBalls(_launchContainer);
             _currentSpawnDelay = _spawnDelay;
         }

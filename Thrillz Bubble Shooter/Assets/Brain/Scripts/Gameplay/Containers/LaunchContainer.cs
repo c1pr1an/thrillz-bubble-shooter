@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Brain.Gameplay;
 using Brain.Managers;
 using Brain.Util;
+using DG.Tweening;
 using UnityEngine;
 
 namespace Brain.Gameplay.Containers
@@ -49,6 +50,7 @@ namespace Brain.Gameplay.Containers
             InputManager.OnAimingUpdated += OnAimingUpdated;
             InputManager.OnAimingReleased += OnAimingReleased;
             InputManager.OnAimingCancelled += OnAimingCancelled;
+            ColorTrackerManager.Instance.OnColorExhausted += OnColorExhausted;
         }
 
         protected override void OnDisable()
@@ -60,6 +62,7 @@ namespace Brain.Gameplay.Containers
             InputManager.OnAimingUpdated -= OnAimingUpdated;
             InputManager.OnAimingReleased -= OnAimingReleased;
             InputManager.OnAimingCancelled -= OnAimingCancelled;
+            ColorTrackerManager.Instance.OnColorExhausted -= OnColorExhausted;
         }
 
         public void Init(BallPreviewContainer previewContainer, BonusBallContainer bonusBallContainer = null)
@@ -193,18 +196,38 @@ namespace Brain.Gameplay.Containers
 
             if (ball != null)
             {
+                if (!ball.IsBonusBall &&
+                    !ColorTrackerManager.Instance.IsColorAvailable(ball.Color))
+                {
+                    Destroy(ball.gameObject);
+                    CurrentBall = SpawnRandomBall();
+                    CurrentBall.AnimateScaleTo(1.2f, 0f);
+                }
+
                 ball.SetColliderEnabled(false);
                 ball.Flags = BallFlags.None;
 
-                // Cache bonus ball component if this is any bonus ball (includes rocket)
                 _currentBonusBallComponent = ball.GetComponent<BonusBallBase>();
 
-                // Only rocket balls have SetInLauncher method
                 RocketBall rocketBall = _currentBonusBallComponent as RocketBall;
                 if (rocketBall != null)
                 {
                     rocketBall.SetInLauncher(true);
                 }
+            }
+        }
+
+        public void OnColorExhausted(BallColor exhaustedColor)
+        {
+            // If current ball is of exhausted color and not a bonus ball, replace it
+            if (CurrentBall != null &&
+                !CurrentBall.IsBonusBall &&
+                CurrentBall.Color == exhaustedColor)
+            {
+                Destroy(CurrentBall.gameObject);
+                CurrentBall = SpawnRandomBall();
+                CurrentBall.AnimateScaleTo(1.2f, 0f);
+                OnBallReceived(CurrentBall);
             }
         }
 
@@ -334,27 +357,5 @@ namespace Brain.Gameplay.Containers
             }
         }
 
-        /// <summary>
-        /// Override to only replace ball when not currently aiming
-        /// </summary>
-        protected override void OnColorExhausted(BallColor exhaustedColor)
-        {
-            // Only replace if we have a ball of the exhausted color, it's not a bonus ball, and we're NOT aiming
-            if (CurrentBall != null &&
-                !CurrentBall.IsBonusBall &&
-                CurrentBall.Color == exhaustedColor &&
-                _canLaunch) // _canLaunch is false when aiming/launching
-            {
-                // Instant replacement - no animation
-                Destroy(CurrentBall.gameObject);
-                CurrentBall = SpawnRandomBall();
-
-                if (CurrentBall != null)
-                {
-                    CurrentBall.SetColliderEnabled(false);
-                    OnBallReceived(CurrentBall);
-                }
-            }
-        }
     }
 }
