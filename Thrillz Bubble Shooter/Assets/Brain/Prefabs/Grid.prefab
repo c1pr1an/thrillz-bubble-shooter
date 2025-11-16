@@ -10494,6 +10494,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _deathLineRow: 0
   _targetBufferRows: 4
+  _topBoundaryY: 9.5
   _scrollSpeed: 5
   _minScrollDuration: 0.2
   _scrollEase: 2
@@ -25726,8 +25727,6 @@ MonoBehaviour:
   _ballRadius: 0.35
   _trajectoryCheckRadiusPercent: 0.15
   _trajectoryLine: {fileID: 5948283441969427531}
-  _lineWidth: 0.15
-  _lineAlpha: 0.8
 --- !u!1 &7907253254952325805
 GameObject:
   m_ObjectHideFlags: 0
@@ -25939,7 +25938,7 @@ LineRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8294006441433413089}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -25952,7 +25951,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c42047238c6a1ca4280abec89a518fb4, type: 2}
+  - {fileID: 2100000, guid: df9397ae70621564999e97db1e92a150, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -25975,10 +25974,10 @@ LineRenderer:
   m_SortingOrder: 0
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 1}
+  - {x: 0, y: 5, z: 1}
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 0.1
+    widthMultiplier: 0.6
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -25996,8 +25995,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 1, b: 1, a: 1}
-      key1: {r: 1, g: 1, b: 1, a: 1}
+      key0: {r: 0.16078432, g: 0.7058824, b: 1, a: 1}
+      key1: {r: 0.16078432, g: 0.7058824, b: 1, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -26021,14 +26020,14 @@ LineRenderer:
       atime6: 0
       atime7: 0
       m_Mode: 0
-      m_ColorSpace: -1
+      m_ColorSpace: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
+    numCornerVertices: 50
     numCapVertices: 0
     alignment: 0
     textureMode: 1
-    textureScale: {x: 1, y: 1}
+    textureScale: {x: 1.6, y: 1}
     shadowBias: 0.5
     generateLightingData: 0
   m_MaskInteraction: 0

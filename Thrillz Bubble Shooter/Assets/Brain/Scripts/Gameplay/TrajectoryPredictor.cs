@@ -17,8 +17,6 @@ namespace Brain.Gameplay
 
         [Header("Visualization")]
         [SerializeField] private LineRenderer _trajectoryLine;
-        [SerializeField] private float _lineWidth = 0.15f;
-        [SerializeField] private float _lineAlpha = 0.8f;
 
         private List<Vector3> _trajectoryPoints = new List<Vector3>();
         private Vector2 _predictedImpactPosition;
@@ -31,8 +29,6 @@ namespace Brain.Gameplay
 
         private void Start()
         {
-            _trajectoryLine.startWidth = _lineWidth;
-            _trajectoryLine.endWidth = _lineWidth;
             _trajectoryLine.enabled = false;
         }
 
@@ -178,7 +174,6 @@ namespace Brain.Gameplay
 
             // Set line color to match ball color from prefab
             Color lineColor = ball.DisplayColor;
-            lineColor.a = _lineAlpha;
             _trajectoryLine.startColor = lineColor;
             _trajectoryLine.endColor = lineColor;
 
