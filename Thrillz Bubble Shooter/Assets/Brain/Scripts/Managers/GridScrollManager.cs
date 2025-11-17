@@ -11,7 +11,6 @@ namespace Brain.Managers
     {
         // Serialized Fields
         [Header("Scroll Settings")]
-        [SerializeField] private int _deathLineRow = 0;
         [SerializeField] private int _targetBufferRows = 4;
         [SerializeField] private float _topBoundaryY = 9.5f;
 
@@ -53,13 +52,6 @@ namespace Brain.Managers
             // Find what the lowest row will be after these balls are destroyed
             int futureLowestRow = GetLowestOccupiedRowAfterDestruction(ballsToDestroy);
             if (futureLowestRow == -1) return;
-
-            // Check death line collision
-            if (futureLowestRow <= _deathLineRow)
-            {
-                GameConditionsManager.Instance.TriggerLose();
-                return;
-            }
 
             // If we haven't tracked lowest row yet, just set it
             if (_lastLowestRow == -1)

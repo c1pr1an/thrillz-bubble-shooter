@@ -446,7 +446,6 @@ MonoBehaviour:
   Canvas: {fileID: 2371781471284243359}
   GameplayUI: {fileID: 5884681549491102517}
   OutOfTimePanel: {fileID: 3895548270913401801}
-  OutOfLivesPanel: {fileID: 6957927140389357496}
   GameFinishedPanel: {fileID: 3747700662064974824}
 --- !u!1 &2371781472520070239
 GameObject:
@@ -1172,15 +1171,3 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 6741604601969712375}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &6957927140389357496 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4395927151631539023, guid: 4ad705c966f5cce4ea76f763b9c192e8,
-    type: 3}
-  m_PrefabInstance: {fileID: 6741604601969712375}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6e4fc292851ebdc45b4874c86aa67815, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

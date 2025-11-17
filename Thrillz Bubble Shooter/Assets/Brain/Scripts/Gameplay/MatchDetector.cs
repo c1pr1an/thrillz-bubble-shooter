@@ -19,6 +19,11 @@ namespace Brain.Gameplay
 
         private IEnumerator ProcessBallStoppedCoroutine(Ball stoppedBall)
         {
+            if (!GameConditionsManager.Instance.IsGameActive)
+            {
+                yield break;
+            }
+
             int matchCount = 0;
 
             // Check if this is a bonus ball with custom detection logic
@@ -62,6 +67,20 @@ namespace Brain.Gameplay
 
             // Check if we have enough matches to destroy (3+ for regular, 1+ for bonus balls)
             bool shouldDestroy = matchCount >= 3 || (stoppedBall.IsBonusBall && matchCount > 0);
+
+            // Check death line ONLY if the ball won't be destroyed
+            if (!shouldDestroy && !stoppedBall.IsBonusBall)
+            {
+                // Check if the stopped ball crosses the limit line (death line)
+                float limitLineY = GridManager.Instance.LimitLine.position.y;
+                float ballY = stoppedBall.transform.position.y;
+
+                if (ballY <= limitLineY)
+                {
+                    GameConditionsManager.Instance.TriggerLose();
+                    yield break;
+                }
+            }
 
             // Handle streak and sound effects based on ball type
             if (stoppedBall.IsBonusBall == false)

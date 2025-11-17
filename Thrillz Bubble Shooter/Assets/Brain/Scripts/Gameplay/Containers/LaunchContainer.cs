@@ -252,6 +252,12 @@ namespace Brain.Gameplay.Containers
         {
             if (CurrentBall == null) return;
 
+            // Don't allow launch if game is already over
+            if (!GameConditionsManager.Instance.IsGameActive)
+            {
+                return;
+            }
+
             List<Vector3> trajectoryPath = null;
             if (_trajectoryPredictor != null)
             {
