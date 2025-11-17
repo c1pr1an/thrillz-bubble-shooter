@@ -139,6 +139,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e4fc292851ebdc45b4874c86aa67815, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  panelTransform: {fileID: 6838625287623498208}
+  textTransform: {fileID: 7784812663102958707}
 --- !u!1 &2682721227223818354
 GameObject:
   m_ObjectHideFlags: 0
