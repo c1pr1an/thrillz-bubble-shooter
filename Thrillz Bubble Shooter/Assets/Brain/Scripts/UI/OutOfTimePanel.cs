@@ -14,6 +14,7 @@ namespace Brain.UI
             DOVirtual.DelayedCall(1f, () =>
             {
                 gameObject.SetActive(true);
+                SoundManager.Instance.StopMusic();
                 SoundManager.Instance.PlaySfxOneShot(SoundType.UI_OutOfTime);
             });
         }

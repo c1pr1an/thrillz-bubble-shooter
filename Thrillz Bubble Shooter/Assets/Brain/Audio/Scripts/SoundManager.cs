@@ -20,6 +20,7 @@ namespace Brain.Audio
 
         [SerializeField] private AudioSource[] _sfxOneShotSources;
         [SerializeField] private AudioSource _sfxLoopSource;
+        [SerializeField] private AudioSource _musicSource;
 
         public void PlaySfxOneShot(SoundType soundType)
         {
@@ -79,6 +80,12 @@ namespace Brain.Audio
         public void StopSfxLoop()
         {
             _sfxLoopSource.Stop();
+        }
+
+        public void StopMusic()
+        {
+            StopSfxLoop();
+            _musicSource.Stop();
         }
     }
 }

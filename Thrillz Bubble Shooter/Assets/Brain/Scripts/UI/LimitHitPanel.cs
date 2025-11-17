@@ -11,10 +11,10 @@ namespace Brain.UI
         // Public Methods
         public void Display()
         {
-            DOVirtual.DelayedCall(1f, () =>
+            DOVirtual.DelayedCall(0.25f, () =>
             {
                 gameObject.SetActive(true);
-                SoundManager.Instance.PlaySfxOneShot(SoundType.UI_OutOfLives);
+                SoundManager.Instance.StopMusic();
             });
         }
 

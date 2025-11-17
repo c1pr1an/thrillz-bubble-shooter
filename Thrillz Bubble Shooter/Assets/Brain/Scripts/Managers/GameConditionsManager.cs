@@ -4,6 +4,7 @@ using Brain.Gameplay;
 using Brain.Util;
 using UnityEngine;
 using DG.Tweening;
+using Brain.Audio;
 
 namespace Brain.Managers
 {
@@ -84,6 +85,7 @@ namespace Brain.Managers
             gm.LimitHitBallVFX.gameObject.SetActive(true);
             gm.LimitHitBallVFX.Play();
 
+            SoundManager.Instance.PlaySfxOneShot(SoundType.UI_LimitHit);
             UIManager.Instance.LimitHitPanel.Display();
         }
 

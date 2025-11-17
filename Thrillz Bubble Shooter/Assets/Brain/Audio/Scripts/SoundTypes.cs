@@ -12,7 +12,7 @@ namespace Brain.Audio
         Screen_Transition_Open,
         Screen_Transition_Close,
         UI_OutOfTime,
-        UI_OutOfLives,
+        UI_LimitHit,
         UI_GameFinished,
         UI_ButtonUndo,
         UI_ConfettiPop,

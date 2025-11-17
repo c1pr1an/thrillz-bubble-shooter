@@ -52,11 +52,11 @@ MonoBehaviour:
   - SoundType: 3
     Clip: {fileID: 8300000, guid: 8dea30131efecd446b529cbce03e7a43, type: 3}
   - SoundType: 4
-    Clip: {fileID: 8300000, guid: a841cd13517acfc4b80e7c2514f95978, type: 3}
+    Clip: {fileID: 8300000, guid: 83faf876b2e3b462bb584aac16be18c0, type: 3}
   - SoundType: 5
-    Clip: {fileID: 8300000, guid: 8485b83913a46f14d80ea435e21e45f1, type: 3}
+    Clip: {fileID: 8300000, guid: 1f49b72c19cc14fdeb5ab426f826c4b3, type: 3}
   - SoundType: 6
-    Clip: {fileID: 8300000, guid: 447f299e112e8144eb9011c815be666c, type: 3}
+    Clip: {fileID: 8300000, guid: 36e1ce109ecf24f58a90990db7e3fdaf, type: 3}
   - SoundType: 7
     Clip: {fileID: 8300000, guid: 704d4d4648fc487478f45cc8b2f3e907, type: 3}
   - SoundType: 8
@@ -97,6 +97,8 @@ MonoBehaviour:
     Clip: {fileID: 8300000, guid: 2dd87edc1fb2461498c15a3f3e5e2b51, type: 3}
   - SoundType: 516
     Clip: {fileID: 8300000, guid: 85fc2612e52ed664e9b3f0a87efcd546, type: 3}
+  - SoundType: 517
+    Clip: {fileID: 8300000, guid: 0606f8fbef6394a65a6777f625d85ff3, type: 3}
 --- !u!1 &2306009790787709523
 GameObject:
   m_ObjectHideFlags: 0

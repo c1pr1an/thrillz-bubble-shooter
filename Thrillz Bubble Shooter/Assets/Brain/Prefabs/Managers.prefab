@@ -436,7 +436,7 @@ MonoBehaviour:
   - {fileID: 8898603722022485237}
   - {fileID: 2199242297862584417}
   _sfxLoopSource: {fileID: 4353533185714949988}
-  _musicSource: {fileID: 0}
+  _musicSource: {fileID: 4607544926102651711}
 --- !u!1 &7414113330998485146
 GameObject:
   m_ObjectHideFlags: 0
