@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Brain.UI
 {
-    public class OutOfLivesPanel : MonoBehaviour
+    public class LimitHitPanel : MonoBehaviour
     {
         // Public Methods
         public void Display()

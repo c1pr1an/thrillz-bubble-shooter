@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
+using Brain.Gameplay;
 using Brain.Util;
 using UnityEngine;
+using DG.Tweening;
 
 namespace Brain.Managers
 {
@@ -60,6 +62,29 @@ namespace Brain.Managers
             StopAllCoroutines();
 
             UIManager.Instance.GameFinishedPanel.Display(1f);
+        }
+
+        public void TriggerLimitHit(Ball ball)
+        {
+            if (!_gameActive) return;
+
+            _gameActive = false;
+            StopAllCoroutines();
+
+            GridManager gm = GridManager.Instance;
+
+            float limitLineRedYScale = gm.LimitLineRed.transform.localScale.y;
+            gm.LimitLineRed.transform.localScale = new Vector3(gm.LimitLineRed.transform.localScale.x, 0f, gm.LimitLineRed.transform.localScale.z);
+            gm.LimitLineRed.transform.DOScaleY(limitLineRedYScale, 0.2f).SetEase(Ease.OutBack);
+            gm.LimitLineRed.gameObject.SetActive(true);
+
+            gm.LimitHitBallVFX.transform.position = ball.transform.position;
+            gm.LimitHitBallVFX.transform.localScale = Vector3.zero;
+            gm.LimitHitBallVFX.transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.OutBack);
+            gm.LimitHitBallVFX.gameObject.SetActive(true);
+            gm.LimitHitBallVFX.Play();
+
+            UIManager.Instance.LimitHitPanel.Display();
         }
 
         public void TriggerLose()

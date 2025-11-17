@@ -77,7 +77,7 @@ namespace Brain.Gameplay
 
                 if (ballY <= limitLineY)
                 {
-                    GameConditionsManager.Instance.TriggerLose();
+                    GameConditionsManager.Instance.TriggerLimitHit(stoppedBall);
                     yield break;
                 }
             }

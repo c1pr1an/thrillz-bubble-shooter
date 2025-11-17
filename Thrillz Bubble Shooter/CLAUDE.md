@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+Eliminate all non-essential use of Markdown. Restrict documentation to targeted comments embedded directly within functions only when they support technical understanding. Exclude all forms of emojis. Use only the project's official icon libraries or validated internal assets.
+Enforce a code structure that is strictly coherent, stable, and deterministic. Consistently follow naming conventions, separation of concerns, modularity, and the predictability of each component. Generate code free of duplication, ambiguities, unnecessary branches, artificial complexity, or unjustified dependencies.
+Rely exclusively on sourced, verifiable, versioned documentation aligned with technical standards of the field. Base every syntactic, architectural, or algorithmic choice on these sources, avoiding speculative deviation.
+Guarantee maximum readability: uniform indentation, total stylistic consistency, absence of visual noise, comments reduced to their minimal explanatory function. Ensure robustness: error handling, input validation, deterministic behavior, absence of uncontrolled side effects.
+Produce code that can be maintained, tested, extended, and audited without effort, without surprises, without implicit technical debt. End each generation without decorative additions, narrative justification, or editorial overhead.
+
 **For coding patterns, architecture guidelines, and standards, see:** `.claude/skills/unity-brain-development/SKILL.md`
 
 ## Project Overview
