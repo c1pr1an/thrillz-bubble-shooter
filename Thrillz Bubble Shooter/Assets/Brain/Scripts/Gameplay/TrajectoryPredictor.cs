@@ -167,9 +167,42 @@ namespace Brain.Gameplay
             _predictedImpactPosition = points[points.Count - 1];
             _hasValidPrediction = true;
 
+            // Create smoothed points list with extra points at corners
+            List<Vector3> smoothedPoints = new List<Vector3>();
+
             for (int i = 0; i < points.Count; i++)
             {
-                points[i] = new Vector3(points[i].x, points[i].y, 0f);
+                Vector3 currentPoint = new Vector3(points[i].x, points[i].y, 0f);
+
+                // For corner points (not first or last), add extra points for smoothing
+                if (i > 0 && i < points.Count - 1)
+                {
+                    Vector3 prevPoint = new Vector3(points[i - 1].x, points[i - 1].y, 0f);
+                    Vector3 nextPoint = new Vector3(points[i + 1].x, points[i + 1].y, 0f);
+
+                    // Calculate approach and departure vectors
+                    Vector3 approachDir = (currentPoint - prevPoint).normalized;
+                    Vector3 departDir = (nextPoint - currentPoint).normalized;
+
+                    float cornerOffset = _ballRadius * 0.1f;
+                    Vector3 beforeCorner = currentPoint - approachDir * cornerOffset;
+                    smoothedPoints.Add(beforeCorner);
+                    smoothedPoints.Add(beforeCorner);
+
+                    // Add the actual corner point
+                    smoothedPoints.Add(currentPoint);
+                    smoothedPoints.Add(currentPoint);
+
+                    // Add a point slightly after the corner
+                    Vector3 afterCorner = currentPoint + departDir * cornerOffset;
+                    smoothedPoints.Add(afterCorner);
+                    smoothedPoints.Add(afterCorner);
+                }
+                else
+                {
+                    // For first and last points, just add them directly
+                    smoothedPoints.Add(currentPoint);
+                }
             }
 
             // Set line color to match ball color from prefab
@@ -177,8 +210,8 @@ namespace Brain.Gameplay
             _trajectoryLine.startColor = lineColor;
             _trajectoryLine.endColor = lineColor;
 
-            _trajectoryLine.positionCount = points.Count;
-            _trajectoryLine.SetPositions(points.ToArray());
+            _trajectoryLine.positionCount = smoothedPoints.Count;
+            _trajectoryLine.SetPositions(smoothedPoints.ToArray());
             _trajectoryLine.enabled = true;
         }
 
