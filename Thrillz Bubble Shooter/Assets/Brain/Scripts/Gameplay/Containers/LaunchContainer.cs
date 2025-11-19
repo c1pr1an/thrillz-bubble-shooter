@@ -18,6 +18,8 @@ namespace Brain.Gameplay.Containers
 
         [Header("Trajectory")]
         [SerializeField] private TrajectoryPredictor _trajectoryPredictor;
+        [SerializeField] private ParticleSystem _aimingVFX;
+        [SerializeField] private Transform _ballAimHighlight;
 
         private BallPreviewContainer _previewContainer;
         private BonusBallContainer _bonusBallContainer;
@@ -69,6 +71,8 @@ namespace Brain.Gameplay.Containers
         {
             _previewContainer = previewContainer;
             _bonusBallContainer = bonusBallContainer;
+            _aimingVFX.Stop();
+            _ballAimHighlight.gameObject.SetActive(false);
             if (_previewContainer.HasBall)
             {
                 Ball previewBall = _previewContainer.CurrentBall;
@@ -100,6 +104,14 @@ namespace Brain.Gameplay.Containers
 
             UpdateTrajectory(position);
 
+            var mainModule = _aimingVFX.main;
+            mainModule.startColor = CurrentBall.DisplayColor;
+            _aimingVFX.Play();
+            if (CurrentBall.IsBonusBall == false)
+            {
+                _ballAimHighlight.gameObject.SetActive(true);
+            }
+
             // Update rocket ball rotation if applicable
             UpdateRocketBallAiming(position, true);
         }
@@ -120,6 +132,9 @@ namespace Brain.Gameplay.Containers
             // Launch the ball when input is released
             if (!_canLaunch || CurrentBall == null) return;
 
+            _aimingVFX.Stop();
+            _ballAimHighlight.gameObject.SetActive(false);
+
             Vector2 aimDirection = CalculateAimDirection(position);
             LaunchBall(aimDirection);
         }
@@ -131,6 +146,9 @@ namespace Brain.Gameplay.Containers
             {
                 _trajectoryPredictor.HideTrajectory();
             }
+
+            _aimingVFX.Stop();
+            _ballAimHighlight.gameObject.SetActive(false);
 
             // Reset rocket ball rotation if applicable
             UpdateRocketBallAiming(Vector2.zero, false);
@@ -159,6 +177,9 @@ namespace Brain.Gameplay.Containers
 
             Vector2 aimDirection = CalculateAimDirection(inputPosition);
             _trajectoryPredictor.ShowTrajectory(_ballHolder.position, aimDirection, CurrentBall);
+
+            float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg - 90f;
+            _aimingVFX.transform.rotation = Quaternion.Euler(0, 0, angle);
         }
 
         private Vector2 CalculateAimDirection(Vector2 inputPosition)
