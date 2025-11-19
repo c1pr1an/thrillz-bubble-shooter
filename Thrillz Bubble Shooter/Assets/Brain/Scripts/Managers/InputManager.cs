@@ -4,6 +4,8 @@ using Brain.Util;
 using Brain.Gameplay.Containers;
 using Brain.Gameplay;
 
+using UnityEngine.EventSystems;
+
 namespace Brain.Managers
 {
     public enum InputState
@@ -30,11 +32,12 @@ namespace Brain.Managers
         private InputState _currentState = InputState.Idle;
         private bool _wasHolding = false;
         private Vector2 _currentInputPosition;
+        private bool _inputBlockedByUI = false;
 
         // Cached references to containers for click detection
         private BallPreviewContainer _previewContainer;
         private BonusBallContainer _bonusContainer;
-        
+
         // Cached colliders for optimization
         private Collider2D _previewCollider;
         private Collider2D _bonusCollider;
@@ -46,7 +49,7 @@ namespace Brain.Managers
 
             if (this._previewContainer != null)
                 _previewCollider = this._previewContainer.GetComponent<Collider2D>();
-            
+
             if (this._bonusContainer != null)
                 _bonusCollider = this._bonusContainer.GetComponent<Collider2D>();
         }
@@ -60,25 +63,67 @@ namespace Brain.Managers
         {
             bool isInputActive = false;
             Vector2 inputPosition = Vector2.zero;
+            bool isPointerOverUI = false;
+            bool isNewInput = false;
 
-            // Check for mouse input (desktop)
-            if (Input.GetMouseButton(0) || Input.GetMouseButtonUp(0))
-            {
-                Vector3 mouseWorldPos = Cameras.Instance.MainCam.ScreenToWorldPoint(Input.mousePosition);
-                inputPosition = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
-                isInputActive = Input.GetMouseButton(0);
-            }
-            // Check for touch input (mobile)
-            else if (Input.touchCount > 0)
+            // Prioritize Touch input (mobile)
+            if (Input.touchCount > 0)
             {
                 Touch touch = Input.GetTouch(0);
+
+                if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+                {
+                    isPointerOverUI = true;
+                }
+
                 Vector3 touchWorldPos = Cameras.Instance.MainCam.ScreenToWorldPoint(touch.position);
                 inputPosition = new Vector2(touchWorldPos.x, touchWorldPos.y);
                 isInputActive = (touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled);
+                isNewInput = (touch.phase == TouchPhase.Began);
+            }
+            // Check for mouse input (desktop)
+            else if (Input.GetMouseButton(0) || Input.GetMouseButtonUp(0))
+            {
+                if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                {
+                    isPointerOverUI = true;
+                }
+
+                Vector3 mouseWorldPos = Cameras.Instance.MainCam.ScreenToWorldPoint(Input.mousePosition);
+                inputPosition = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
+                isInputActive = Input.GetMouseButton(0);
+                isNewInput = Input.GetMouseButtonDown(0);
             }
 
-            // Only update current position if we have valid input
-            if (inputPosition != Vector2.zero)
+            // If input just started and we are over UI, block this entire input session
+            if (isNewInput && isPointerOverUI)
+            {
+                _inputBlockedByUI = true;
+            }
+
+            // If physical input stopped, reset the block
+            // We check the raw isInputActive (before blocking logic) to know if physical input ended
+            if (!isInputActive && !isNewInput)
+            {
+                _inputBlockedByUI = false;
+            }
+
+            // If blocked by UI, force input inactive
+            if (_inputBlockedByUI)
+            {
+                isInputActive = false;
+            }
+
+            // If we are over UI and we weren't already holding, ignore this input
+            // This prevents starting a drag/aim when clicking on UI buttons
+            if (isPointerOverUI && !_wasHolding)
+            {
+                isInputActive = false;
+                // We don't update inputPosition here to avoid jumping
+            }
+
+            // Only update current position if we have valid input and it's not blocked by UI
+            if (inputPosition != Vector2.zero && (!isPointerOverUI || _wasHolding) && !_inputBlockedByUI)
             {
                 _currentInputPosition = inputPosition;
             }
@@ -169,7 +214,7 @@ namespace Brain.Managers
                         hit.collider.transform.IsChildOf(_previewContainer.transform))
                     {
                         // Only trigger if we started clicking on this container
-                        if (_initialDownObject == _previewContainer.gameObject || 
+                        if (_initialDownObject == _previewContainer.gameObject ||
                             (_initialDownObject != null && _initialDownObject.transform.IsChildOf(_previewContainer.transform)))
                         {
                             OnPreviewContainerClicked?.Invoke(_previewContainer);
@@ -185,7 +230,7 @@ namespace Brain.Managers
                         hit.collider.transform.IsChildOf(_bonusContainer.transform))
                     {
                         // Only trigger if we started clicking on this container
-                        if (_initialDownObject == _bonusContainer.gameObject || 
+                        if (_initialDownObject == _bonusContainer.gameObject ||
                             (_initialDownObject != null && _initialDownObject.transform.IsChildOf(_bonusContainer.transform)))
                         {
                             OnBonusContainerClicked?.Invoke(_bonusContainer);
