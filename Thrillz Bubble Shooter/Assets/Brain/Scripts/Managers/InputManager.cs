@@ -34,11 +34,21 @@ namespace Brain.Managers
         // Cached references to containers for click detection
         private BallPreviewContainer _previewContainer;
         private BonusBallContainer _bonusContainer;
+        
+        // Cached colliders for optimization
+        private Collider2D _previewCollider;
+        private Collider2D _bonusCollider;
 
         public void Init(BallPreviewContainer _previewContainer, BonusBallContainer _bonusContainer)
         {
             this._previewContainer = _previewContainer;
             this._bonusContainer = _bonusContainer;
+
+            if (this._previewContainer != null)
+                _previewCollider = this._previewContainer.GetComponent<Collider2D>();
+            
+            if (this._bonusContainer != null)
+                _bonusCollider = this._bonusContainer.GetComponent<Collider2D>();
         }
 
         private void Update()
@@ -93,40 +103,24 @@ namespace Brain.Managers
             _wasHolding = isInputActive;
         }
 
+        private GameObject _initialDownObject;
+
         private void OnInputDown(Vector2 position)
         {
-            float limitLineY = GetLimitLineY();
+            // Store what we initially clicked on
+            _initialDownObject = GetObjectAtPosition(position);
 
-            if (position.y < limitLineY)
-            {
-                // Below limit line - check for container clicks
-                CheckContainerClicks(position);
-            }
-            else
-            {
-                // Above limit line - start aiming
-                _currentState = InputState.Aiming;
-                OnAimingStarted?.Invoke(position);
-            }
+            // Always start aiming on input down
+            _currentState = InputState.Aiming;
+            OnAimingStarted?.Invoke(position);
         }
 
         private void OnInputHold(Vector2 position)
         {
             if (_currentState == InputState.Aiming)
             {
-                float limitLineY = GetLimitLineY();
-
-                if (position.y >= limitLineY)
-                {
-                    // Still above limit line - continue aiming
-                    OnAimingUpdated?.Invoke(position);
-                }
-                else
-                {
-                    // Crossed below limit line - cancel aiming
-                    _currentState = InputState.Cancelled;
-                    OnAimingCancelled?.Invoke();
-                }
+                // Always update aiming while holding
+                OnAimingUpdated?.Invoke(position);
             }
             else if (_currentState == InputState.Cancelled)
             {
@@ -137,23 +131,28 @@ namespace Brain.Managers
 
         private void OnInputUp(Vector2 position)
         {
+            // Check for container clicks first
+            if (CheckContainerClicks(position))
+            {
+                // If a container was clicked, we don't shoot
+                _currentState = InputState.Idle;
+                OnAimingCancelled?.Invoke();
+                _initialDownObject = null;
+                return;
+            }
+
             if (_currentState == InputState.Aiming)
             {
-                float limitLineY = GetLimitLineY();
-
-                if (position.y >= limitLineY)
-                {
-                    // Released above limit line - shoot!
-                    OnAimingReleased?.Invoke(position);
-                }
-                // If below limit line, do nothing (cancelled)
+                // Released - shoot!
+                OnAimingReleased?.Invoke(position);
             }
 
             // Reset state
             _currentState = InputState.Idle;
+            _initialDownObject = null;
         }
 
-        private void CheckContainerClicks(Vector2 position)
+        private bool CheckContainerClicks(Vector2 position)
         {
             // Perform a raycast and get all hits to handle overlapping colliders
             RaycastHit2D[] hits = Physics2D.RaycastAll(position, Vector2.zero);
@@ -169,8 +168,13 @@ namespace Brain.Managers
                     if (hit.collider.gameObject == _previewContainer.gameObject ||
                         hit.collider.transform.IsChildOf(_previewContainer.transform))
                     {
-                        OnPreviewContainerClicked?.Invoke(_previewContainer);
-                        return; // Found container, stop checking
+                        // Only trigger if we started clicking on this container
+                        if (_initialDownObject == _previewContainer.gameObject || 
+                            (_initialDownObject != null && _initialDownObject.transform.IsChildOf(_previewContainer.transform)))
+                        {
+                            OnPreviewContainerClicked?.Invoke(_previewContainer);
+                            return true; // Found container
+                        }
                     }
                 }
 
@@ -180,11 +184,24 @@ namespace Brain.Managers
                     if (hit.collider.gameObject == _bonusContainer.gameObject ||
                         hit.collider.transform.IsChildOf(_bonusContainer.transform))
                     {
-                        OnBonusContainerClicked?.Invoke(_bonusContainer);
-                        return; // Found container, stop checking
+                        // Only trigger if we started clicking on this container
+                        if (_initialDownObject == _bonusContainer.gameObject || 
+                            (_initialDownObject != null && _initialDownObject.transform.IsChildOf(_bonusContainer.transform)))
+                        {
+                            OnBonusContainerClicked?.Invoke(_bonusContainer);
+                            return true; // Found container
+                        }
                     }
                 }
             }
+
+            return false;
+        }
+
+        private GameObject GetObjectAtPosition(Vector2 position)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero);
+            return hit.collider != null ? hit.collider.gameObject : null;
         }
 
         private float GetLimitLineY()
@@ -197,6 +214,32 @@ namespace Brain.Managers
 
             // Fallback to a default value if not set
             return -6f; // Adjust this default based on your scene
+        }
+
+        /// <summary>
+        /// Check if the pointer is currently over any interactive container
+        /// </summary>
+        public bool IsPointerOverContainer(Vector2 position)
+        {
+            // Optimization: Containers are always below the limit line
+            if (position.y >= GetLimitLineY())
+            {
+                return false;
+            }
+
+            // Check overlap with preview container
+            if (_previewCollider != null && _previewCollider.OverlapPoint(position))
+            {
+                return true;
+            }
+
+            // Check overlap with bonus container
+            if (_bonusCollider != null && _bonusCollider.OverlapPoint(position))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

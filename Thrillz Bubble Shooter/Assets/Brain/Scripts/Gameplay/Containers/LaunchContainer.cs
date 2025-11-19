@@ -104,14 +104,6 @@ namespace Brain.Gameplay.Containers
 
             UpdateTrajectory(position);
 
-            var mainModule = _aimingVFX.main;
-            mainModule.startColor = CurrentBall.DisplayColor;
-            _aimingVFX.Play();
-            if (CurrentBall.IsBonusBall == false)
-            {
-                _ballAimHighlight.gameObject.SetActive(true);
-            }
-
             // Update rocket ball rotation if applicable
             UpdateRocketBallAiming(position, true);
         }
@@ -132,10 +124,19 @@ namespace Brain.Gameplay.Containers
             // Launch the ball when input is released
             if (!_canLaunch || CurrentBall == null) return;
 
+            Vector2 aimDirection = CalculateAimDirection(position);
+            float angle = Vector2.SignedAngle(Vector2.right, aimDirection);
+            
+            // Check if angle is valid before launching AND we are not hovering over a container
+            if (!IsAngleValid(angle) || InputManager.Instance.IsPointerOverContainer(position))
+            {
+                OnAimingCancelled();
+                return;
+            }
+
             _aimingVFX.Stop();
             _ballAimHighlight.gameObject.SetActive(false);
 
-            Vector2 aimDirection = CalculateAimDirection(position);
             LaunchBall(aimDirection);
         }
 
@@ -176,21 +177,42 @@ namespace Brain.Gameplay.Containers
             if (_trajectoryPredictor == null || CurrentBall == null) return;
 
             Vector2 aimDirection = CalculateAimDirection(inputPosition);
-            _trajectoryPredictor.ShowTrajectory(_ballHolder.position, aimDirection, CurrentBall);
+            float angle = Vector2.SignedAngle(Vector2.right, aimDirection);
 
-            float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg - 90f;
-            _aimingVFX.transform.rotation = Quaternion.Euler(0, 0, angle);
+            // Check if angle is valid AND we are not hovering over a container
+            if (IsAngleValid(angle) && !InputManager.Instance.IsPointerOverContainer(inputPosition))
+            {
+                _trajectoryPredictor.ShowTrajectory(_ballHolder.position, aimDirection, CurrentBall);
+
+                float vfxAngle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg - 90f;
+                _aimingVFX.transform.rotation = Quaternion.Euler(0, 0, vfxAngle);
+                
+                if (!_aimingVFX.isPlaying) { 
+                    var mainModule = _aimingVFX.main;
+                    mainModule.startColor = CurrentBall.DisplayColor;
+                    _aimingVFX.Play();
+                }
+                if (CurrentBall.IsBonusBall == false) _ballAimHighlight.gameObject.SetActive(true);
+            }
+            else
+            {
+                _trajectoryPredictor.HideTrajectory();
+                _aimingVFX.Stop();
+                _ballAimHighlight.gameObject.SetActive(false);
+            }
         }
 
         private Vector2 CalculateAimDirection(Vector2 inputPosition)
         {
-            Vector2 aimDirection = (inputPosition - (Vector2)transform.position).normalized;
-
-            float angle = Vector2.SignedAngle(Vector2.right, aimDirection);
-            angle = Mathf.Clamp(angle, _minAimAngle, 180 - _minAimAngle);
-            aimDirection = Quaternion.Euler(0, 0, angle) * Vector2.right;
-
+            Vector2 aimDirection = (inputPosition - (Vector2)_ballHolder.position).normalized;
             return aimDirection;
+        }
+
+        private bool IsAngleValid(float angle)
+        {
+            // Angle is signed, so 0 is right, 90 is up, 180/-180 is left, -90 is down
+            // We want 15 to 165 degrees
+            return angle >= 15f && angle <= 165f;
         }
 
         private void PullFromPreview()
