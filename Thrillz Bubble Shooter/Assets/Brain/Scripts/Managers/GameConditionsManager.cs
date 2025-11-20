@@ -12,17 +12,19 @@ namespace Brain.Managers
     {
         // Serialized Fields
         [Header("Game Settings")]
-        [SerializeField] private float _gameDuration = 120f;
+        [SerializeField] private int _gameDuration = 180;
 
         // Private Fields
-        private float _timeRemaining;
+        private int _timeRemaining;
         private bool _gameActive = false;
 
         // Properties
-        public float TimeRemaining => _timeRemaining;
+        public int TimeRemaining => _timeRemaining;
         public bool IsGameActive => _gameActive;
 
-        public event Action<float> OnTimerUpdated;
+        public event Action<int> OnTimerUpdated;
+        private WaitForSeconds _oneSecondWait = new WaitForSeconds(1f);
+
 
         // Public Methods
         public void StartGame()
@@ -43,7 +45,7 @@ namespace Brain.Managers
         {
             while (_timeRemaining > 0 && _gameActive)
             {
-                _timeRemaining -= Time.deltaTime;
+                _timeRemaining -= 1;
                 OnTimerUpdated?.Invoke(_timeRemaining);
 
                 if (_timeRemaining <= 0)
@@ -51,7 +53,7 @@ namespace Brain.Managers
                     TriggerLose();
                 }
 
-                yield return null;
+                yield return _oneSecondWait;
             }
         }
 

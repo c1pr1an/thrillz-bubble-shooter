@@ -26,6 +26,19 @@ namespace Brain.UI
             get { return _scoreText; }
         }
 
+        public void Start()
+        {
+            GameConditionsManager.Instance.OnTimerUpdated += SetGameTime;
+        }
+
+        public void OnDisable()
+        {
+            if (GameConditionsManager.Instance != null)
+            {
+                GameConditionsManager.Instance.OnTimerUpdated -= SetGameTime;
+            }
+        }
+
         // Public Methods
         public void PauseOnClick()
         {
