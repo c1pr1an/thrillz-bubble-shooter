@@ -104,6 +104,7 @@ namespace Brain.Gameplay
 
             // Track which colors to check
             HashSet<BallColor> colorsToCheck = new HashSet<BallColor>();
+            List<BallColor> availableColors = new();
 
             // First, identify all colors directly touching the rainbow ball
             foreach (Ball neighbor in neighbors)
@@ -111,39 +112,42 @@ namespace Brain.Gameplay
                 if (neighbor != null && neighbor.HasFlag(BallFlags.Pinned) && !neighbor.HasFlag(BallFlags.Destroying))
                 {
                     colorsToCheck.Add(neighbor.Color);
+                    if (!availableColors.Contains(neighbor.Color))
+                        availableColors.Add(neighbor.Color);
                 }
             }
 
             // For each color, check if we have 3+ balls (including the rainbow)
             foreach (BallColor color in colorsToCheck)
             {
-                List<Ball> colorGroup = new List<Ball>();
-
-                // Find all neighbors of this color and flood fill from one
-                Ball startBall = null;
+                // First, collect all direct neighbors of this color
+                List<Ball> directNeighborsOfColor = new();
                 foreach (Ball neighbor in neighbors)
                 {
                     if (neighbor != null && neighbor.Color == color &&
                         neighbor.HasFlag(BallFlags.Pinned) && !neighbor.HasFlag(BallFlags.Destroying))
                     {
-                        startBall = neighbor;
-                        break;
+                        directNeighborsOfColor.Add(neighbor);
                     }
                 }
 
-                if (startBall == null) continue;
+                if (directNeighborsOfColor.Count == 0) continue;
 
-                // Find all connected balls of this color using flood fill
-                Queue<Ball> toCheck = new Queue<Ball>();
-                HashSet<Ball> visited = new HashSet<Ball>();
-                toCheck.Enqueue(startBall);
+                // Now find all connected balls of this color starting from these direct neighbors
+                HashSet<Ball> colorGroup = new();
+                Queue<Ball> toCheck = new();
+
+                // Start flood fill from all direct neighbors of this color
+                foreach (Ball directNeighbor in directNeighborsOfColor)
+                {
+                    toCheck.Enqueue(directNeighbor);
+                }
 
                 while (toCheck.Count > 0)
                 {
                     Ball current = toCheck.Dequeue();
-                    if (visited.Contains(current)) continue;
+                    if (colorGroup.Contains(current)) continue;
 
-                    visited.Add(current);
                     colorGroup.Add(current);
 
                     // Check neighbors of same color
@@ -151,7 +155,7 @@ namespace Brain.Gameplay
                     {
                         if (n != null && n.Color == color &&
                             n.HasFlag(BallFlags.Pinned) && !n.HasFlag(BallFlags.Destroying) &&
-                            !visited.Contains(n))
+                            !colorGroup.Contains(n))
                         {
                             toCheck.Enqueue(n);
                         }
@@ -173,11 +177,71 @@ namespace Brain.Gameplay
                 }
             }
 
-            // Only add rainbow ball if we found valid matches
+            // If we found valid matches, add rainbow ball
             if (affectedBalls.Count > 0)
             {
                 affectedBalls.Add(_ball);
                 _ball.Flags |= BallFlags.MarkedForMatch;
+            }
+            // No matches found - transform to a random neighbor color
+            // Only transform during actual detection (when we're using ball's actual neighbors, not preview)
+            else if (availableColors.Count > 0 && (impactPosition == Vector2.zero || (Vector2)_ball.transform.position == impactPosition))
+            {
+                // Only transform during actual landing, not during preview
+                // Pick a random color from neighbors
+                BallColor randomColor = availableColors[Random.Range(0, availableColors.Count)];
+
+                // Store rainbow ball's position data
+                Vector2Int gridPos = _ball.GridPosition;
+                Vector3 worldPos = _ball.transform.position;
+
+                // Get new normal ball from pool
+                GameObject newBallObj = ObjectPooler.Instance.Get(randomColor);
+                if (newBallObj != null)
+                {
+                    Ball newBall = newBallObj.GetComponent<Ball>();
+                    if (newBall != null)
+                    {
+                        // Configure at same position
+                        newBall.transform.SetParent(gridManager.GridContainer);
+                        newBall.transform.position = worldPos;
+                        newBall.SetPosition(gridPos, worldPos);
+
+                        // Update grid matrix
+                        gridManager.Balls[gridPos.y][gridPos.x] = newBall;
+
+                        // Track color
+                        ColorTrackerManager.Instance.AddColor(randomColor);
+
+                        // Copy neighbors from rainbow ball to new ball
+                        newBall.UpdateNeighbors(_ball.Neighbors);
+
+                        // Update all neighbors to point to the new ball instead of rainbow
+                        foreach (Ball neighbor in _ball.Neighbors)
+                        {
+                            if (neighbor != null)
+                            {
+                                // Get neighbor's current neighbors array
+                                Ball[] neighborNeighbors = neighbor.Neighbors;
+
+                                // Replace reference to rainbow ball with new ball
+                                for (int i = 0; i < neighborNeighbors.Length; i++)
+                                {
+                                    if (neighborNeighbors[i] == _ball)
+                                    {
+                                        neighborNeighbors[i] = newBall;
+                                    }
+                                }
+
+                                // Update the neighbor with modified array
+                                neighbor.UpdateNeighbors(neighborNeighbors);
+                            }
+                        }
+
+                        // Destroy the rainbow ball
+                        Destroy(gameObject);
+                    }
+                }
             }
 
             return affectedBalls;
