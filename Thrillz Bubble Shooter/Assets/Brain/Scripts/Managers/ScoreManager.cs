@@ -128,6 +128,15 @@ namespace Brain.Managers
         }
 
         /// <summary>
+        /// Get the score value for bonus balls (ensures minimum base score)
+        /// </summary>
+        public int GetBonusBallScore()
+        {
+            // Bonus balls always give at least the base score, even with 0 streak
+            return Mathf.Max(BASE_SCORE_PER_BALL, CurrentStreak * BASE_SCORE_PER_BALL);
+        }
+
+        /// <summary>
         /// Increase streak when balls are destroyed (up to max)
         /// </summary>
         public void IncreaseStreak()

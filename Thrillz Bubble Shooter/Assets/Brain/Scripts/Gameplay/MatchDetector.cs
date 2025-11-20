@@ -93,7 +93,9 @@ namespace Brain.Gameplay
             // Store matched balls for later destruction
             List<Ball> matchedBalls = shouldDestroy ? new List<Ball>(_matchList) : new List<Ball>();
 
-            int ballScoreValue = ScoreManager.Instance.GetCurrentBallScore();
+            int ballScoreValue = stoppedBall.IsBonusBall
+                ? ScoreManager.Instance.GetBonusBallScore()
+                : ScoreManager.Instance.GetCurrentBallScore();
             int orphanScoreValue = ScoreManager.Instance.GetCurrentOrphanScore();
 
             // Step 1: Mark matched balls for destruction (but don't destroy them yet)
