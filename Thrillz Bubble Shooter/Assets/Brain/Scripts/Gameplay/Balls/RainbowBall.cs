@@ -99,7 +99,13 @@ namespace Brain.Gameplay
             else
             {
                 // Use ball's actual neighbors (for actual detection after landing)
-                neighbors.AddRange(_ball.Neighbors);
+                foreach (Ball n in _ball.Neighbors)
+                {
+                    if (n != null && n != _ball) // Make sure we don't add the rainbow ball itself
+                    {
+                        neighbors.Add(n);
+                    }
+                }
             }
 
             // Track which colors to check
@@ -133,6 +139,8 @@ namespace Brain.Gameplay
 
                 if (directNeighborsOfColor.Count == 0) continue;
 
+                //Debug.Log($"[RainbowBall] Checking color {color}: Found {directNeighborsOfColor.Count} direct neighbors");
+
                 // Now find all connected balls of this color starting from these direct neighbors
                 HashSet<Ball> colorGroup = new();
                 Queue<Ball> toCheck = new();
@@ -149,22 +157,27 @@ namespace Brain.Gameplay
                     if (colorGroup.Contains(current)) continue;
 
                     colorGroup.Add(current);
+                    //Debug.Log($"[RainbowBall] Added {current.Color} ball at {current.GridPosition} to color group");
 
-                    // Check neighbors of same color
+                    // Check neighbors of same color (excluding the rainbow ball itself)
                     foreach (Ball n in current.Neighbors)
                     {
-                        if (n != null && n.Color == color &&
+                        if (n != null && n != _ball && n.Color == color &&
                             n.HasFlag(BallFlags.Pinned) && !n.HasFlag(BallFlags.Destroying) &&
                             !colorGroup.Contains(n))
                         {
+                            //Debug.Log($"[RainbowBall] Found connected {n.Color} ball at {n.GridPosition}, adding to queue");
                             toCheck.Enqueue(n);
                         }
                     }
                 }
 
+                //Debug.Log($"[RainbowBall] Color {color} group size: {colorGroup.Count} (need 2+ for match)");
+
                 // If this color group + rainbow ball makes 3 or more, include them
                 if (colorGroup.Count >= 2) // 2 color balls + 1 rainbow = 3 total
                 {
+                    //Debug.Log($"[RainbowBall] Valid match found! Adding {colorGroup.Count} balls to destruction list");
                     foreach (Ball ball in colorGroup)
                     {
                         if (!processedBalls.Contains(ball))
@@ -175,11 +188,16 @@ namespace Brain.Gameplay
                         }
                     }
                 }
+                else if (colorGroup.Count == 1)
+                {
+                    //Debug.Log($"[RainbowBall] Only 1 ball of color {color} - not enough for match (need 2+)");
+                }
             }
 
             // If we found valid matches, add rainbow ball
             if (affectedBalls.Count > 0)
             {
+                Debug.Log($"[RainbowBall] Total affected balls: {affectedBalls.Count}. Adding rainbow to destruction list.");
                 affectedBalls.Add(_ball);
                 _ball.Flags |= BallFlags.MarkedForMatch;
             }
@@ -187,6 +205,7 @@ namespace Brain.Gameplay
             // Only transform during actual detection (when we're using ball's actual neighbors, not preview)
             else if (availableColors.Count > 0 && (impactPosition == Vector2.zero || (Vector2)_ball.transform.position == impactPosition))
             {
+                Debug.Log($"[RainbowBall] No valid matches found. Transforming to random color from {availableColors.Count} available colors");
                 // Only transform during actual landing, not during preview
                 // Pick a random color from neighbors
                 BallColor randomColor = availableColors[Random.Range(0, availableColors.Count)];
@@ -240,6 +259,7 @@ namespace Brain.Gameplay
 
                         // Destroy the rainbow ball
                         Destroy(gameObject);
+                        SoundManager.Instance.StopSfxLoop();
                     }
                 }
             }
