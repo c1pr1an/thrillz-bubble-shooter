@@ -40,6 +40,7 @@ namespace Brain.Gameplay
         public Color DisplayColor => _displayColor;
         public bool IsBonusBall => _isBonusBall;
         public SpriteRenderer SpriteRenderer => _spriteRenderer;
+        public SpriteRenderer HighlightSprite => _highlightSprite;
         public BallFlags Flags
         {
             get => _flags;

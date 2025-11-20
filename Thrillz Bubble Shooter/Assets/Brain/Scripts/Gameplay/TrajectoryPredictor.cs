@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Brain.Managers;
@@ -7,6 +8,10 @@ namespace Brain.Gameplay
 {
     public class TrajectoryPredictor : UnitySingleton<TrajectoryPredictor>
     {
+        // Events for trajectory updates
+        public event Action<Vector2, Vector2, Ball> OnTrajectoryUpdated; // impactPos, direction, ball
+        public event Action OnTrajectoryHidden;
+
         [Header("Trajectory Settings")]
         [SerializeField] private int _maxBounces = 3;
         [SerializeField] private float _maxDistance = 50f;
@@ -167,6 +172,10 @@ namespace Brain.Gameplay
             _predictedImpactPosition = points[points.Count - 1];
             _hasValidPrediction = true;
 
+            // Fire event for trajectory update (for bonus ball preview)
+            Vector2 lastDirection = GetLastSegmentDirection();
+            OnTrajectoryUpdated?.Invoke(_predictedImpactPosition, lastDirection, ball);
+
             // Create smoothed points list with extra points at corners
             List<Vector3> smoothedPoints = new List<Vector3>();
 
@@ -237,6 +246,9 @@ namespace Brain.Gameplay
                 _trajectoryLine.enabled = false;
             }
             _hasValidPrediction = false;
+
+            // Fire event for trajectory hidden (to hide bonus ball preview)
+            OnTrajectoryHidden?.Invoke();
         }
     }
 }
