@@ -25,7 +25,6 @@ namespace Brain.Gameplay
 
         private void ReturnToPool()
         {
-            Debug.Log("Returning to pool: " + _poolTag);
             ObjectPooler.Instance.Release(gameObject, _poolTag);
         }
     }

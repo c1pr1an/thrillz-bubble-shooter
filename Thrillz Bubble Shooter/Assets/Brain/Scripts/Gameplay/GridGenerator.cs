@@ -68,11 +68,13 @@ namespace Brain.Gameplay
         private void PlayEntryAnimation()
         {
             GridManager.Instance.BallLaunchContainer.SetEnabled(false);
+
             transform.position = new Vector3(0, -42, 0);
             transform.DOMove(Vector3.zero, 2f)
                 .OnComplete(() =>
                 {
                     GridManager.Instance.BallLaunchContainer.SetEnabled(true);
+                    GridScrollManager.Instance.Init();
                 }).SetDelay(0.5f);
         }
 
