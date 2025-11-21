@@ -11,11 +11,11 @@ namespace Brain.Gameplay
         [SerializeField] private int _totalRows = 60;
         [SerializeField] private int _startRow = 4;
         [SerializeField][Range(0.6f, 0.9f)] private float _fillRate = 0.75f;
-        [SerializeField][Range(0.4f, 0.8f)] private float _clusteringStrength = 0.65f;
+        [SerializeField][Range(0.2f, 0.8f)] private float _clusteringStrength = 0.65f;
 
         [Header("Color Balance")]
-        [SerializeField][Range(0.3f, 0.7f)] private float _neighborColorWeight = 0.55f;
-        [SerializeField][Range(0.3f, 0.7f)] private float _randomColorWeight = 0.45f;
+        [SerializeField][Range(0.2f, 0.8f)] private float _neighborColorWeight = 0.55f;
+        [SerializeField][Range(0.2f, 0.8f)] private float _randomColorWeight = 0.45f;
         [SerializeField][Range(1, 3)] private int _minMatchableNeighbors = 2;
 
         // Constants
@@ -388,7 +388,7 @@ namespace Brain.Gameplay
             foreach (Ball ball in ballsToProcess)
             {
                 // Check if ball still exists (it might have been destroyed in previous iteration)
-                if (ball != null && ConvertToNearbyColor(ball))
+                if (Random.value < 0.5f && ball != null && ConvertToNearbyColor(ball))
                     conversions++;
             }
 
