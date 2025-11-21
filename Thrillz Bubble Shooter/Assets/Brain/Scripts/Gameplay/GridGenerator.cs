@@ -1,7 +1,9 @@
 using Brain.Managers;
 using Brain.Util;
+using Brain.Gameplay.Containers;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 namespace Brain.Gameplay
 {
@@ -58,6 +60,20 @@ namespace Brain.Gameplay
 
             Debug.Log($"GridGenerator: Final grid has {CountBalls()} balls - Solvable: {isSolvable}");
             IsInitialized = true;
+
+            // Play the entry animation after grid generation
+            PlayEntryAnimation();
+        }
+
+        private void PlayEntryAnimation()
+        {
+            GridManager.Instance.BallLaunchContainer.SetEnabled(false);
+            transform.position = new Vector3(0, -42, 0);
+            transform.DOMove(Vector3.zero, 2f)
+                .OnComplete(() =>
+                {
+                    GridManager.Instance.BallLaunchContainer.SetEnabled(true);
+                }).SetDelay(0.5f);
         }
 
         private void RemoveTopRowAndShiftCeiling(GridManager gridManager, int endRow)
