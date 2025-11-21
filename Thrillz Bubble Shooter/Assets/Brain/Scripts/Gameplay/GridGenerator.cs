@@ -46,6 +46,10 @@ namespace Brain.Gameplay
 
             EnhanceClusters(gridManager);
             RemoveOrConvertIsolatedBalls(gridManager);
+
+            RemoveTopRowAndShiftCeiling(gridManager, endRow);
+            gridManager.FinalizeGrid();
+
             MarkCeilingBalls();
             RemoveOrphanedBalls();
 
@@ -54,6 +58,107 @@ namespace Brain.Gameplay
 
             Debug.Log($"GridGenerator: Final grid has {CountBalls()} balls - Solvable: {isSolvable}");
             IsInitialized = true;
+        }
+
+        private void RemoveTopRowAndShiftCeiling(GridManager gridManager, int endRow)
+        {
+            // First, find the ACTUAL highest row with balls (could be higher than endRow-1)
+            int actualHighestRow = -1;
+            for (int row = gridManager.Balls.Count - 1; row >= 0; row--)
+            {
+                for (int col = 0; col < gridManager.Balls[row].Count; col++)
+                {
+                    if (gridManager.Balls[row][col] != null)
+                    {
+                        actualHighestRow = row;
+                        break;
+                    }
+                }
+                if (actualHighestRow != -1) break;
+            }
+
+            if (actualHighestRow == -1)
+            {
+                Debug.LogError("No balls found in grid!");
+                return;
+            }
+
+            // Remove ALL balls from the top row (and any stray balls above it)
+            int ballsRemoved = 0;
+            for (int row = actualHighestRow; row >= actualHighestRow - 1 && row >= 0; row--)
+            {
+                int columnsInRow = GridUtils.GetMaxColumns(row);
+                for (int col = 0; col < columnsInRow; col++)
+                {
+                    Ball ball = gridManager.GetBall(col, row);
+                    if (ball != null)
+                    {
+                        gridManager.RemoveBall(ball);
+                        ball.ReturnToPool();
+                        ballsRemoved++;
+                    }
+                }
+            }
+
+            // The new ceiling is now 2 rows below the original highest
+            int newCeilingRow = actualHighestRow - 2;
+
+            Debug.Log($"Removed {ballsRemoved} balls from top rows, new ceiling is row {newCeilingRow}");
+
+            // Ensure the new ceiling row has at least minimum balls
+            const int MIN_CEILING_BALLS = 5;
+
+            if (newCeilingRow >= 0)
+            {
+                int columnsInCeilingRow = GridUtils.GetMaxColumns(newCeilingRow);
+                int ceilingBallCount = 0;
+
+                // Count existing balls in new ceiling row
+                for (int col = 0; col < columnsInCeilingRow; col++)
+                {
+                    if (gridManager.GetBall(col, newCeilingRow) != null)
+                    {
+                        ceilingBallCount++;
+                    }
+                }
+
+                // Add more balls to ceiling row if needed
+                if (ceilingBallCount < MIN_CEILING_BALLS)
+                {
+                    int ballsToAdd = MIN_CEILING_BALLS - ceilingBallCount;
+                    List<int> emptyColumns = new List<int>();
+
+                    for (int col = 0; col < columnsInCeilingRow; col++)
+                    {
+                        if (gridManager.GetBall(col, newCeilingRow) == null)
+                        {
+                            emptyColumns.Add(col);
+                        }
+                    }
+
+                    // Shuffle for randomness
+                    for (int i = emptyColumns.Count - 1; i > 0; i--)
+                    {
+                        int randomIndex = Random.Range(0, i + 1);
+                        int temp = emptyColumns[i];
+                        emptyColumns[i] = emptyColumns[randomIndex];
+                        emptyColumns[randomIndex] = temp;
+                    }
+
+                    // Add the required balls
+                    for (int i = 0; i < ballsToAdd && i < emptyColumns.Count; i++)
+                    {
+                        BallColor color = (BallColor)Random.Range(0, COLOR_COUNT);
+                        gridManager.SpawnBall(emptyColumns[i], newCeilingRow, color);
+                    }
+
+                    Debug.Log($"Added {Mathf.Min(ballsToAdd, emptyColumns.Count)} balls to ceiling row to ensure minimum of {MIN_CEILING_BALLS}");
+                }
+                else
+                {
+                    Debug.Log($"Ceiling row already has {ceilingBallCount} balls");
+                }
+            }
         }
 
         private void MarkCeilingBalls()
@@ -77,14 +182,19 @@ namespace Brain.Gameplay
 
             if (highestRow == -1) return;
 
+            // Only mark the actual top row as Root (the real ceiling)
+            int ceilingBallCount = 0;
             for (int col = 0; col < gridManager.Balls[highestRow].Count; col++)
             {
                 Ball ball = gridManager.Balls[highestRow][col];
                 if (ball != null)
                 {
                     ball.Flags |= BallFlags.Root;
+                    ceilingBallCount++;
                 }
             }
+
+            Debug.Log($"Marked {ceilingBallCount} ceiling balls in row {highestRow}");
         }
 
         private int CountBalls()

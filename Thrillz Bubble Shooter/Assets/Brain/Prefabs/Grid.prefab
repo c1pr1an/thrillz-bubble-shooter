@@ -5644,7 +5644,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45584971c133046378f3cb5de238eaad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _powerPerBall: 0.05
+  _powerPerBall: 0.02
   _maxPower: 1
   _currentPower: 0
   _isBonusReady: 0
@@ -10777,9 +10777,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 137bc6a1a16523442ab92dc278496203, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _totalRows: 35
-  _startRow: 6
-  _fillRate: 0.9
+  _totalRows: 60
+  _startRow: 5
+  _fillRate: 0.85
   _clusteringStrength: 0.2
   _neighborColorWeight: 0.2
   _randomColorWeight: 0.8
