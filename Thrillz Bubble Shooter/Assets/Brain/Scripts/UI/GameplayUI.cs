@@ -42,6 +42,7 @@ namespace Brain.UI
         // Public Methods
         public void PauseOnClick()
         {
+            GameController.Instance.RestartGame();
             //UIManager.Instance.GlobalPauseMode.TriggerPause();
         }
 

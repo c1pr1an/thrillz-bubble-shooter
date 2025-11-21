@@ -20,11 +20,13 @@ namespace Brain.UI
                 SoundManager.Instance.StopMusic();
                 SoundManager.Instance.PlaySfxOneShot(SoundType.UI_ConfettiPop);
                 SoundManager.Instance.PlaySfxOneShot(SoundType.UI_GameFinished);
+                Invoke(nameof(OnAnimationEnd), 2f);
             });
         }
 
         public void OnAnimationEnd()
         {
+            GameController.Instance.RestartGame();
             //UIManager.Instance.GlobalPauseMode.EndGame(0f);
         }
     }

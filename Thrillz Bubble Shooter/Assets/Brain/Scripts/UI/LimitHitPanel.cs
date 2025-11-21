@@ -27,11 +27,13 @@ namespace Brain.UI
                     .Append(textTransform.DORotate(new Vector3(0, 0, 0f), 0.1f).SetEase(Ease.InOutSine));
                 gameObject.SetActive(true);
                 SoundManager.Instance.StopMusic();
+                Invoke(nameof(OnAnimationEnd), 2f);
             });
         }
 
         public void OnAnimationEnd()
         {
+            GameController.Instance.RestartGame();
             //UIManager.Instance.GlobalPauseMode.EndGame(0f);
         }
     }

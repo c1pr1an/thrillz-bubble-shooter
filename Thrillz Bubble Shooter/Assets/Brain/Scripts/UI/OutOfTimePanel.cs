@@ -23,11 +23,13 @@ namespace Brain.UI
                 gameObject.SetActive(true);
                 SoundManager.Instance.StopMusic();
                 SoundManager.Instance.PlaySfxOneShot(SoundType.UI_OutOfTime);
+                Invoke(nameof(OnAnimationEnd), 2f);
             });
         }
 
         public void OnAnimationEnd()
         {
+            GameController.Instance.RestartGame();
             //UIManager.Instance.GlobalPauseMode.EndGame(0f);
         }
     }
