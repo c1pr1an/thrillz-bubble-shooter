@@ -5613,7 +5613,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7f8c9d4b3e54f44b9c8e7d2f6a1b3c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _waveAmplitude: 0.15
+  _waveAmplitude: 0.2
   _waveDuration: 0.1
   _delayBetweenLayers: 0.015
   _maxWaveLayers: 3

@@ -106,7 +106,20 @@ namespace Brain.Gameplay
             Flags |= BallFlags.Pinned;
 
             // Top rows are ceiling (balls hang from top)
-            if (gridPos.y >= 60)
+            bool isTopRow = gridPos.y >= 60;
+            bool isAtCeiling = false;
+
+            if (UIManager.Instance != null && UIManager.Instance.GameplayUI != null)
+            {
+                float uiBoundary = UIManager.Instance.GameplayUI.GetTopBoundaryY();
+                float tolerance = GridManager.Instance.BallHeight * 0.5f;
+                if (worldPos.y >= uiBoundary - tolerance)
+                {
+                    isAtCeiling = true;
+                }
+            }
+
+            if (isTopRow || isAtCeiling)
             {
                 Flags |= BallFlags.Root;
             }
