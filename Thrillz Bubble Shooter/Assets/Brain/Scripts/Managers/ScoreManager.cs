@@ -38,6 +38,7 @@ namespace Brain.Managers
             BonusScoreCount = 0;
             CurrentStreak = 0;
             currentStreakText.text = string.Empty;
+            currentStreakText.transform.localScale = Vector3.zero;
         }
 
         // Public Methods
@@ -136,13 +137,76 @@ namespace Brain.Managers
             return Mathf.Max(BASE_SCORE_PER_BALL, CurrentStreak * BASE_SCORE_PER_BALL);
         }
 
+        public void AddStreakPopup(Vector3 worldPosition, int streakValue)
+        {
+            // Get text from pool
+            var streakText = ObjectPooler.Instance.Get(PooledObjectTag.Combo_Text);
+
+            //Replace 0 with o because of the font
+            string text = "<size=80%>x</size>" + streakValue.ToString().Replace('0', 'o');
+
+            streakText.GetComponentInChildren<TextMeshPro>().text = text;
+
+            streakText.transform.SetParent(GridManager.Instance.GridContainer);
+
+            // Calculate target position
+            Vector3 targetPos = worldPosition + 3f * Vector3.up;
+
+            // Get screen boundaries
+            Camera cam = Cameras.Instance.MainCam;
+            float screenAspect = (float)Screen.width / Screen.height;
+            float cameraHeight = cam.orthographicSize * 2;
+            float cameraWidth = cameraHeight * screenAspect;
+
+            float minX = cam.transform.position.x - (cameraWidth / 2f) + 2.5f; // Increased padding
+            float maxX = cam.transform.position.x + (cameraWidth / 2f) - 2.5f; // Increased padding
+
+            // Get top UI boundary
+            float topBoundaryY = UIManager.Instance.GameplayUI.GetTopBoundaryY() - 1f; // Add padding
+
+            // Clamp position
+            float clampedX = Mathf.Clamp(targetPos.x, minX, maxX);
+            float clampedY = Mathf.Min(targetPos.y, topBoundaryY);
+
+            streakText.transform.position = new Vector3(clampedX, clampedY, targetPos.z);
+            streakText.transform.localScale = Vector3.zero;
+
+            streakText.gameObject.SetActive(true);
+
+            // Create animation sequence
+            var sequence = DOTween.Sequence();
+
+            // Scale in with bounce
+            sequence.Append(streakText.transform.DOScale(Vector3.one, SCALE_IN_DURATION).SetEase(Ease.OutBack));
+
+            // Hold
+            sequence.AppendInterval(HOLD_DURATION);
+
+            // Scale out
+            sequence.Append(streakText.transform.DOScale(Vector3.zero, SCALE_OUT_DURATION).SetEase(Ease.InBack));
+
+            // Cleanup
+            sequence.OnComplete(() =>
+            {
+                _activeAnimations.Remove(sequence);
+                ObjectPooler.Instance.Release(streakText.gameObject, PooledObjectTag.Combo_Text);
+            });
+
+            _activeAnimations.Add(sequence);
+        }
+
         /// <summary>
         /// Increase streak when balls are destroyed (up to max)
         /// </summary>
-        public void IncreaseStreak()
+        public void IncreaseStreak(Vector3 worldPosition)
         {
             CurrentStreak++;
             UpdateStreakUI();
+
+            if (CurrentStreak > 1)
+            {
+                AddStreakPopup(worldPosition, CurrentStreak);
+            }
         }
 
         public void PlayStreakSound()
@@ -172,7 +236,7 @@ namespace Brain.Managers
                 return;
             }
 
-            string newText = "<size=80%>x</size>" + CurrentStreak.ToString();
+            string newText = "<size=80%>x</size>" + CurrentStreak.ToString().Replace('0', 'o');
             bool wasEmpty = string.IsNullOrEmpty(currentStreakText.text);
 
             currentStreakText.text = newText;

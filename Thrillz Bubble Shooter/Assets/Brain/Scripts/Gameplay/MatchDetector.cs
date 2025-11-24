@@ -86,7 +86,7 @@ namespace Brain.Gameplay
             if (stoppedBall.IsBonusBall == false)
             {
                 if (shouldDestroy)
-                    ScoreManager.Instance.IncreaseStreak();
+                    ScoreManager.Instance.IncreaseStreak(stoppedBall.transform.position);
                 else ScoreManager.Instance.ResetStreak();
             }
 
