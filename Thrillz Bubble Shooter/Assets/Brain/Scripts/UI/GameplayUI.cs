@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Brain.Audio;
+using Brain.Gameplay;
 using Brain.Managers;
 using DG.Tweening;
 using TMPro;
@@ -15,6 +16,7 @@ namespace Brain.UI
         [SerializeField] private GameObject _oneMinuteLeftPanel;
         [SerializeField] private TextMeshProUGUI _timerText;
         [SerializeField] private TextMeshProUGUI _scoreText;
+        [SerializeField] private RectTransform _topUiBoundaryReference;
 
         // Private Fields
         private bool _oneMinuteLeftShown = false;
@@ -24,6 +26,19 @@ namespace Brain.UI
         public TextMeshProUGUI ScoreText
         {
             get { return _scoreText; }
+        }
+
+        public float GetTopBoundaryY()
+        {
+            if (_topUiBoundaryReference == null) return 9.5f; // Default fallback
+
+            // Get the world corners of the UI element
+            Vector3[] corners = new Vector3[4];
+            _topUiBoundaryReference.GetWorldCorners(corners);
+
+            Vector3 screenPos = corners[0];
+            Vector3 worldPos = Cameras.Instance.MainCam.ScreenToWorldPoint(screenPos);
+            return worldPos.y;
         }
 
         public void Start()

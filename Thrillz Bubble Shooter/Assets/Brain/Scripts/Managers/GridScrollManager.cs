@@ -35,6 +35,8 @@ namespace Brain.Managers
             _scrollingEnabled = true;
             _initialGridPosition = GridManager.Instance.GridContainer.position;
             _lastLowestRow = GetCurrentLowestOccupiedRow();
+
+            _topBoundaryY = UIManager.Instance.GameplayUI.GetTopBoundaryY();
         }
 
         // Unity Lifecycle
@@ -115,7 +117,6 @@ namespace Brain.Managers
         {
             GridManager gridManager = GridManager.Instance;
             if (gridManager == null || gridManager.GridContainer == null) return;
-
             float moveDistance = rows * gridManager.BallHeight;
             Vector3 currentPosition = gridManager.GridContainer.position;
             Vector3 newPosition = currentPosition + new Vector3(0, -moveDistance, 0);
