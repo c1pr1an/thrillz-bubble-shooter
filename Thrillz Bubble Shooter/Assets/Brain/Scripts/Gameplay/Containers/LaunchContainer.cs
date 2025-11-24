@@ -90,7 +90,7 @@ namespace Brain.Gameplay.Containers
 
         private void Update()
         {
-            if (CurrentBall == null && !_waitingForBall && _canLaunch && !IsSwapping)
+            if (CurrentBall == null && !_waitingForBall && CanLaunch)
             {
                 PullFromPreview();
                 return;
@@ -100,7 +100,7 @@ namespace Brain.Gameplay.Containers
         private void OnAimingStarted(Vector2 position)
         {
             // Only start aiming if we can launch
-            if (!_canLaunch || CurrentBall == null) return;
+            if (!CanLaunch || CurrentBall == null) return;
 
             UpdateTrajectory(position);
 
@@ -111,7 +111,7 @@ namespace Brain.Gameplay.Containers
         private void OnAimingUpdated(Vector2 position)
         {
             // Continue showing trajectory while aiming
-            if (!_canLaunch || CurrentBall == null) return;
+            if (!CanLaunch || CurrentBall == null) return;
 
             UpdateTrajectory(position);
 
@@ -122,11 +122,11 @@ namespace Brain.Gameplay.Containers
         private void OnAimingReleased(Vector2 position)
         {
             // Launch the ball when input is released
-            if (!_canLaunch || CurrentBall == null) return;
+            if (!CanLaunch || CurrentBall == null) return;
 
             Vector2 aimDirection = CalculateAimDirection(position);
             float angle = Vector2.SignedAngle(Vector2.right, aimDirection);
-            
+
             // Check if angle is valid before launching AND we are not hovering over a container
             if (!IsAngleValid(angle) || InputManager.Instance.IsPointerOverContainer(position))
             {
@@ -174,7 +174,7 @@ namespace Brain.Gameplay.Containers
 
         private void UpdateTrajectory(Vector2 inputPosition)
         {
-            if (_trajectoryPredictor == null || CurrentBall == null) return;
+            if (_trajectoryPredictor == null || CurrentBall == null || !CanLaunch) return;
 
             Vector2 aimDirection = CalculateAimDirection(inputPosition);
             float angle = Vector2.SignedAngle(Vector2.right, aimDirection);
@@ -186,8 +186,9 @@ namespace Brain.Gameplay.Containers
 
                 float vfxAngle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg - 90f;
                 _aimingVFX.transform.rotation = Quaternion.Euler(0, 0, vfxAngle);
-                
-                if (!_aimingVFX.isPlaying) { 
+
+                if (!_aimingVFX.isPlaying)
+                {
                     var mainModule = _aimingVFX.main;
                     mainModule.startColor = CurrentBall.DisplayColor;
                     _aimingVFX.Play();
@@ -301,6 +302,12 @@ namespace Brain.Gameplay.Containers
                 return;
             }
 
+            // Double-check we can actually launch (safety check)
+            if (!CanLaunch)
+            {
+                return;
+            }
+
             List<Vector3> trajectoryPath = null;
             if (_trajectoryPredictor != null)
             {
@@ -389,12 +396,18 @@ namespace Brain.Gameplay.Containers
             MatchDetector.Instance.ProcessBallStopped(ball);
 
             yield return new WaitWhile(() => DestroyManager.Instance.IsDestroying() ||
-                                            OrphanDetector.Instance.IsChecking());
+                                            OrphanDetector.Instance.IsChecking() ||
+                                            OrphanDetector.Instance.IsAnimating() ||
+                                            GridScrollManager.Instance.IsMoving);
 
             _canLaunch = true;
         }
 
-        public bool CanLaunch => _canLaunch && !IsSwapping;
+        public bool CanLaunch => _canLaunch && !IsSwapping &&
+                                  !DestroyManager.Instance.IsDestroying() &&
+                                  !OrphanDetector.Instance.IsChecking() &&
+                                  !OrphanDetector.Instance.IsAnimating() &&
+                                  !GridScrollManager.Instance.IsMoving;
 
         public void SetEnabled(bool enabled)
         {

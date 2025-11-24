@@ -9,7 +9,10 @@ namespace Brain.Gameplay
 {
     public class OrphanDetector : UnitySingleton<OrphanDetector>
     {
-        private float _delayBetweenFalls = 0.02f;
+        private float _baseDelayBetweenFalls = 0.02f;
+        private float _minDelayBetweenFalls = 0.005f; // Minimum delay for many balls
+        private int _fastFallThreshold = 10; // Start speeding up after 10 balls
+        private int _maxFastFallCount = 30; // Max speed at 30+ balls
 
         private HashSet<Ball> _connectedBalls = new HashSet<Ball>();
         private bool _isChecking = false;
@@ -61,7 +64,7 @@ namespace Brain.Gameplay
         {
             _isAnimating = true;
 
-            // First remove all orphan balls from the grid
+            // Remove all orphan balls from the grid (they're already marked as falling in MatchDetector)
             foreach (Ball ball in _lastOrphanedBalls)
             {
                 if (ball != null)
@@ -92,6 +95,15 @@ namespace Brain.Gameplay
                 orphanScoreValue = ScoreManager.Instance.GetCurrentOrphanScore();
             }
 
+            // Calculate dynamic delay based on number of falling balls
+            float delayBetweenFalls = _baseDelayBetweenFalls;
+            if (fallingCount > _fastFallThreshold)
+            {
+                // Interpolate between base and min delay based on ball count
+                float t = Mathf.Clamp01((float)(fallingCount - _fastFallThreshold) / (_maxFastFallCount - _fastFallThreshold));
+                delayBetweenFalls = Mathf.Lerp(_baseDelayBetweenFalls, _minDelayBetweenFalls, t);
+            }
+
             // Handle the animations and add score for orphan balls
             foreach (Ball ball in _lastOrphanedBalls)
             {
@@ -104,7 +116,7 @@ namespace Brain.Gameplay
                     }
 
                     ball.Fall();
-                    yield return new WaitForSeconds(_delayBetweenFalls);
+                    yield return new WaitForSeconds(delayBetweenFalls);
                 }
             }
 

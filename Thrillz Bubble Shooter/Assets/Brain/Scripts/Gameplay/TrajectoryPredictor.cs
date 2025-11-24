@@ -118,7 +118,12 @@ namespace Brain.Gameplay
                     else
                     {
                         Ball hitBallComponent = hit.collider.GetComponent<Ball>();
-                        if (hitBallComponent != null && hitBallComponent.HasFlag(BallFlags.Pinned))
+                        // Only consider balls that are pinned and NOT falling, destroying, or marked for destroy
+                        if (hitBallComponent != null &&
+                            hitBallComponent.HasFlag(BallFlags.Pinned) &&
+                            !hitBallComponent.HasFlag(BallFlags.Falling) &&
+                            !hitBallComponent.HasFlag(BallFlags.Destroying) &&
+                            !hitBallComponent.HasFlag(BallFlags.MarkedForDestroy))
                         {
                             _trajectoryPoints.Add(hit.point);
                             break;

@@ -37,9 +37,9 @@ namespace Brain.Managers
         private void ConfigureApplication()
         {
             Input.multiTouchEnabled = false;
+            Application.targetFrameRate = 120;
 
 #if UNITY_EDITOR
-            Application.targetFrameRate = 120;
             QualitySettings.vSyncCount = 1;
 #endif
         }

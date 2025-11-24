@@ -98,7 +98,6 @@ namespace Brain.Gameplay
                 : ScoreManager.Instance.GetCurrentBallScore();
             int orphanScoreValue = ScoreManager.Instance.GetCurrentOrphanScore();
 
-            // Step 1: Mark matched balls for destruction (but don't destroy them yet)
             if (shouldDestroy)
             {
                 foreach (Ball ball in matchedBalls)
@@ -118,6 +117,17 @@ namespace Brain.Gameplay
 
             // Get orphaned balls that were detected
             List<Ball> orphanedBalls = OrphanDetector.Instance.LastOrphanedBalls;
+
+            // IMMEDIATELY mark orphaned balls as falling so they can't be hit
+            foreach (Ball ball in orphanedBalls)
+            {
+                if (ball != null)
+                {
+                    ball.Flags |= BallFlags.Falling;
+                    // Also disable their colliders immediately
+                    ball.SetColliderEnabled(false);
+                }
+            }
 
             // Step 3: Combine all balls that will be removed
             List<Ball> allBallsToRemove = new List<Ball>();
