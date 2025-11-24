@@ -114,7 +114,14 @@ namespace Brain.UI
                 _oneMinuteLeftPanel.SetActive(true);
                 SoundManager.Instance.PlaySfxOneShot(SoundType.UI_WarningTime);
                 _oneMinuteLeftShown = true;
+                StartCoroutine(HideOneMinuteLeftPanel());
             }
+        }
+
+        private IEnumerator HideOneMinuteLeftPanel()
+        {
+            yield return new WaitForSeconds(3f);
+            _oneMinuteLeftPanel.SetActive(false);
         }
 
     }
