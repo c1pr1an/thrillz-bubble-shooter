@@ -105,27 +105,15 @@ namespace Brain.Gameplay
             // Mark as pinned (static on grid)
             Flags |= BallFlags.Pinned;
 
-            // Top rows are ceiling (balls hang from top)
-            bool isTopRow = gridPos.y >= 60;
-            bool isAtCeiling = false;
-
-            if (UIManager.Instance != null && UIManager.Instance.GameplayUI != null)
+            if (GridGenerator.Instance.IsInitialized)
             {
                 float uiBoundary = UIManager.Instance.GameplayUI.GetTopBoundaryY();
                 float tolerance = GridManager.Instance.BallHeight * 0.5f;
                 if (worldPos.y >= uiBoundary - tolerance)
                 {
-                    isAtCeiling = true;
+                    Debug.Log("Ball at " + worldPos + " is a root ball.");
+                    Flags |= BallFlags.Root;
                 }
-            }
-
-            if (isTopRow || isAtCeiling)
-            {
-                Flags |= BallFlags.Root;
-            }
-            else
-            {
-                Flags &= ~BallFlags.Root;
             }
 
             // Enable collider for grid balls

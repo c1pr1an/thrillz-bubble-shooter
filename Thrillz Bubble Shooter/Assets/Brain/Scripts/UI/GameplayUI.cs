@@ -21,7 +21,6 @@ namespace Brain.UI
         // Private Fields
         private bool _oneMinuteLeftShown = false;
         private bool _isTimeTextPulsing = false;
-        private float _topBoundaryY = 0f;
 
         // Properties
         public TextMeshProUGUI ScoreText
@@ -31,7 +30,8 @@ namespace Brain.UI
 
         public float GetTopBoundaryY()
         {
-            if (_topBoundaryY != 0f) return _topBoundaryY;
+            //if (_topBoundaryY != 0f) return _topBoundaryY;
+            float topBoundaryY = 0f;
 
             // Get the world corners of the UI element
             Vector3[] corners = new Vector3[4];
@@ -41,14 +41,14 @@ namespace Brain.UI
             {
                 Vector3 screenPos = corners[0];
                 Vector3 worldPos = Cameras.Instance.MainCam.ScreenToWorldPoint(screenPos);
-                _topBoundaryY = worldPos.y;
+                topBoundaryY = worldPos.y;
             }
             else
             {
-                _topBoundaryY = Mathf.Min(corners[0].y, corners[1].y, corners[2].y, corners[3].y);
+                topBoundaryY = Mathf.Min(corners[0].y, corners[1].y, corners[2].y, corners[3].y);
             }
 
-            return _topBoundaryY;
+            return topBoundaryY;
         }
 
         public float GetCeilingY()
