@@ -331,9 +331,9 @@ namespace Brain.Gameplay.Containers
                     Vector3 originalEndpoint = trajectoryPath[trajectoryPath.Count - 1];
                     Vector3 snapPosition = GridManager.Instance.GetGridSnapPosition(originalEndpoint);
                     trajectoryPath[trajectoryPath.Count - 1] = snapPosition;
+                    
+                    ClampTrajectoryToScreen(trajectoryPath);
                 }
-
-                ClampTrajectoryToScreen(trajectoryPath);
             }
 
             _canLaunch = false;

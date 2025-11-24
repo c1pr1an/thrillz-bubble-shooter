@@ -14895,7 +14895,7 @@ MonoBehaviour:
   idleParticles: {fileID: 1077952522620811956}
   _modelTransform: {fileID: 2363590117779999525}
   _rocketParticles: {fileID: 2586030782053414912}
-  _rotationSmoothness: 25
-  _instantBounceRotation: 1
+  _rotationSmoothness: 500
+  _instantBounceRotation: 0
   _runwayLength: 4.25
   _runwayWidth: 0.75
