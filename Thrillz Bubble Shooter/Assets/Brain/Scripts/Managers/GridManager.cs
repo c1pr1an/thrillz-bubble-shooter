@@ -328,5 +328,28 @@ namespace Brain.Managers
                 }
             }
         }
+        /// <summary>
+        /// Gets the world Y position of the highest occupied row
+        /// </summary>
+        public float GetTopMostRowWorldY()
+        {
+            if (_balls == null) return float.MaxValue;
+
+            for (int row = _balls.Count - 1; row >= 0; row--)
+            {
+                for (int col = 0; col < _balls[row].Count; col++)
+                {
+                    if (_balls[row][col] != null)
+                    {
+                        // Found the highest occupied row
+                        Vector2Int gridPos = new Vector2Int(0, row);
+                        Vector3 worldPos = GridUtils.PosToWorld(gridPos, _ballWidth, _ballHeight, _gridContainer);
+                        return worldPos.y;
+                    }
+                }
+            }
+
+            return float.MaxValue; // Return high value if empty
+        }
     }
 }

@@ -93,7 +93,18 @@ namespace Brain.Gameplay
 
                 if (currentDir.y > 0)
                 {
+                    // Check against screen top
                     float t = (screenBoundsMax.y - currentPos.y) / currentDir.y;
+
+                    // Also check against dynamic ceiling
+                    float ceilingY = UIManager.Instance.GameplayUI.GetCeilingY();
+                    float effectiveCeiling = Mathf.Min(screenBoundsMax.y, ceilingY) + _ballRadius;
+
+                    float tCeiling = (effectiveCeiling - currentPos.y) / currentDir.y;
+
+                    // Use the closer one
+                    if (tCeiling < t) t = tCeiling;
+
                     if (t > 0 && t < distanceToWall)
                     {
                         distanceToWall = t;

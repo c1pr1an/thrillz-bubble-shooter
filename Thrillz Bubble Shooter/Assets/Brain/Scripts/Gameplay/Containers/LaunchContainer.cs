@@ -385,7 +385,13 @@ namespace Brain.Gameplay.Containers
                 Vector3 point = trajectoryPath[i];
 
                 point.x = Mathf.Clamp(point.x, -horzExtent + ballRadius, horzExtent - ballRadius);
-                point.y = Mathf.Clamp(point.y, -vertExtent + ballRadius, vertExtent - ballRadius);
+                
+                // Clamp Y to dynamic ceiling
+                float ceilingY = UIManager.Instance.GameplayUI.GetCeilingY();
+                // Ceiling is effective surface, so clamp center to ceiling - radius
+                float maxY = Mathf.Min(vertExtent, ceilingY) - ballRadius;
+                
+                point.y = Mathf.Clamp(point.y, -vertExtent + ballRadius, maxY);
 
                 trajectoryPath[i] = point;
             }
