@@ -140,8 +140,18 @@ namespace Brain.Gameplay
             gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 
             Rigidbody2D rb = gameObject.AddComponent<Rigidbody2D>();
-            rb.gravityScale = 5f;
-            rb.velocity = Vector2.down * 4f;
+
+            // Randomize gravity for variety (3.5f to 7f)
+            rb.gravityScale = UnityEngine.Random.Range(3.5f, 7f);
+
+            // Randomize initial downward velocity (2f to 6f)
+            float initialVelocity = UnityEngine.Random.Range(2f, 6f);
+
+            // Add slight horizontal variation for more natural falling
+            float horizontalVariation = UnityEngine.Random.Range(-0.5f, 0.5f);
+            rb.velocity = new Vector2(horizontalVariation, -initialVelocity);
+
+            // Keep angular velocity for rotation
             rb.angularVelocity = UnityEngine.Random.Range(-150f, 150f);
             _circleCollider.enabled = false;
 

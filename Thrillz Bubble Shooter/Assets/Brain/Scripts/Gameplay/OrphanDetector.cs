@@ -3,16 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Brain.Managers;
 using Brain.Util;
-using UnityEngine;
 
 namespace Brain.Gameplay
 {
     public class OrphanDetector : UnitySingleton<OrphanDetector>
     {
-        private float _baseDelayBetweenFalls = 0.02f;
-        private float _minDelayBetweenFalls = 0.005f; // Minimum delay for many balls
-        private int _fastFallThreshold = 10; // Start speeding up after 10 balls
-        private int _maxFastFallCount = 30; // Max speed at 30+ balls
 
         private HashSet<Ball> _connectedBalls = new HashSet<Ball>();
         private bool _isChecking = false;
@@ -95,16 +90,7 @@ namespace Brain.Gameplay
                 orphanScoreValue = ScoreManager.Instance.GetCurrentOrphanScore();
             }
 
-            // Calculate dynamic delay based on number of falling balls
-            float delayBetweenFalls = _baseDelayBetweenFalls;
-            if (fallingCount > _fastFallThreshold)
-            {
-                // Interpolate between base and min delay based on ball count
-                float t = Mathf.Clamp01((float)(fallingCount - _fastFallThreshold) / (_maxFastFallCount - _fastFallThreshold));
-                delayBetweenFalls = Mathf.Lerp(_baseDelayBetweenFalls, _minDelayBetweenFalls, t);
-            }
-
-            // Handle the animations and add score for orphan balls
+            // Make all balls fall at once with no delay
             foreach (Ball ball in _lastOrphanedBalls)
             {
                 if (ball != null)
@@ -112,13 +98,15 @@ namespace Brain.Gameplay
                     // Add streak-based points for each orphan ball
                     if (!ball.IsBonusBall)
                     {
-                        ScoreManager.Instance.AddBubblePopScore(ball.transform.position, orphanScoreValue);
+                        ScoreManager.Instance.AddBubblePopScore(ball.transform.position, orphanScoreValue, false);
                     }
 
                     ball.Fall();
-                    yield return new WaitForSeconds(delayBetweenFalls);
                 }
             }
+
+            // Small yield to ensure all physics are applied
+            yield return null;
 
             // Clear the list after animating
             _lastOrphanedBalls.Clear();

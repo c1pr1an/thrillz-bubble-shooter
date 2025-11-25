@@ -42,7 +42,7 @@ namespace Brain.Managers
         }
 
         // Public Methods
-        public void AddBubblePopScore(Vector3 worldPosition, int scoreValue)
+        public void AddBubblePopScore(Vector3 worldPosition, int scoreValue, bool playSfx = true)
         {
             // Get text from pool
             var addScoreText = ObjectPooler.Instance.Get(PooledObjectTag.BallScore_Text).GetComponent<TextMeshPro>();
@@ -79,9 +79,11 @@ namespace Brain.Managers
             ScoreCount += scoreValue;
             UIManager.Instance.GameplayUI.UpdateScoreText(ScoreCount);
 
-            // Play sound and haptic
-            SoundManager.Instance.PlaySfxOneShot(SoundType.Game_MatchPop);
-            HapticManager.Instance.TriggerHaptic(HapticType.Selection);
+            if (playSfx)
+            {
+                SoundManager.Instance.PlaySfxOneShot(SoundType.Game_MatchPop);
+                HapticManager.Instance.TriggerHaptic(HapticType.Selection);
+            }
         }
 
         public void AddTimeBonus(int secondsRemaining)
