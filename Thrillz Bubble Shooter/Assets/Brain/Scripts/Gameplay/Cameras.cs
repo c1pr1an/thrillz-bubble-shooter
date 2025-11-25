@@ -1,4 +1,5 @@
-﻿using Brain.Util;
+﻿using Brain.Managers;
+using Brain.Util;
 using Cinemachine;
 using System.Collections;
 using UnityEngine;
@@ -11,6 +12,21 @@ namespace Brain.Gameplay
         public Camera MainCam;
         public CinemachineBrain CinemachineBrain;
         public CinemachineVirtualCamera MainVcam;
+
+
+        public void SetCameraByAspectRatio()
+        {
+            float aspect = (float)Screen.width / (float)Screen.height;
+
+            bool isNotchedPhone = aspect < 0.5f;
+            if (isNotchedPhone) return; //Camera position for notched phones by default
+
+            MainVcam.m_Lens.OrthographicSize = 9.9f;
+            GridGenerator.Instance.GridPosition = new Vector3(0, 1.9f, 0);
+
+            Vector3 pos = MainVcam.transform.position;
+            MainVcam.transform.position = new Vector3(pos.x, pos.y, pos.z);
+        }
 
         public void ShakeActiveCamera(CameraShakeProfile cameraShakeProfile)
         {

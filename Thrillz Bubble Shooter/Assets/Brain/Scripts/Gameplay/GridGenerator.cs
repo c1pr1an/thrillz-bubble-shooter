@@ -25,6 +25,7 @@ namespace Brain.Gameplay
         private const int MIN_CLUSTER_SIZE = 3;
 
         public bool IsInitialized { get; private set; } = false;
+        public Vector2 GridPosition = Vector2.zero;
 
         public void GenerateGrid()
         {
@@ -70,7 +71,7 @@ namespace Brain.Gameplay
             GridManager.Instance.BallLaunchContainer.SetEnabled(false);
 
             transform.position = new Vector3(0, -42, 0);
-            transform.DOMove(Vector3.zero, 2f)
+            transform.DOMove(GridPosition, 2f)
                 .OnComplete(() =>
                 {
                     GridManager.Instance.BallLaunchContainer.SetEnabled(true);

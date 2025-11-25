@@ -58,6 +58,7 @@ namespace Brain.Managers
             Random.InitState(_matchSeed);
             Debug.Log($"Starting Bubble Shooter with seed: {MatchSeed}");
 
+            Cameras.Instance.SetCameraByAspectRatio();
             ObjectPooler.Instance.Init();
             GridManager.Instance.InitializeGrid();
             GridGenerator.Instance.GenerateGrid();
