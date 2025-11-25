@@ -24,6 +24,7 @@ namespace Brain.Managers
         [SerializeField] private BallPreviewContainer _ballPreviewContainer;
         [SerializeField] private LaunchContainer _ballLaunchContainer;
         [SerializeField] private BonusBallContainer _bonusBallContainer;
+        [SerializeField] private Transform _background;
 
         // 2D grid matrix [row][column] 
         private List<List<Ball>> _balls;
@@ -37,6 +38,7 @@ namespace Brain.Managers
         public Transform GridContainer => _gridContainer;
         public Transform LimitLine => _limitLine;
         public Transform LimitLineRed => _limitLineRed;
+        public Transform Background => _background;
         public ParticleSystem LimitHitBallVFX => _limitHitBallVFX;
         public BallPreviewContainer BallPreviewContainer => _ballPreviewContainer;
         public LaunchContainer BallLaunchContainer => _ballLaunchContainer;

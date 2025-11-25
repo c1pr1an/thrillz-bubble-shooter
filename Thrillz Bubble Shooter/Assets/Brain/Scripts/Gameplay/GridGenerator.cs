@@ -75,7 +75,10 @@ namespace Brain.Gameplay
                 {
                     GridManager.Instance.BallLaunchContainer.SetEnabled(true);
                     GridScrollManager.Instance.Init();
-                }).SetDelay(0.5f);
+                }).SetDelay(0.5f).SetEase(Ease.OutSine);
+
+            GridManager.Instance.Background.position = new Vector3(0, -42, 0) * 0.9f;
+            GridManager.Instance.Background.DOMove(Vector3.zero, 2f).SetDelay(0.5f).SetEase(Ease.OutSine);
         }
 
         private void RemoveTopRowAndShiftCeiling(GridManager gridManager, int endRow)
