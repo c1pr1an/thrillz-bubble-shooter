@@ -5744,8 +5744,8 @@ Transform:
   m_GameObject: {fileID: 3152494660917845498}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.34099954, z: 0}
-  m_LocalScale: {x: 0.26892325, y: 0.26892325, z: 0.26892325}
+  m_LocalPosition: {x: 0, y: 0.48, z: 0}
+  m_LocalScale: {x: 0.514235, y: 0.514235, z: 0.514235}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2265413724648627662}
@@ -10849,6 +10849,7 @@ MonoBehaviour:
   _ballPreviewContainer: {fileID: 7562431825609840932}
   _ballLaunchContainer: {fileID: 7609773947653830694}
   _bonusBallContainer: {fileID: 5994130594536406923}
+  _background: {fileID: 0}
 --- !u!114 &7208834695071741804
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31225,7 +31226,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -0.159}
+  m_AnchoredPosition: {x: 0, y: -0.28}
   m_SizeDelta: {x: 1.5, y: 1.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &3057493712969265359
@@ -31317,8 +31318,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 5
-  m_fontSizeBase: 5
+  m_fontSize: 8.36
+  m_fontSizeBase: 8.36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

@@ -99,8 +99,12 @@ namespace Brain.Gameplay.Containers
 
         private void OnAimingStarted(Vector2 position)
         {
-            // Only start aiming if we can launch
-            if (!CanLaunch || CurrentBall == null) return;
+            // Only start aiming if we can launch and game is active
+            if (!CanLaunch || CurrentBall == null)
+            {
+                _trajectoryPredictor.HideTrajectory();
+                return;
+            }
 
             UpdateTrajectory(position);
 
@@ -110,8 +114,12 @@ namespace Brain.Gameplay.Containers
 
         private void OnAimingUpdated(Vector2 position)
         {
-            // Continue showing trajectory while aiming
-            if (!CanLaunch || CurrentBall == null) return;
+            // Continue showing trajectory while aiming and game is active
+            if (!CanLaunch || CurrentBall == null)
+            {
+                _trajectoryPredictor.HideTrajectory();
+                return;
+            }
 
             UpdateTrajectory(position);
 
@@ -121,8 +129,12 @@ namespace Brain.Gameplay.Containers
 
         private void OnAimingReleased(Vector2 position)
         {
-            // Launch the ball when input is released
-            if (!CanLaunch || CurrentBall == null) return;
+            // Launch the ball when input is released and game is active
+            if (!CanLaunch || CurrentBall == null)
+            {
+                _trajectoryPredictor.HideTrajectory();
+                return;
+            }
 
             Vector2 aimDirection = CalculateAimDirection(position);
             float angle = Vector2.SignedAngle(Vector2.right, aimDirection);
@@ -174,7 +186,11 @@ namespace Brain.Gameplay.Containers
 
         private void UpdateTrajectory(Vector2 inputPosition)
         {
-            if (_trajectoryPredictor == null || CurrentBall == null || !CanLaunch) return;
+            if (_trajectoryPredictor == null || CurrentBall == null || !CanLaunch)
+            {
+                _trajectoryPredictor.HideTrajectory();
+                return;
+            }
 
             Vector2 aimDirection = CalculateAimDirection(inputPosition);
             float angle = Vector2.SignedAngle(Vector2.right, aimDirection);
@@ -296,12 +312,6 @@ namespace Brain.Gameplay.Containers
         {
             if (CurrentBall == null) return;
 
-            // Don't allow launch if game is already over
-            if (!GameConditionsManager.Instance.IsGameActive)
-            {
-                return;
-            }
-
             // Double-check we can actually launch (safety check)
             if (!CanLaunch)
             {
@@ -331,7 +341,7 @@ namespace Brain.Gameplay.Containers
                     Vector3 originalEndpoint = trajectoryPath[trajectoryPath.Count - 1];
                     Vector3 snapPosition = GridManager.Instance.GetGridSnapPosition(originalEndpoint);
                     trajectoryPath[trajectoryPath.Count - 1] = snapPosition;
-                    
+
                     ClampTrajectoryToScreen(trajectoryPath);
                 }
             }
@@ -385,12 +395,12 @@ namespace Brain.Gameplay.Containers
                 Vector3 point = trajectoryPath[i];
 
                 point.x = Mathf.Clamp(point.x, -horzExtent + ballRadius, horzExtent - ballRadius);
-                
+
                 // Clamp Y to dynamic ceiling
                 float ceilingY = UIManager.Instance.GameplayUI.GetCeilingY();
                 // Ceiling is effective surface, so clamp center to ceiling - radius
                 float maxY = Mathf.Min(vertExtent, ceilingY) - ballRadius;
-                
+
                 point.y = Mathf.Clamp(point.y, -vertExtent + ballRadius, maxY);
 
                 trajectoryPath[i] = point;
@@ -413,7 +423,8 @@ namespace Brain.Gameplay.Containers
                                   !DestroyManager.Instance.IsDestroying() &&
                                   !OrphanDetector.Instance.IsChecking() &&
                                   !OrphanDetector.Instance.IsAnimating() &&
-                                  !GridScrollManager.Instance.IsMoving;
+                                  !GridScrollManager.Instance.IsMoving &&
+                                  GameConditionsManager.Instance.IsGameActive;
 
         public void SetEnabled(bool enabled)
         {
