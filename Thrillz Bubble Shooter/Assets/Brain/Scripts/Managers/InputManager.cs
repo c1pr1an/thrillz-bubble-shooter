@@ -34,6 +34,13 @@ namespace Brain.Managers
         private Vector2 _currentInputPosition;
         private bool _inputBlockedByUI = false;
 
+        // Smoothing variables for stable aiming
+        private Vector2 _smoothedInputPosition;
+        private Vector2 _previousRawInputPosition;
+        private float _currentSpeedMultiplier = 1f;
+        private const float _smoothingSpeed = 100f;
+        private bool _isFirstInput = true;
+
         // Cached references to containers for click detection
         private BallPreviewContainer _previewContainer;
         private BonusBallContainer _bonusContainer;
@@ -125,7 +132,37 @@ namespace Brain.Managers
             // Only update current position if we have valid input and it's not blocked by UI
             if (inputPosition != Vector2.zero && (!isPointerOverUI || _wasHolding) && !_inputBlockedByUI)
             {
-                _currentInputPosition = inputPosition;
+                // Apply velocity-based smoothing for stable aiming
+                if (_isFirstInput)
+                {
+                    // First input - no smoothing, direct position
+                    _smoothedInputPosition = inputPosition;
+                    _previousRawInputPosition = inputPosition;
+                    _isFirstInput = false;
+                }
+                else
+                {
+                    // Calculate input velocity (in world units per second)
+                    Vector2 inputDelta = inputPosition - _previousRawInputPosition;
+                    float inputSpeed = inputDelta.magnitude / Time.deltaTime;
+
+                    float targetMultiplier = 1f;
+                    if (inputSpeed < 10f)
+                        targetMultiplier = 0.1f;
+
+                    // Smooth the multiplier transition to avoid jumps
+                    _currentSpeedMultiplier = Mathf.Lerp(_currentSpeedMultiplier, targetMultiplier, Time.deltaTime * _smoothingSpeed);
+
+                    // Apply position smoothing with speed-based lerp rate
+                    // Slower lerp when we need precision, faster when making quick adjustments
+                    float lerpRate = Mathf.Lerp(5f, 50f, _currentSpeedMultiplier);
+                    _smoothedInputPosition = Vector2.Lerp(_smoothedInputPosition, inputPosition, Time.deltaTime * lerpRate);
+
+                    _previousRawInputPosition = inputPosition;
+                }
+
+                // Use smoothed position for all aiming
+                _currentInputPosition = _smoothedInputPosition;
             }
 
             // Handle input state transitions
@@ -141,8 +178,9 @@ namespace Brain.Managers
             }
             else if (!isInputActive && _wasHolding)
             {
-                // Input just released - use the last valid position
+                // Input just released - use the smoothed position for stability
                 OnInputUp(_currentInputPosition);
+                _isFirstInput = true; // Reset for next input session
             }
 
             _wasHolding = isInputActive;
