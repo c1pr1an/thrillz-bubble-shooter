@@ -282,7 +282,11 @@ namespace Brain.Gameplay
             foreach (var ball in toClear)
             {
                 if (ball != null && !IsBallInContainer(ball))
+                {
                     ball.SetHighlight(false);
+                    // Clear the MarkedForMatch flag when no longer highlighted
+                    ball.Flags &= ~BallFlags.MarkedForMatch;
+                }
             }
 
             // Add new highlights
@@ -303,7 +307,11 @@ namespace Brain.Gameplay
             foreach (var ball in _highlightedBalls)
             {
                 if (ball != null && !IsBallInContainer(ball))
+                {
                     ball.SetHighlight(false);
+                    // Clear the MarkedForMatch flag that bonus balls set during preview
+                    ball.Flags &= ~BallFlags.MarkedForMatch;
+                }
             }
 
             _highlightedBalls.Clear();
