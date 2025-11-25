@@ -201,68 +201,86 @@ namespace Brain.Gameplay
                 affectedBalls.Add(_ball);
                 _ball.Flags |= BallFlags.MarkedForMatch;
             }
-            // No matches found - transform to a random neighbor color
-            // Only transform during actual detection (when we're using ball's actual neighbors, not preview)
-            else if (availableColors.Count > 0 && (impactPosition == Vector2.zero || (Vector2)_ball.transform.position == impactPosition))
+            else
             {
-                Debug.Log($"[RainbowBall] No valid matches found. Transforming to random color from {availableColors.Count} available colors");
-                // Only transform during actual landing, not during preview
-                // Pick a random color from neighbors
-                BallColor randomColor = availableColors[Random.Range(0, availableColors.Count)];
-
-                // Store rainbow ball's position data
-                Vector2Int gridPos = _ball.GridPosition;
-                Vector3 worldPos = _ball.transform.position;
-
-                // Get new normal ball from pool
-                GameObject newBallObj = ObjectPooler.Instance.Get(randomColor);
-                if (newBallObj != null)
+                // No matches found - transform rainbow ball into a normal ball of a random neighboring color
+                BallColor randomColor = BallColor.Blue;
+                if (availableColors.Count > 0)
                 {
-                    Ball newBall = newBallObj.GetComponent<Ball>();
-                    if (newBall != null)
+                    randomColor = availableColors[Random.Range(0, availableColors.Count)];
+                }
+                else
+                {
+                    var gridColors = ColorTrackerManager.Instance.GetColorCounts();
+                    if (gridColors.Count > 0)
                     {
-                        // Configure at same position
-                        newBall.transform.SetParent(gridManager.GridContainer);
-                        newBall.transform.position = worldPos;
-                        newBall.SetPosition(gridPos, worldPos);
+                        Debug.Log($"[RainbowBall] No neighboring colors found. Picking random color from {gridColors.Count} grid colors");
+                        var colorList = new List<BallColor>(gridColors.Keys);
+                        randomColor = colorList[Random.Range(0, colorList.Count)];
+                    }
+                }
 
-                        // Update grid matrix
-                        gridManager.Balls[gridPos.y][gridPos.x] = newBall;
+                // Only transform during actual detection (when we're using ball's actual neighbors, not preview)
+                if (impactPosition == Vector2.zero || (Vector2)_ball.transform.position == impactPosition)
+                {
+                    Debug.Log($"[RainbowBall] No valid matches found. Transforming to random color from {availableColors.Count} available colors");
 
-                        // Track color
-                        ColorTrackerManager.Instance.AddColor(randomColor);
+                    // Store rainbow ball's position data
+                    Vector2Int gridPos = _ball.GridPosition;
+                    Vector3 worldPos = _ball.transform.position;
 
-                        // Copy neighbors from rainbow ball to new ball
-                        newBall.UpdateNeighbors(_ball.Neighbors);
-
-                        // Update all neighbors to point to the new ball instead of rainbow
-                        foreach (Ball neighbor in _ball.Neighbors)
+                    // Get new normal ball from pool
+                    GameObject newBallObj = ObjectPooler.Instance.Get(randomColor);
+                    if (newBallObj != null)
+                    {
+                        Ball newBall = newBallObj.GetComponent<Ball>();
+                        if (newBall != null)
                         {
-                            if (neighbor != null)
+                            // Configure at same position
+                            newBall.transform.SetParent(gridManager.GridContainer);
+                            newBall.transform.position = worldPos;
+                            newBall.SetPosition(gridPos, worldPos);
+
+                            // Update grid matrix
+                            gridManager.Balls[gridPos.y][gridPos.x] = newBall;
+
+                            // Track color
+                            ColorTrackerManager.Instance.AddColor(randomColor);
+
+                            // Copy neighbors from rainbow ball to new ball
+                            newBall.UpdateNeighbors(_ball.Neighbors);
+
+                            // Update all neighbors to point to the new ball instead of rainbow
+                            foreach (Ball neighbor in _ball.Neighbors)
                             {
-                                // Get neighbor's current neighbors array
-                                Ball[] neighborNeighbors = neighbor.Neighbors;
-
-                                // Replace reference to rainbow ball with new ball
-                                for (int i = 0; i < neighborNeighbors.Length; i++)
+                                if (neighbor != null)
                                 {
-                                    if (neighborNeighbors[i] == _ball)
+                                    // Get neighbor's current neighbors array
+                                    Ball[] neighborNeighbors = neighbor.Neighbors;
+
+                                    // Replace reference to rainbow ball with new ball
+                                    for (int i = 0; i < neighborNeighbors.Length; i++)
                                     {
-                                        neighborNeighbors[i] = newBall;
+                                        if (neighborNeighbors[i] == _ball)
+                                        {
+                                            neighborNeighbors[i] = newBall;
+                                        }
                                     }
+
+                                    // Update the neighbor with modified array
+                                    neighbor.UpdateNeighbors(neighborNeighbors);
                                 }
-
-                                // Update the neighbor with modified array
-                                neighbor.UpdateNeighbors(neighborNeighbors);
                             }
-                        }
 
-                        // Destroy the rainbow ball
-                        Destroy(gameObject);
-                        SoundManager.Instance.StopSfxLoop();
+                            // Destroy the rainbow ball
+                            Destroy(gameObject);
+                            SoundManager.Instance.StopSfxLoop();
+                        }
                     }
                 }
             }
+
+
 
             return affectedBalls;
         }
