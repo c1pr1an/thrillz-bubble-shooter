@@ -9815,9 +9815,9 @@ Transform:
   m_GameObject: {fileID: 8083917195878665147}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -0}
   m_LocalScale: {x: 1, y: 0.99999976, z: 0.99999976}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 8708139494204024644}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -9896,7 +9896,7 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
+  scalingMode: 0
   randomSeed: 5788
   InitialModule:
     serializedVersion: 3
@@ -10075,7 +10075,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 6
+      scalar: 10
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -10843,11 +10843,11 @@ ParticleSystem:
         - serializedVersion: 3
           time: 0.9872262
           value: 0.035170533
-          inSlope: -4.0721717
-          outSlope: -4.0721717
+          inSlope: -8.164084
+          outSlope: -8.164084
           tangentMode: 0
           weightedMode: 0
-          inWeight: 0.038175695
+          inWeight: 0.03359881
           outWeight: 0
         m_PreInfinity: 2
         m_PostInfinity: 2
@@ -14623,7 +14623,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1e465e36c54db4495bcbccc2a5870491, type: 2}
+  - {fileID: 2100000, guid: 2f3f789aad8546a488298feff43c3082, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -14648,7 +14648,7 @@ ParticleSystemRenderer:
   m_MeshDistribution: 0
   m_SortMode: 0
   m_MinParticleSize: 0
-  m_MaxParticleSize: 0.5
+  m_MaxParticleSize: 2
   m_CameraVelocityScale: 0
   m_VelocityScale: 0
   m_LengthScale: 2
