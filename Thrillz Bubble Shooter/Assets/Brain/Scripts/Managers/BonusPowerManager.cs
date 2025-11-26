@@ -1,8 +1,9 @@
 using System;
 using UnityEngine;
 using Brain.Util;
+using Brain.Gameplay;
 
-namespace Brain.Gameplay
+namespace Brain.Managers
 {
     /// <summary>
     /// Manages bonus ball power accumulation and activation

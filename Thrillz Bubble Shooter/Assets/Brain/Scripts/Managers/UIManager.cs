@@ -12,7 +12,6 @@ namespace Brain.Managers
     public class UIManager : UnitySingleton<UIManager>
     {
         // Serialized Fields
-        [SerializeField] private Image _blackOverlayImage;
         [SerializeField] private Image _whiteOverlayImage;
         [SerializeField] private TextMeshProUGUI _gameSeedIdTxt;
         [SerializeField] private UIObjectPooler _uiObjectPooler;
@@ -23,6 +22,7 @@ namespace Brain.Managers
         public OutOfTimePanel OutOfTimePanel;
         public LimitHitPanel LimitHitPanel;
         public GameFinishedPanel GameFinishedPanel;
+        public EntryUI EntryUI;
         //public GlobalPauseMode GlobalPauseMode;
 
         // Properties
@@ -31,14 +31,7 @@ namespace Brain.Managers
         // Public Methods
         public void Init()
         {
-            // _blackOverlayImage.color = new Color(0f, 0f, 0f, 1f);
-            // _blackOverlayImage.DOFade(0f, 0.15f).SetEase(Ease.OutSine).OnComplete(() =>
-            // {
-            //     _blackOverlayImage.gameObject.SetActive(false);
-            // });
-
             DisplayGameSeedId();
-            //_uiObjectPooler.Init();
         }
 
         public void ToggleWhiteFlash(bool toggled)

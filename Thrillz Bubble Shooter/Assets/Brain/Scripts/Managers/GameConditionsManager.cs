@@ -27,7 +27,7 @@ namespace Brain.Managers
 
 
         // Public Methods
-        public void StartGame()
+        public void StartGameTimer()
         {
             _timeRemaining = _gameDuration;
             _gameActive = true;

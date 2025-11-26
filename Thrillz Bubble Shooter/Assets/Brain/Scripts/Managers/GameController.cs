@@ -71,7 +71,7 @@ namespace Brain.Managers
 
         private void OnPlayingEnter()
         {
-            GameConditionsManager.Instance.StartGame();
+            UIManager.Instance.EntryUI.AnimateEntry();
         }
 
         public void RestartGame()

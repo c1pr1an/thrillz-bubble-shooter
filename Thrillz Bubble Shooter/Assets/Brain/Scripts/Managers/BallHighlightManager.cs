@@ -3,9 +3,8 @@ using UnityEngine;
 using Brain.Util;
 using Brain.Gameplay;
 using Brain.Gameplay.Containers;
-using Brain.Managers;
 
-namespace Brain.Gameplay
+namespace Brain.Managers
 {
     public class BallHighlightManager : UnitySingleton<BallHighlightManager>
     {
