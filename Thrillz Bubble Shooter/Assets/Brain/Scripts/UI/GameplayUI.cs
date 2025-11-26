@@ -13,7 +13,7 @@ namespace Brain.UI
     public class GameplayUI : MonoBehaviour
     {
         // Serialized Fields
-        [SerializeField] private GameObject _oneMinuteLeftPanel;
+        [SerializeField] private RectTransform _oneMinuteLeftPanel;
         [SerializeField] private TextMeshProUGUI _timerText;
         [SerializeField] private TextMeshProUGUI _scoreText;
         [SerializeField] private RectTransform _topUiBoundaryReference;
@@ -111,17 +111,26 @@ namespace Brain.UI
 
             if (seconds <= 60 && !_oneMinuteLeftShown)
             {
-                _oneMinuteLeftPanel.SetActive(true);
-                SoundManager.Instance.PlaySfxOneShot(SoundType.UI_WarningTime);
                 _oneMinuteLeftShown = true;
-                StartCoroutine(HideOneMinuteLeftPanel());
+                SoundManager.Instance.PlaySfxOneShot(SoundType.UI_WarningTime);
+                StartCoroutine(AnimateOneMinuteLeftPanel());
             }
         }
 
-        private IEnumerator HideOneMinuteLeftPanel()
+        private IEnumerator AnimateOneMinuteLeftPanel()
         {
-            yield return new WaitForSeconds(3f);
-            _oneMinuteLeftPanel.SetActive(false);
+
+            _oneMinuteLeftPanel.anchoredPosition = new Vector2(-1000f, _oneMinuteLeftPanel.anchoredPosition.y);
+            _oneMinuteLeftPanel.gameObject.SetActive(true);
+
+            _oneMinuteLeftPanel.DOAnchorPosX(0f, 0.5f).SetEase(Ease.OutBack);
+
+            yield return new WaitForSeconds(2f);
+
+            _oneMinuteLeftPanel.DOAnchorPosX(1000f, 0.5f).SetEase(Ease.InBack).OnComplete(() =>
+            {
+                _oneMinuteLeftPanel.gameObject.SetActive(false);
+            });
         }
 
     }
