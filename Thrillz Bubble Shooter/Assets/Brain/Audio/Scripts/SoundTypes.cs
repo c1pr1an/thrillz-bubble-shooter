@@ -17,6 +17,8 @@ namespace Brain.Audio
         UI_ButtonUndo,
         UI_ConfettiPop,
         UI_WarningTime,
+        UI_ReadySignal,
+        UI_GoSignal,
 
         //Gameplay
         Game_ScoreAdd = 500,

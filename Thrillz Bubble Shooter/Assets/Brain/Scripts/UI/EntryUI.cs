@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Brain.Audio;
 using Brain.Gameplay;
 using Brain.Managers;
 using DG.Tweening;
@@ -34,14 +35,22 @@ namespace Brain.UI
                 .DOAnchorPosX(0f, 0.5f)
                 .SetEase(Ease.OutBack)
                 .SetDelay(0.3f)
-                .OnComplete(() => GridGenerator.Instance.PlayEntryAnimation());
+                .OnStart(() =>
+                {
+                    SoundManager.Instance.PlaySfxOneShot(SoundType.UI_ReadySignal);
+                })
+                .OnComplete(() =>
+                {
+                    GridGenerator.Instance.PlayEntryAnimation();
+                });
+
 
             // Animate Ready text sliding out after delay
             _readyText
                 .DOAnchorPosX(1000f, 0.5f)
-                .SetDelay(2f)
-                .SetEase(Ease.InBack)
-                .OnComplete(ShowGoText);
+                    .SetDelay(2f)
+                    .SetEase(Ease.InBack)
+                    .OnComplete(ShowGoText);
         }
 
         private void ShowGoText()
@@ -49,6 +58,7 @@ namespace Brain.UI
             _readyText.gameObject.SetActive(false);
             _goText.localScale = Vector3.zero;
             _goText.gameObject.SetActive(true);
+            SoundManager.Instance.PlaySfxOneShot(SoundType.UI_GoSignal);
 
             _goText
                 .DOScale(Vector3.one, 0.3f)
